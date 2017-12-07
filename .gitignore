@@ -8,6 +8,11 @@
 /**/*.class
 /**/*.tokens
 
+/**/*BaseListener.java
+/**/*Lexer.java
+/**/*Listener.java
+/**/*Parser.java
+
 .fetch_time_cache
 
 #IntelliJ
