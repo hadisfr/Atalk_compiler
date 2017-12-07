@@ -1,5 +1,6 @@
 public class IntType extends Type {
 	
+	@Override
 	public int size() {
 		return Type.WORD_BYTES;
 	}
