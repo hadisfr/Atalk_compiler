@@ -6,7 +6,7 @@ public class SymbolTableLocalVariableItem extends SymbolTableVariableItemBase {
 
 	@Override
 	public Register getBaseRegister() {
-		return Register.GP;
+		return Register.TEMP9;
 	}
 
 	@Override

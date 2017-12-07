@@ -1,27 +1,23 @@
-public class Variable {
+public class Actor {
 	
-	public Variable(String name, Type type) {
+	public Actor(String name, int mailboxSize) {
 		this.name = name;
-		this.type = type;
+		this.mailboxSize = mailboxSize;
 	}
 
-	public String getName() {
-		return name;
-	}
-	
-	public Type getType() {
-		return type;
-	}
+	public String getName(){
+	    return this.name;
+    }
 
-	public int size() {
-		return type.size();
-	}
+    public int getMailboxSize() {
+        return this.mailboxSize;
+    }
 
 	@Override
 	public String toString() {
-		return String.format("%s %s", type.toString(), name);
+		return getName() + "<" + getMailboxSize() + ">";
 	}
 
 	private String name;
-	private Type type;
+	private int mailboxSize;
 }

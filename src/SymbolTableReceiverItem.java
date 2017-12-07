@@ -1,23 +1,23 @@
-public abstract class SymbolTableItem {
+public abstract class SymbolTableReceiverItem {
 
-	private static int definitionsCount = 0;
+    public static final key_word = "recv_";
 
-	public SymbolTableItem() {
-		this.definitionNumber = definitionsCount;
-		if(useMustBeComesAfterDef())
-			++definitionsCount;
-	}
+    private String name;
+    private int size;
 
-	public int getDefinitionNumber() {
-		return definitionNumber;
-	}
+    public SymbolTableReceiverItem(String name){
+        size = 0;
+        this.name = name;
 
-	public boolean useMustBeComesAfterDef() {
-		return false;
-	}
+    }
 
-	public abstract String getKey();
+    @Override
+    public String getKey() {
+        return key_word + name;
+    }
 
-	int definitionNumber;
+    public int getSize(){
+        return size;
+    }
 
 }

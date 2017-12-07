@@ -19,6 +19,32 @@ grammar Atalk;
         );
     }
 
+	void putGlobalVar(String name, Type type) throws ItemAlreadyExistsException {
+        SymbolTable.top.put(
+            new SymbolTableGlobalVariableItem(
+                new Variable(name, type),
+                SymbolTable.top.getOffset(Register.SP)
+            )
+        );
+    }
+
+	void putArgumentVar(String name, Type type) throws ItemAlreadyExistsException {
+        SymbolTable.top.put(
+            new SymbolTableArgumentVariableItem(
+                new Variable(name, type),
+                SymbolTable.top.getOffset(Register.SP)
+            )
+        );
+    }
+
+	void putActor(String name, int mailboxSize) throws ItemAlreadyExistsException{
+		SymbolTable.top.put(
+			new SymbolTableActorItem(
+				new Actor(name, mailboxSize)
+			);
+		);
+	}
+
     void beginScope() {
     	int offset = 0;
     	if(SymbolTable.top != null)

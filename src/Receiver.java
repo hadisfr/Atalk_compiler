@@ -1,23 +1,22 @@
-public class Actor {
-	
-	public Actor(String name, int mailboxSize) {
+import java.util.*;
+
+public class Receiver {
+
+	private String name;
+	private ArrayList<Variable> args;
+
+	public Receiver(String name, ArrayList<Variable> args) {
 		this.name = name;
-		this.mailboxSize = mailboxSize;
+		this.args = args;
 	}
 
 	public String getName(){
-	    return this.name;
-    }
-
-    public int getMailboxSize() {
-        return this.mailboxSize;
-    }
+		return this.name;
+	}
 
 	@Override
 	public String toString() {
-		return getName() + "<" + getMailboxSize() + ">";
+		return getName();
 	}
 
-	private String name;
-	private int mailboxSize;
 }

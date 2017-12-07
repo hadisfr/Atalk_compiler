@@ -1,5 +1,7 @@
 public abstract class SymbolTableVariableItemBase extends SymbolTableItem {
-	
+
+	public static final key_word = "var_";
+
 	public SymbolTableVariableItemBase(Variable variable, int offset) {
 		this.variable = variable;
 		this.offset = offset;
@@ -19,7 +21,7 @@ public abstract class SymbolTableVariableItemBase extends SymbolTableItem {
 
 	@Override
 	public String getKey() {
-		return variable.getName();
+		return key_word + variable.getName();
 	}
 
 	public abstract Register getBaseRegister();
