@@ -1,6 +1,6 @@
 public abstract class SymbolTableActorItem {
 
-    public static final key_word = "actor_";
+    public static final String key_word = "actor_";
 
     private Actor actor;
     private int size;

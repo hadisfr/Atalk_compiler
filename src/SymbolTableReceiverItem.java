@@ -1,19 +1,20 @@
 public abstract class SymbolTableReceiverItem {
 
-    public static final key_word = "recv_";
+    public static final String key_word = "recv_";
 
-    private String name;
+    private Receiver receiver;
     private int size;
 
-    public SymbolTableReceiverItem(String name){
+    public SymbolTableReceiverItem(Receiver receiver){
         size = 0;
-        this.name = name;
-
+        this.receiver = receiver;
     }
 
     @Override
     public String getKey() {
-        return key_word + name;
+        ArrayList<String> argTypes = receiver.getArgTypes();
+        String argsKey = String.join("_", argTypes);
+        return key_word + receiver.getName() + "_" + argsKey;
     }
 
     public int getSize(){
