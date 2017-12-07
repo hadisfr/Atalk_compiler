@@ -6,7 +6,6 @@
 /**/target
 
 /**/*.class
-/**/*.java
 /**/*.tokens
 
 .fetch_time_cache
