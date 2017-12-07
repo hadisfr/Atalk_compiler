@@ -1,13 +1,52 @@
 grammar Atalk;
 
+@members{
 
-program:
-		(actor | NL)*
+    void printError(String str){
+        System.out.println("Error: " + str + "\n");
+    }
+
+    void print(String str){
+        System.out.println(str);
+    }
+
+    void putLocalVar(String name, Type type) throws ItemAlreadyExistsException {
+        SymbolTable.top.put(
+            new SymbolTableLocalVariableItem(
+                new Variable(name, type),
+                SymbolTable.top.getOffset(Register.SP)
+            )
+        );
+    }
+
+    void beginScope() {
+    	int offset = 0;
+    	if(SymbolTable.top != null)
+        	offset = SymbolTable.top.getOffset(Register.SP);
+        SymbolTable.push(new SymbolTable());
+        SymbolTable.top.setOffset(Register.SP, offset);
+    }
+
+    void endScope() {
+        print("Stack offset: " + SymbolTable.top.getOffset(Register.SP));
+        SymbolTable.pop();
+    }
+}
+
+program locals [boolean hasActor]:
+		(actor [false] {$hasActor = true;} | NL)*
+		{
+		    if($hasActor == false)
+		        printError("No actors found");
+		}
 	;
 
-actor:
-		'actor' ID '<' CONST_NUM '>' NL
-			(state | receiver | NL)*
+actor [boolean isInLoop]:
+		'actor' ID '<' CONST_NUM '>' NL {
+		    if($CONST_NUM.int)
+        	    printError("Actor  zero");
+		}
+			(state | receiver [$isInLoop] | NL)*
 		'end' (NL | EOF)
 	;
 
@@ -15,9 +54,9 @@ state:
 		type ID (',' ID)* NL
 	;
 
-receiver:
+receiver [boolean isInLoop]:
 		'receiver' ID '(' (type ID (',' type ID)*)? ')' NL
-			statements
+			statements [$isInLoop]
 		'end' NL
 	;
 
@@ -32,7 +71,10 @@ type:
 	;
 
 array_decl_dimensions [Type t] returns [Type return_type]:
-	'[' CONST_NUM ']'
+	'[' CONST_NUM ']' {
+	    if($CONST_NUM.int)
+	        printError("Array size zero");
+	}
 	remainder=array_decl_dimensions[$t] {
         $return_type = new ArrayType($CONST_NUM.int, $remainder.return_type);
 	}
@@ -42,26 +84,26 @@ array_decl_dimensions [Type t] returns [Type return_type]:
 	;
 
 
-block:
+block [boolean isInLoop]:
 		'begin' NL
-			statements
+			statements [$isInLoop]
 		'end' NL
 	;
 
-statements:
-		(statement | NL)*
+statements [boolean isInLoop]:
+		(statement [$isInLoop] | NL)*
 	;
 
-statement:
+statement [boolean isInLoop]:
 		stm_vardef
 	|	stm_assignment
 	|	stm_foreach
-	|	stm_if_elseif_else
+	|	stm_if_elseif_else [$isInLoop]
 	|	stm_quit
-	|	stm_break
+	|	stm_break [$isInLoop]
 	|	stm_tell
 	|	stm_write
-	|	block
+	|	block [$isInLoop]
 	;
 
 stm_vardef:
@@ -76,16 +118,16 @@ stm_write:
 		'write' '(' expr ')' NL
 	;
 
-stm_if_elseif_else:
-		'if' expr NL statements
-		('elseif' expr NL statements)*
-		('else' NL statements)?
+stm_if_elseif_else [boolean isInLoop]:
+		'if' expr NL statements [$isInLoop]
+		('elseif' expr NL statements [$isInLoop])*
+		('else' NL statements [$isInLoop])?
 		'end' NL
 	;
 
 stm_foreach:
 		'foreach' ID 'in' expr NL
-			statements
+			statements [true]
 		'end' NL
 	;
 
@@ -93,8 +135,11 @@ stm_quit:
 		'quit' NL
 	;
 
-stm_break:
-		'break' NL
+stm_break [boolean isInLoop]:
+		'break' NL {
+		    if($isInLoop == false)
+		        printError("Break outside loop");
+		}
 	;
 
 stm_assignment:
