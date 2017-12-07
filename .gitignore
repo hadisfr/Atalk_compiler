@@ -1,0 +1,21 @@
+**/.DS_Store
+
+/**/.project
+/**/.classpath
+/**/.settings/
+/**/target
+
+/**/*.class
+/**/*.java
+/**/*.tokens
+
+.fetch_time_cache
+
+#IntelliJ
+.idea/
+*.iml
+/**/gen
+# Visual Studio Code Generated
+.antlr
+# Sublime
+*.sublime-workspace
