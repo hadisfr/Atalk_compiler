@@ -1,5 +1,6 @@
 grammar Atalk;
 
+
 program:
 		(actor | NL)*
 	;
@@ -20,14 +21,24 @@ receiver:
 		'end' NL
 	;
 
+basetype returns [Type return_type]
+    :
+    'char' {$return_type = CharType.getInstance();}
+    | 'int' {$return_type = IntType.getInstance();}
+    ;
+
 type:
-		'char' 
-	|	'int' ('[' CONST_NUM ']')*
+		basetype array_decl_dimensions [$basetype.return_type]
 	;
 
-array_decl_dimensions:
-	'[' CONST_NUM ']' array_decl_dimensions
-	|
+array_decl_dimensions [Type t] returns [Type return_type]:
+	'[' CONST_NUM ']'
+	remainder=array_decl_dimensions[$t] {
+        $return_type = new ArrayType($CONST_NUM.int, $remainder.return_type);
+	}
+	| {
+	    $return_type = $t;
+	}
 	;
 
 
