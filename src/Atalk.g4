@@ -21,9 +21,15 @@ receiver:
 	;
 
 type:
-		'char' ('[' CONST_NUM ']')*
+		'char' 
 	|	'int' ('[' CONST_NUM ']')*
 	;
+
+array_decl_dimensions:
+	'[' CONST_NUM ']' array_decl_dimensions
+	|
+	;
+
 
 block:
 		'begin' NL
