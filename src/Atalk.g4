@@ -108,7 +108,7 @@ grammar Atalk;
         SymbolTableReceiverItem receiverItem = new SymbolTableReceiverItem(
             new Receiver(name, args)
         );
-        printDetail(OutputCategory.Receiver, receiverItem.getKey());
+        printDetail(OutputCategory.Receiver, receiverItem.getKey().replace(SymbolTableItem.delimiter, " "));
         SymbolTable.top.put(receiverItem);
     }
 
