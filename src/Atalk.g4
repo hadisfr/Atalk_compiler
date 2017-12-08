@@ -8,9 +8,12 @@ grammar Atalk;
 
     final int RANDOM_NAME_LEN = 5;
     boolean hasError = false;
+    boolean beautify = true;
+
+    enum OutputCategory {Actor, Receiver, LocalVar, GlobalVar, ArgumentVar}
 
     void printError(String str){
-        print(red("Error") + ": " + str);
+        print((beautify ? red("Error") : "Error") + ": " + str);
         hasError = true;
     }
 
@@ -26,9 +29,32 @@ grammar Atalk;
         return "\033[1;93m" + str + "\033[0;39m";
     }
 
-    void printDetail(String type, String det) {
+    String blue(String str) {
+        return "\033[1;92m" + str + "\033[0;39m";
+    }
+
+    String green(String str) {
+        return "\033[1;96m" + str + "\033[0;39m";
+    }
+
+    void printDetail(OutputCategory type, String det) {
+        String beautyType = type.toString();
+        if(beautify)
+            switch(type) {
+                case Actor:
+                beautyType = blue(beautyType);
+                break;
+                case Receiver:
+                beautyType = green(beautyType);
+                break;
+                case LocalVar:
+                case GlobalVar:
+                case ArgumentVar:
+                beautyType = yellow(beautyType);
+                break;
+            }
         if(!hasError)
-            print(yellow(type) + ":\t" + det);
+            print(beautyType + ":\t" + det);
     }
 
     void putLocalVar(String name, Type type) throws ItemAlreadyExistsException {
@@ -37,7 +63,7 @@ grammar Atalk;
                 new Variable(name, type),
                 SymbolTable.top.getOffset(Register.SP)
             );
-        printDetail("LocalVar", name + "\t" + type + "\t" + "Offset:"
+        printDetail(OutputCategory.LocalVar, name + "\t" + type + "\t" + "Offset:"
          + ((SymbolTableVariableItemBase)item).getOffset()
          + "\tSize:"
          + ((SymbolTableVariableItemBase)item).getSize());
@@ -50,7 +76,7 @@ grammar Atalk;
                 new Variable(name, type),
                 SymbolTable.top.getOffset(Register.GP)
             );
-        printDetail("GlobalVar", name + "\t" + type + "\t" + "Offset:"
+        printDetail(OutputCategory.GlobalVar, name + "\t" + type + "\t" + "Offset:"
          + ((SymbolTableVariableItemBase)item).getOffset()
          + "\tSize:"
          + ((SymbolTableVariableItemBase)item).getSize());
@@ -63,7 +89,7 @@ grammar Atalk;
                 new Variable(name, type),
                 SymbolTable.top.getOffset(Register.TEMP9)
             );
-        printDetail("ArgumentVar", name + "\t" + type + "\t" + "Offset:"
+        printDetail(OutputCategory.ArgumentVar, name + "\t" + type + "\t" + "Offset:"
         + ((SymbolTableVariableItemBase)item).getOffset()
         + "\tSize:"
         + ((SymbolTableVariableItemBase)item).getSize());
@@ -82,7 +108,7 @@ grammar Atalk;
         SymbolTableReceiverItem receiverItem = new SymbolTableReceiverItem(
             new Receiver(name, args)
         );
-        printDetail("Receiver", receiverItem.getKey());
+        printDetail(OutputCategory.Receiver, receiverItem.getKey());
         SymbolTable.top.put(receiverItem);
     }
 
@@ -117,7 +143,7 @@ program locals [boolean hasActor]:
 actor [boolean isInLoop]:
         {beginScope();}
         'actor' ID '<' CONST_NUM '>' NL {
-            printDetail("Actor", $ID.text + " <" + $CONST_NUM.int + ">");
+            printDetail(OutputCategory.Actor, $ID.text + " <" + $CONST_NUM.int + ">");
             if($CONST_NUM.int == 0)
                 printError(String.format("[Line #%s] Actor \"%s\" has 0 mailboxSize.", $ID.getLine(), $ID.text));
             try {
