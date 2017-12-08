@@ -37,3 +37,11 @@ actor Adder<34>
     		write(x + y)
     end
 end
+
+
+actor Tiny<50>
+    int YooHaHa
+end
+
+actor Buggy<0>
+end
