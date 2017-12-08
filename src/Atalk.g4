@@ -310,7 +310,21 @@ stm_if_elseif_else [boolean isInLoop]:
 
 stm_foreach:
         {beginScope();}
-        'foreach' ID 'in' expr NL
+        'foreach' firstID=ID 'in' secondID=ID NL
+        {
+            SymbolTableItem array = SymbolTable.top.get($secondID.text);
+            Type iteratorType;
+            if(array instanceof SymbolTableVariableItemBase){
+                Variable arrayVariable = ((SymbolTableVariableItemBase)array).getVariable();
+                if((arrayVariable).getType() instanceof ArrayType){
+                    iteratorType = ((ArrayType)(arrayVariable.getType())).getMemberType();    
+                }
+                else{
+                    printError(String.format("[Line #%s] Id \"%s\" should be an array.", $secondID.getLine(), $secondID.text));
+                    iteratorType = arrayVariable.getType();
+                }
+            }
+        }
             statements [true]
         end_rule NL
     ;

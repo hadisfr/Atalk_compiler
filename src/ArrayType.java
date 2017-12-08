@@ -27,5 +27,8 @@ public class ArrayType extends Type {
 		return "array_of_" + memberType.toString();
 	}
 
+	public Type getMemberType(){
+		return memberType;
+	}
 
 }
