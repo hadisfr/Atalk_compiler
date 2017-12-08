@@ -1,4 +1,4 @@
-public abstract class SymbolTableReceiverItem {
+public abstract class SymbolTableReceiverItem extends SymbolTableItem {
 
     public static final String key_word = "recv_";
 

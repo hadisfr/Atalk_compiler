@@ -1,4 +1,4 @@
-public abstract class SymbolTableActorItem {
+public abstract class SymbolTableActorItem extends SymbolTableItem {
 
     public static final String key_word = "actor_";
 
