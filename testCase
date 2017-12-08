@@ -1,0 +1,39 @@
+actor Adder<34>
+	# Variables
+	int addsCount, myVar
+	char [3][5] addsArray
+	int [3][2] addsArrayInt
+
+	char salam, chetori
+	char jallal
+
+	# Receivers
+	receiver init()
+		addsCount = 0
+	end
+
+	receiver add(int x, int y)
+	    int z
+	    int b
+		addsCount = addsCount + 1
+		write(x + y)
+        begin
+            int jallal
+            foreach a in b
+                int[2][3] jallal
+                if a < b
+                    break
+                else
+                    char[2][2] jallal
+                end
+            end
+            #break
+        end
+	end
+
+    receiver add(int[3][2][1] x, char[12][24] y)
+	        int a = 5 , c =2
+    		addsCount = addsCount + 1
+    		write(x + y)
+    end
+end
