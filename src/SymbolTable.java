@@ -59,6 +59,13 @@ public class SymbolTable {
 				getOffset(castedItem.getBaseRegister()) + castedItem.getSize()
 			);
 		}
+		else if(item instanceof SymbolTableActorItem){
+			SymbolTableActorItem castedItem = (SymbolTableActorItem) item;
+
+		}
+		else if(item instanceof SymbolTableReceiverItem){
+			SymbolTableReceiverItem castedItem = (SymbolTableReceiverItem) item;
+		}
 	}
 
 	public int getOffset(Register baseRegister) {

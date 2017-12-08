@@ -23,7 +23,7 @@ grammar Atalk;
         SymbolTable.top.put(
             new SymbolTableGlobalVariableItem(
                 new Variable(name, type),
-                SymbolTable.top.getOffset(Register.SP)
+                SymbolTable.top.getOffset(Register.GP)
             )
         );
     }
@@ -32,7 +32,7 @@ grammar Atalk;
         SymbolTable.top.put(
             new SymbolTableArgumentVariableItem(
                 new Variable(name, type),
-                SymbolTable.top.getOffset(Register.SP)
+                SymbolTable.top.getOffset(Register.TEMP9)
             )
         );
     }
