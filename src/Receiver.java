@@ -1,7 +1,5 @@
 import java.util.*;
 
-import com.sun.org.apache.xpath.internal.operations.Variable;
-
 public class Receiver {
 
 	private String name;
