@@ -6,6 +6,8 @@ grammar Atalk;
 
 @members {
 
+    final int RANDOM_NAME_LEN = 5;
+
     void printError(String str){
         print("Error: " + str + "\n");
     }
@@ -95,7 +97,10 @@ actor [boolean isInLoop]:
             }
             catch(ItemAlreadyExistsException e) {
                 printError(String.format("[Line #%s] Actor \"%s\" already exists.", $ID.getLine(), $ID.text));
-                // TODO: use temp name
+                while(true) {
+                    try {putActor(RandomStringGen.generate(RANDOM_NAME_LEN), $CONST_NUM.int); break;}
+                    catch(ItemAlreadyExistsException eprim) {}
+                }
             }
         }
             (state [VariableScopeState.GLOBAL] | receiver [$isInLoop] | NL)*
@@ -116,7 +121,10 @@ id_def [Type typee, VariableScopeState scopeState] returns [String name]
             }
             catch(ItemAlreadyExistsException e) {
                 printError(String.format("[Line #%s] Variable \"%s\" already exists.", $ID.getLine(), $name));
-                // TODO: use temp name
+                while(true) {
+                    try {putLocalVar(RandomStringGen.generate(RANDOM_NAME_LEN), $typee); break;}
+                    catch(ItemAlreadyExistsException eprim) {}
+                }
             }
         } else if($scopeState == VariableScopeState.GLOBAL) {
             try {
@@ -124,7 +132,10 @@ id_def [Type typee, VariableScopeState scopeState] returns [String name]
             }
             catch(ItemAlreadyExistsException e) {
                 printError(String.format("[Line #%s] Variable \"%s\" already exists.", $ID.getLine(), $name));
-                // TODO: use temp name
+                while(true) {
+                    try {putGlobalVar(RandomStringGen.generate(RANDOM_NAME_LEN), $typee); break;}
+                    catch(ItemAlreadyExistsException eprim) {}
+                }
             }
         } else if($scopeState == VariableScopeState.ARG) {
             try {
@@ -132,7 +143,10 @@ id_def [Type typee, VariableScopeState scopeState] returns [String name]
             }
             catch(ItemAlreadyExistsException e) {
                 printError(String.format("[Line #%s] Variable \"%s\" already exists.", $ID.getLine(), $name));
-                // TODO: use temp name
+                while(true) {
+                    try {putArgumentVar(RandomStringGen.generate(RANDOM_NAME_LEN), $typee); break;}
+                    catch(ItemAlreadyExistsException eprim) {}
+                }
             }
         } else
             printError(String.format("[Line #%s] Invalid VariableScopeState", $ID.getLine()));
@@ -149,7 +163,10 @@ receiver [boolean isInLoop]:
             }
             catch(ItemAlreadyExistsException e) {
                 printError(String.format("[Line #%s] Receiver \"%s\" already exists.", $ID.getLine(), $ID.text));
-                // TODO: use temp name
+                while(true) {
+                    try {putReceiver(RandomStringGen.generate(RANDOM_NAME_LEN), $args.vars); break;}
+                    catch(ItemAlreadyExistsException eprim) {}
+                }
             }
         }
         NL
