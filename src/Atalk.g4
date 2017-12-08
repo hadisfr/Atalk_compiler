@@ -45,6 +45,14 @@ grammar Atalk;
         );
     }
 
+    void putReceiver(String name, ArrayList<Variable> args) throws ItemAlreadyExistsException{
+        SymbolTable.top.put(
+            new SymbolTableActorItem(
+                new Receiver(name, args)
+            );
+        );
+    }
+
     void beginScope() {
         int offset = 0;
         if(SymbolTable.top != null)
@@ -75,8 +83,15 @@ program locals [boolean hasActor]:
 
 actor [boolean isInLoop]:
         'actor' ID '<' CONST_NUM '>' NL {
-            if($CONST_NUM.int)
-                printError("Actor zero");
+            if(!$CONST_NUM.int)
+                printError(String.format("[Line #%s] Actor \"%s\" has 0 mailboxSize.", $ID.getLine()));
+            try {
+                putActor($ID.text, $CONST_NUM.int);
+            }
+            catch(ItemAlreadyExistsException e) {
+                printError(String.format("[Line #%s] Actor \"%s\" already exists.", $ID.getLine(), $ID.text));
+                // TODO: use temp name
+            }
         }
             (state [VariableScopeState.GLOBAL] | receiver [$isInLoop] | NL)*
         'end' (NL | EOF)
@@ -86,31 +101,32 @@ state [VariableScopeState scopeState]:
         type id_def[$type.return_type, $scopeState] (',' id_def[$type.return_type, $scopeState])* NL
     ;
 
-id_def [Type type, VariableScopeState scopeState]
+id_def [Type type, VariableScopeState scopeState] returns [String name]
     :
     ID {
+        $name = $ID.text;
         if($scopeState == VariableScopeState.LOCAL) {
             try {
-                putLocalVar($ID.text, $type);
+                putLocalVar($name, $type);
             }
             catch(ItemAlreadyExistsException e) {
-                printError(String.format("[Line #%s] Variable \"%s\" already exists.", $ID.getLine(), $ID.text));
+                printError(String.format("[Line #%s] Variable \"%s\" already exists.", $ID.getLine(), $name));
                 // TODO: use temp name
             }
         } else if($scopeState == VariableScopeState.GLOBAL) {
             try {
-                putGlobalVar($ID.text, $type);
+                putGlobalVar($name, $type);
             }
             catch(ItemAlreadyExistsException e) {
-                printError(String.format("[Line #%s] Variable \"%s\" already exists.", $ID.getLine(), $ID.text));
+                printError(String.format("[Line #%s] Variable \"%s\" already exists.", $ID.getLine(), $name));
                 // TODO: use temp name
             }
         } else if($scopeState == VariableScopeState.ARG) {
             try {
-                putArgumentVar($ID.text, $type);
+                putArgumentVar($name, $type);
             }
             catch(ItemAlreadyExistsException e) {
-                printError(String.format("[Line #%s] Variable \"%s\" already exists.", $ID.getLine(), $ID.text));
+                printError(String.format("[Line #%s] Variable \"%s\" already exists.", $ID.getLine(), $name));
                 // TODO: use temp name
             }
         } else
@@ -119,9 +135,38 @@ id_def [Type type, VariableScopeState scopeState]
     ;
 
 receiver [boolean isInLoop]:
-        'receiver' ID '(' (type1=type id_def[$type1.return_type, VariableScopeState.ARG] (',' type2=type id_def[$type2.return_type, VariableScopeState.ARG])*)? ')' NL
+        'receiver' ID '(' args ')' NL
             statements [$isInLoop]
-        'end' NL
+        'end' {
+            try {
+                putReceiver($ID.text, $args.vars);
+            }
+            catch(ItemAlreadyExistsException e) {
+                printError(String.format("[Line #%s] Receiver \"%s\" already exists.", $ID.getLine(), $ID.text));
+                // TODO: use temp name
+            }
+        }
+        NL
+    ;
+
+args returns [ArrayList<Variable> vars]:
+    arg_type_id more_args {
+        $vars = $more_args.vars;
+        $vars.add($arg_type_id.var);
+    }
+    | {$vars = new ArrayList<Variable>();}
+    ;
+
+more_args returns [ArrayList<Variable> vars]:
+    ',' arg_type_id others=more_args {
+        $vars = $others.vars;
+        $vars.add($arg_type_id.var);
+    }
+    | {$vars = new ArrayList<Variable>();}
+    ;
+
+arg_type_id returns [Variable var]:
+    type id_def[$type.return_type, VariableScopeState.ARG] {$var = new Variable($id_def.name, $type.return_type);}
     ;
 
 basetype returns [Type return_type]:
