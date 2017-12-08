@@ -12,7 +12,7 @@ actor Adder<34>
 		addsCount = 0
 	end
 
-	receiver add(int x, int y)
+	receiver add(int x, char y)
 	    int z
 	    int b
 		addsCount = addsCount + 1

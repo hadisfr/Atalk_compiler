@@ -230,7 +230,7 @@ receiver [boolean isInLoop]:
 args returns [ArrayList<Variable> vars]:
     arg_type_id more_args {
         $vars = $more_args.vars;
-        $vars.add($arg_type_id.var);
+        $vars.add(0, $arg_type_id.var);
     }
     | {$vars = new ArrayList<Variable>();}
     ;
@@ -238,7 +238,7 @@ args returns [ArrayList<Variable> vars]:
 more_args returns [ArrayList<Variable> vars]:
     ',' arg_type_id others=more_args {
         $vars = $others.vars;
-        $vars.add($arg_type_id.var);
+        $vars.add(0, $arg_type_id.var);
     }
     | {$vars = new ArrayList<Variable>();}
     ;
@@ -253,7 +253,7 @@ basetype returns [Type return_type]:
     ;
 
 type returns [Type return_type]:
-        basetype array_decl_dimensions [$basetype.return_type] {$return_type = $basetype.return_type;}
+        basetype array_decl_dimensions [$basetype.return_type] {$return_type = $array_decl_dimensions.return_type;}
     ;
 
 array_decl_dimensions [Type t] returns [Type return_type]:

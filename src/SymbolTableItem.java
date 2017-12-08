@@ -2,6 +2,8 @@ public abstract class SymbolTableItem {
 
 	private static int definitionsCount = 0;
 
+	public static final String delimiter = "#";
+
 	public SymbolTableItem() {
 		this.definitionNumber = definitionsCount;
 		if(useMustBeComesAfterDef())

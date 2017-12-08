@@ -1,6 +1,6 @@
 public class SymbolTableActorItem extends SymbolTableItem {
 
-    public static final String key_word = "actor_";
+    public static final String key_word = "actor" + SymbolTableItem.delimiter;
 
     private Actor actor;
     private int size;
