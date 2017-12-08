@@ -22,7 +22,11 @@ public abstract class SymbolTableVariableItemBase extends SymbolTableItem {
 
 	@Override
 	public String getKey() {
-		return key_word + variable.getName();
+		return getKey(variable.getName());
+	}
+
+	public static String getKey(String name) {
+		return key_word + name;
 	}
 
 	public abstract Register getBaseRegister();

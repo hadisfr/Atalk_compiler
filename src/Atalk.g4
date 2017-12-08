@@ -72,7 +72,7 @@ grammar Atalk;
         int offset = 0;
         if(SymbolTable.top != null)
             offset = SymbolTable.top.getOffset(Register.SP);
-        SymbolTable.push(new SymbolTable());
+        SymbolTable.push(new SymbolTable(SymbolTable.top));
         SymbolTable.top.setOffset(Register.SP, offset);
     }
 
@@ -312,7 +312,7 @@ stm_foreach:
         {beginScope();}
         'foreach' firstID=ID 'in' secondID=ID NL
         {
-            SymbolTableItem array = SymbolTable.top.get($secondID.text);
+            SymbolTableItem array = SymbolTable.top.get(SymbolTableVariableItemBase.getKey($secondID.text));
             Type iteratorType;
             if(array instanceof SymbolTableVariableItemBase){
                 Variable arrayVariable = ((SymbolTableVariableItemBase)array).getVariable();
@@ -323,6 +323,18 @@ stm_foreach:
                     printError(String.format("[Line #%s] Id \"%s\" should be an array.", $secondID.getLine(), $secondID.text));
                     iteratorType = arrayVariable.getType();
                 }
+                try {
+                    putLocalVar($firstID.text, iteratorType);
+                }
+                catch(ItemAlreadyExistsException e) {
+                    printError(String.format("[Line #%s] Variable \"%s\" already exists.", $firstID.getLine(), $firstID.text));
+                    while(true) {
+                        try {putLocalVar(RandomStringGen.generate(RANDOM_NAME_LEN), iteratorType); break;}
+                        catch(ItemAlreadyExistsException eprim) {}
+                    }
+                }
+            } else {
+                // not in SymbolTable
             }
         }
             statements [true]

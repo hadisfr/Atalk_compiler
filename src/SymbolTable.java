@@ -58,6 +58,7 @@ public class SymbolTable {
 				castedItem.getBaseRegister(),
 				getOffset(castedItem.getBaseRegister()) + castedItem.getSize()
 			);
+			define(); // Might be removed in pass 2?
 		}
 		else if(item instanceof SymbolTableActorItem){
 			SymbolTableActorItem castedItem = (SymbolTableActorItem) item;
@@ -87,7 +88,7 @@ public class SymbolTable {
 
 		if(value == null && pre != null)
 			return pre.get(key);
-		
+
 		if(value != null && value.useMustBeComesAfterDef() &&
 				SymbolTable.definitionsCount <= value.getDefinitionNumber()) {
 			if(pre != null) {
