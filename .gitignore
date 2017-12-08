@@ -21,5 +21,6 @@
 /**/gen
 # Visual Studio Code Generated
 .antlr
+/**/.vscode
 # Sublime
 *.sublime-workspace
