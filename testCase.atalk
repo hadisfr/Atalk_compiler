@@ -14,12 +14,12 @@ actor Adder<34>
 
 	receiver add(int x, char y)
 	    int z
-	    int b
+	    int[3] iterate
 		addsCount = addsCount + 1
 		write(x + y)
         begin
             int jallal
-            foreach a in b
+            foreach iterator in iterate
                 int[2][3] jallal
                 if a < b
                     break
