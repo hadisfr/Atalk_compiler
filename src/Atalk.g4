@@ -11,51 +11,7 @@ grammar Atalk;
     boolean beautify = true;
 
     enum OutputCategory {Actor, Receiver, LocalVar, GlobalVar, ArgumentVar}
-
-    void printError(String str){
-        print((beautify ? red("Error") : "Error") + ": " + str);
-        hasError = true;
-    }
-
-    void print(String str){
-        System.out.println(str);
-    }
-
-    String red(String str) {
-        return "\033[1;91m" + str + "\033[0;39m";
-    }
-
-    String yellow(String str) {
-        return "\033[1;93m" + str + "\033[0;39m";
-    }
-
-    String blue(String str) {
-        return "\033[1;92m" + str + "\033[0;39m";
-    }
-
-    String green(String str) {
-        return "\033[1;96m" + str + "\033[0;39m";
-    }
-
-    void printDetail(OutputCategory type, String det) {
-        String beautyType = type.toString();
-        if(beautify)
-            switch(type) {
-                case Actor:
-                beautyType = blue(beautyType);
-                break;
-                case Receiver:
-                beautyType = green(beautyType);
-                break;
-                case LocalVar:
-                case GlobalVar:
-                case ArgumentVar:
-                beautyType = yellow(beautyType);
-                break;
-            }
-        if(!hasError)
-            print(beautyType + ":\t" + det);
-    }
+    enum VariableScopeState {GLOBAL, LOCAL, ARG}
 
     void putLocalVar(String name, Type type) throws ItemAlreadyExistsException {
         SymbolTableLocalVariableItem item =
@@ -125,11 +81,51 @@ grammar Atalk;
         SymbolTable.pop();
     }
 
-    enum VariableScopeState {
-        GLOBAL,
-        LOCAL,
-        ARG
+    void printError(String str){
+        print((beautify ? red("Error") : "Error") + ": " + str);
+        hasError = true;
     }
+
+    void print(String str){
+        System.out.println(str);
+    }
+
+    String red(String str) {
+        return "\033[1;91m" + str + "\033[0;39m";
+    }
+
+    String yellow(String str) {
+        return "\033[1;93m" + str + "\033[0;39m";
+    }
+
+    String blue(String str) {
+        return "\033[1;92m" + str + "\033[0;39m";
+    }
+
+    String green(String str) {
+        return "\033[1;96m" + str + "\033[0;39m";
+    }
+
+    void printDetail(OutputCategory type, String det) {
+        String beautyType = type.toString();
+        if(beautify)
+            switch(type) {
+                case Actor:
+                beautyType = blue(beautyType);
+                break;
+                case Receiver:
+                beautyType = green(beautyType);
+                break;
+                case LocalVar:
+                case GlobalVar:
+                case ArgumentVar:
+                beautyType = yellow(beautyType);
+                break;
+            }
+        if(!hasError)
+            print(beautyType + ":\t" + det);
+    }
+
 }
 
 program locals [boolean hasActor]:
