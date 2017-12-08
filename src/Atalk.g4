@@ -7,13 +7,20 @@ grammar Atalk;
 @members {
 
     final int RANDOM_NAME_LEN = 5;
+    boolean hasError = false;
 
     void printError(String str){
         print("Error: " + str + "\n");
+        hasError = true;
     }
 
     void print(String str){
         System.out.println(str);
+    }
+
+    void printDetail(String str) {
+        if(!hasError)
+            print(str + "\n");
     }
 
     void putLocalVar(String name, Type type) throws ItemAlreadyExistsException {
@@ -90,6 +97,7 @@ program locals [boolean hasActor]:
 actor [boolean isInLoop]:
         {beginScope();}
         'actor' ID '<' CONST_NUM '>' NL {
+            printDetail($ID.text + " " + $CONST_NUM.int);
             if($CONST_NUM.int != 0)
                 printError(String.format("[Line #%s] Actor \"%s\" has 0 mailboxSize.", $ID.getLine()));
             try {
@@ -115,6 +123,7 @@ id_def [Type typee, VariableScopeState scopeState] returns [String name]
     :
     ID {
         $name = $ID.text;
+        printDetail($name);
         if($scopeState == VariableScopeState.LOCAL) {
             try {
                 putLocalVar($name, $typee);
@@ -155,7 +164,10 @@ id_def [Type typee, VariableScopeState scopeState] returns [String name]
 
 receiver [boolean isInLoop]:
         {beginScope();}
-        'receiver' ID '(' args ')' NL
+        'receiver' ID '(' args ')' NL 
+        {
+            printDetail($ID.text);
+        }
             statements [$isInLoop]
         end_rule {
             try {
@@ -271,7 +283,7 @@ stm_quit:
 stm_break [boolean isInLoop]:
         'break' NL {
             if($isInLoop == false)
-                printError("Break outside loop");
+                printError(String.format("[Line #%s] Invalid VariableScopeState", $NL.getLine()));
         }
     ;
 
