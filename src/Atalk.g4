@@ -181,7 +181,7 @@ type returns [Type return_type]:
 array_decl_dimensions [Type t] returns [Type return_type]:
     '[' CONST_NUM ']' {
         if($CONST_NUM.int)
-            printError("Array size zero");
+            printError(String.format("[Line #%s] Array \"%s\" has 0 size.", $CONST_NUM.getLine()));
     }
     remainder=array_decl_dimensions[$t] {
         $return_type = new ArrayType($CONST_NUM.int, $remainder.return_type);
