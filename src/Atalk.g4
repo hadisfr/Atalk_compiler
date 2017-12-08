@@ -95,6 +95,7 @@ id_def [Type type, VariableScopeState scopeState]
             }
             catch(ItemAlreadyExistsException e) {
                 print(String.format("[Line #%s] Variable \"%s\" already exists.", $ID.getLine(), $ID.text));
+                // TODO: use temp name
             }
         } else if($scopeState == VariableScopeState.GLOBAL) {
                 try {
@@ -102,6 +103,7 @@ id_def [Type type, VariableScopeState scopeState]
                 }
                 catch(ItemAlreadyExistsException e) {
                     print(String.format("[Line #%s] Variable \"%s\" already exists.", $ID.getLine(), $ID.text));
+                    // TODO: use temp name
                 }
         } else if($scopeState == VariableScopeState.ARG) {
                 try {
@@ -109,6 +111,7 @@ id_def [Type type, VariableScopeState scopeState]
                 }
                 catch(ItemAlreadyExistsException e) {
                     print(String.format("[Line #%s] Variable \"%s\" already exists.", $ID.getLine(), $ID.text));
+                    // TODO: use temp name
                 }
         } else
             throw new Exception();
