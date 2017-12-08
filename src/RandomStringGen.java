@@ -5,13 +5,8 @@ public class RandomStringGen{
     private static final String alphabet = "0123456789ABCDE";
     private static final int N = alphabet.length();
 
-    private String result;
-
-    public RandomStringGen(){
-        result = "";
-    }
-
-    public String generate(int size){
+    public static String generate(int size){
+        String result = "";
         Random r = new Random();
 
         if(size < 0)
