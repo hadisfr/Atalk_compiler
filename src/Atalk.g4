@@ -25,37 +25,48 @@ grammar Atalk;
     String yellow(String str) {
         return "\033[1;93m" + str + "\033[0;39m";
     }
-
-    void printDetail(String str) {
+    void printDetail(String type, String det) {
         if(!hasError)
-            print(str);
+            print(type + ":\t" + det);
     }
 
     void putLocalVar(String name, Type type) throws ItemAlreadyExistsException {
-        SymbolTable.top.put(
+        SymbolTableLocalVariableItem item =
             new SymbolTableLocalVariableItem(
                 new Variable(name, type),
                 SymbolTable.top.getOffset(Register.SP)
-            )
-        );
+            );
+        printDetail("LocalVar", name + "\t" + type + "\t" + "Offset:"
+         + ((SymbolTableVariableItemBase)item).getOffset()
+         + "\tSize:"
+         + ((SymbolTableVariableItemBase)item).getSize());
+        SymbolTable.top.put(item);
     }
 
     void putGlobalVar(String name, Type type) throws ItemAlreadyExistsException {
-        SymbolTable.top.put(
+        SymbolTableGlobalVariableItem item =
             new SymbolTableGlobalVariableItem(
                 new Variable(name, type),
                 SymbolTable.top.getOffset(Register.GP)
-            )
-        );
+            );
+        printDetail("GlobalVar", name + "\t" + type + "\t" + "Offset:"
+         + ((SymbolTableVariableItemBase)item).getOffset()
+         + "\tSize:"
+         + ((SymbolTableVariableItemBase)item).getSize());
+        SymbolTable.top.put(item);
     }
 
     void putArgumentVar(String name, Type type) throws ItemAlreadyExistsException {
-        SymbolTable.top.put(
+        SymbolTableArgumentVariableItem item =
             new SymbolTableArgumentVariableItem(
                 new Variable(name, type),
                 SymbolTable.top.getOffset(Register.TEMP9)
-            )
-        );
+            );
+        printDetail("ArgumentVar", name + "\t" + type + "\t" + "Offset:"
+        + ((SymbolTableVariableItemBase)item).getOffset()
+        + "\tSize:"
+        + ((SymbolTableVariableItemBase)item).getSize());
+        SymbolTable.top.put(item);
     }
 
     void putActor(String name, int mailboxSize) throws ItemAlreadyExistsException{
@@ -67,11 +78,11 @@ grammar Atalk;
     }
 
     void putReceiver(String name, ArrayList<Variable> args) throws ItemAlreadyExistsException{
-        SymbolTable.top.put(
-            new SymbolTableReceiverItem(
-                new Receiver(name, args)
-            )
+        SymbolTableReceiverItem receiverItem = new SymbolTableReceiverItem(
+            new Receiver(name, args)
         );
+        printDetail("Receiver", receiverItem.getKey());
+        SymbolTable.top.put(receiverItem);
     }
 
     void beginScope() {
@@ -105,7 +116,7 @@ program locals [boolean hasActor]:
 actor [boolean isInLoop]:
         {beginScope();}
         'actor' ID '<' CONST_NUM '>' NL {
-            printDetail($ID.text + " " + $CONST_NUM.int);
+            printDetail("Actor", $ID.text + " <" + $CONST_NUM.int + ">");
             if($CONST_NUM.int == 0)
                 printError(String.format("[Line #%s] Actor \"%s\" has 0 mailboxSize.", $ID.getLine(), $ID.text));
             try {
@@ -131,7 +142,6 @@ id_def [Type typee, VariableScopeState scopeState] returns [String name]
     :
     ID {
         $name = $ID.text;
-        printDetail($name);
         if($scopeState == VariableScopeState.LOCAL) {
             try {
                 putLocalVar($name, $typee);
@@ -174,10 +184,6 @@ receiver [boolean isInLoop]:
         {beginScope();}
         'receiver' ID '(' args ')' NL 
         {
-            printDetail($ID.text);
-        }
-            statements [$isInLoop]
-        end_rule {
             try {
                 putReceiver($ID.text, $args.vars);
             }
@@ -189,6 +195,8 @@ receiver [boolean isInLoop]:
                 }
             }
         }
+            statements [$isInLoop]
+        end_rule
         NL
     ;
 
