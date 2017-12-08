@@ -13,7 +13,7 @@ public class Receiver {
 	public ArrayList<String> getArgTypes(){
 		ArrayList<String> result = new ArrayList<>();
 		for(int i = 0; i < args.size(); i++){
-			result.add(args.get(i).getType().toSrting());
+			result.add(args.get(i).getType().toString());
 		}
 		return result;
 	}

@@ -1,6 +1,10 @@
 grammar Atalk;
 
-@members{
+@header {
+    import java.util.*;
+}
+
+@members {
 
     void printError(String str){
         System.out.println("Error: " + str + "\n");
@@ -41,15 +45,15 @@ grammar Atalk;
         SymbolTable.top.put(
             new SymbolTableActorItem(
                 new Actor(name, mailboxSize)
-            );
+            )
         );
     }
 
     void putReceiver(String name, ArrayList<Variable> args) throws ItemAlreadyExistsException{
         SymbolTable.top.put(
-            new SymbolTableActorItem(
+            new SymbolTableReceiverItem(
                 new Receiver(name, args)
-            );
+            )
         );
     }
 
@@ -83,7 +87,7 @@ program locals [boolean hasActor]:
 
 actor [boolean isInLoop]:
         'actor' ID '<' CONST_NUM '>' NL {
-            if(!$CONST_NUM.int)
+            if($CONST_NUM.int != 0)
                 printError(String.format("[Line #%s] Actor \"%s\" has 0 mailboxSize.", $ID.getLine()));
             try {
                 putActor($ID.text, $CONST_NUM.int);
@@ -130,7 +134,7 @@ id_def [Type typee, VariableScopeState scopeState] returns [String name]
                 // TODO: use temp name
             }
         } else
-            throw new Exception();
+            printError(String.format("[Line #%s] Invalid VariableScopeState", $ID.getLine()));
     }
     ;
 
@@ -180,7 +184,7 @@ type returns [Type return_type]:
 
 array_decl_dimensions [Type t] returns [Type return_type]:
     '[' CONST_NUM ']' {
-        if($CONST_NUM.int)
+        if($CONST_NUM.int != 0)
             printError(String.format("[Line #%s] Array \"%s\" has 0 size.", $CONST_NUM.getLine()));
     }
     remainder=array_decl_dimensions[$t] {
