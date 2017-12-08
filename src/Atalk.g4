@@ -57,6 +57,12 @@ grammar Atalk;
         print("Stack offset: " + SymbolTable.top.getOffset(Register.SP));
         SymbolTable.pop();
     }
+
+    enum VariableScopeState {
+    	GLOBAL,
+    	LOCAL,
+    	ARG
+    }
 }
 
 program locals [boolean hasActor]:
@@ -72,28 +78,56 @@ actor [boolean isInLoop]:
 		    if($CONST_NUM.int)
         	    printError("Actor  zero");
 		}
-			(state | receiver [$isInLoop] | NL)*
+			(state [VariableScopeState.GLOBAL] | receiver [$isInLoop] | NL)*
 		'end' (NL | EOF)
 	;
 
-state:
-		type ID (',' ID)* NL
+state [VariableScopeState scopeState]:
+		type id_def[$type.return_type, $scopeState] (',' id_def[$type.return_type, $scopeState])* NL
+	;
+
+id_def [Type type, VariableScopeState scopeState]
+	:
+	ID {
+		if($scopeState == VariableScopeState.LOCAL) {
+			try {
+	            putLocalVar($ID.text, $type);
+	        }
+	        catch(ItemAlreadyExistsException e) {
+	        	print(String.format("[Line #%s] Variable \"%s\" already exists.", $ID.getLine(), $ID.text));
+	        }
+        } else if($scopeState == VariableScopeState.GLOBAL) {
+    			try {
+    	            putGlobalVar($ID.text, $type);
+    	        }
+    	        catch(ItemAlreadyExistsException e) {
+    	        	print(String.format("[Line #%s] Variable \"%s\" already exists.", $ID.getLine(), $ID.text));
+    	        }
+        } else if($scopeState == VariableScopeState.ARG) {
+    			try {
+    	            putArgumentVar($ID.text, $type);
+    	        }
+    	        catch(ItemAlreadyExistsException e) {
+    	        	print(String.format("[Line #%s] Variable \"%s\" already exists.", $ID.getLine(), $ID.text));
+    	        }
+        } else
+        	throw new Exception();
+	}
 	;
 
 receiver [boolean isInLoop]:
-		'receiver' ID '(' (type ID (',' type ID)*)? ')' NL
+		'receiver' ID '(' (type1=type id_def[$type1.return_type, VariableScopeState.ARG] (',' type2=type id_def[$type2.return_type, VariableScopeState.ARG])*)? ')' NL
 			statements [$isInLoop]
 		'end' NL
 	;
 
-basetype returns [Type return_type]
-    :
+basetype returns [Type return_type]:
     'char' {$return_type = CharType.getInstance();}
     | 'int' {$return_type = IntType.getInstance();}
     ;
 
-type:
-		basetype array_decl_dimensions [$basetype.return_type]
+type returns [Type return_type]:
+		basetype array_decl_dimensions [$basetype.return_type] {$return_type = $basetype.return_type;}
 	;
 
 array_decl_dimensions [Type t] returns [Type return_type]:
@@ -108,7 +142,6 @@ array_decl_dimensions [Type t] returns [Type return_type]:
 	    $return_type = $t;
 	}
 	;
-
 
 block [boolean isInLoop]:
 		'begin' NL
@@ -133,7 +166,7 @@ statement [boolean isInLoop]:
 	;
 
 stm_vardef:
-		type ID ('=' expr)? (',' ID ('=' expr)?)* NL
+		type id_def[$type.return_type, VariableScopeState.LOCAL] ('=' expr)? (',' id_def[$type.return_type, VariableScopeState.LOCAL] ('=' expr)?)* NL
 	;
 
 stm_tell:
