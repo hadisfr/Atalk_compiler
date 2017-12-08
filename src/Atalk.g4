@@ -25,9 +25,10 @@ grammar Atalk;
     String yellow(String str) {
         return "\033[1;93m" + str + "\033[0;39m";
     }
+
     void printDetail(String type, String det) {
         if(!hasError)
-            print(type + ":\t" + det);
+            print(yellow(type) + ":\t" + det);
     }
 
     void putLocalVar(String name, Type type) throws ItemAlreadyExistsException {
