@@ -3,6 +3,7 @@ public abstract class SymbolTableVariableItemBase extends SymbolTableItem {
 	public static final String key_word = "var_";
 
 	public SymbolTableVariableItemBase(Variable variable, int offset) {
+		super();
 		this.variable = variable;
 		this.offset = offset;
 	}

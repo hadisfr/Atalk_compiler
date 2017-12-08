@@ -86,6 +86,7 @@ program locals [boolean hasActor]:
     ;
 
 actor [boolean isInLoop]:
+        {beginScope();}
         'actor' ID '<' CONST_NUM '>' NL {
             if($CONST_NUM.int != 0)
                 printError(String.format("[Line #%s] Actor \"%s\" has 0 mailboxSize.", $ID.getLine()));
@@ -98,7 +99,7 @@ actor [boolean isInLoop]:
             }
         }
             (state [VariableScopeState.GLOBAL] | receiver [$isInLoop] | NL)*
-        'end' (NL | EOF)
+        end_rule (NL | EOF)
     ;
 
 state [VariableScopeState scopeState]:
@@ -139,9 +140,10 @@ id_def [Type typee, VariableScopeState scopeState] returns [String name]
     ;
 
 receiver [boolean isInLoop]:
+        {beginScope();}
         'receiver' ID '(' args ')' NL
             statements [$isInLoop]
-        'end' {
+        end_rule {
             try {
                 putReceiver($ID.text, $args.vars);
             }
@@ -196,9 +198,10 @@ array_decl_dimensions [Type t] returns [Type return_type]:
     ;
 
 block [boolean isInLoop]:
+        {beginScope();}
         'begin' NL
             statements [$isInLoop]
-        'end' NL
+        end_rule NL
     ;
 
 statements [boolean isInLoop]:
@@ -230,16 +233,18 @@ stm_write:
     ;
 
 stm_if_elseif_else [boolean isInLoop]:
+        {beginScope();}
         'if' expr NL statements [$isInLoop]
         ('elseif' expr NL statements [$isInLoop])*
         ('else' NL statements [$isInLoop])?
-        'end' NL
+        end_rule NL
     ;
 
 stm_foreach:
+        {beginScope();}
         'foreach' ID 'in' expr NL
             statements [true]
-        'end' NL
+        end_rule NL
     ;
 
 stm_quit:
@@ -255,6 +260,12 @@ stm_break [boolean isInLoop]:
 
 stm_assignment:
         expr NL
+    ;
+
+end_rule:
+    'end' {
+        endScope();
+    }
     ;
 
 expr:

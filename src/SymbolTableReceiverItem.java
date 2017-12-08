@@ -8,6 +8,7 @@ public class SymbolTableReceiverItem extends SymbolTableItem {
     private int size;
 
     public SymbolTableReceiverItem(Receiver receiver){
+        super();
         size = 0;
         this.receiver = receiver;
     }
