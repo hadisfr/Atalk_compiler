@@ -12,5 +12,5 @@ pushd src >/dev/null
 rm *.class *.tokens ${grammar}*.java &> /dev/null
 antlr4 ${grammar}.g4
 javac *.java
-grun ${grammar} ${start} ${token_flag} -gui < ../${test_input}
+grun ${grammar} ${start} ${token_flag} < ../${test_input}
 popd >/dev/null
