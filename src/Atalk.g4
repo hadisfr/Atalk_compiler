@@ -76,7 +76,7 @@ program locals [boolean hasActor]:
 actor [boolean isInLoop]:
         'actor' ID '<' CONST_NUM '>' NL {
             if($CONST_NUM.int)
-                printError("Actor  zero");
+                printError("Actor zero");
         }
             (state [VariableScopeState.GLOBAL] | receiver [$isInLoop] | NL)*
         'end' (NL | EOF)
@@ -94,7 +94,7 @@ id_def [Type type, VariableScopeState scopeState]
                 putLocalVar($ID.text, $type);
             }
             catch(ItemAlreadyExistsException e) {
-                print(String.format("[Line #%s] Variable \"%s\" already exists.", $ID.getLine(), $ID.text));
+                printError(String.format("[Line #%s] Variable \"%s\" already exists.", $ID.getLine(), $ID.text));
                 // TODO: use temp name
             }
         } else if($scopeState == VariableScopeState.GLOBAL) {
@@ -102,7 +102,7 @@ id_def [Type type, VariableScopeState scopeState]
                 putGlobalVar($ID.text, $type);
             }
             catch(ItemAlreadyExistsException e) {
-                print(String.format("[Line #%s] Variable \"%s\" already exists.", $ID.getLine(), $ID.text));
+                printError(String.format("[Line #%s] Variable \"%s\" already exists.", $ID.getLine(), $ID.text));
                 // TODO: use temp name
             }
         } else if($scopeState == VariableScopeState.ARG) {
@@ -110,7 +110,7 @@ id_def [Type type, VariableScopeState scopeState]
                 putArgumentVar($ID.text, $type);
             }
             catch(ItemAlreadyExistsException e) {
-                print(String.format("[Line #%s] Variable \"%s\" already exists.", $ID.getLine(), $ID.text));
+                printError(String.format("[Line #%s] Variable \"%s\" already exists.", $ID.getLine(), $ID.text));
                 // TODO: use temp name
             }
         } else
