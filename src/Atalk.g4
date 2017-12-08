@@ -7,7 +7,7 @@ grammar Atalk;
 @members {
 
     void printError(String str){
-        System.out.println("Error: " + str + "\n");
+        print("Error: " + str + "\n");
     }
 
     void print(String str){
