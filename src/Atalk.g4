@@ -10,7 +10,7 @@ grammar Atalk;
     boolean hasError = false;
 
     void printError(String str){
-        print("Error: " + str + "\n");
+        print("Error: " + str);
         hasError = true;
     }
 
@@ -20,7 +20,7 @@ grammar Atalk;
 
     void printDetail(String str) {
         if(!hasError)
-            print(str + "\n");
+            print(str);
     }
 
     void putLocalVar(String name, Type type) throws ItemAlreadyExistsException {
@@ -98,8 +98,8 @@ actor [boolean isInLoop]:
         {beginScope();}
         'actor' ID '<' CONST_NUM '>' NL {
             printDetail($ID.text + " " + $CONST_NUM.int);
-            if($CONST_NUM.int != 0)
-                printError(String.format("[Line #%s] Actor \"%s\" has 0 mailboxSize.", $ID.getLine()));
+            if($CONST_NUM.int == 0)
+                printError(String.format("[Line #%s] Actor \"%s\" has 0 mailboxSize.", $ID.getLine(), $ID.text));
             try {
                 putActor($ID.text, $CONST_NUM.int);
             }
@@ -215,8 +215,8 @@ type returns [Type return_type]:
 
 array_decl_dimensions [Type t] returns [Type return_type]:
     '[' CONST_NUM ']' {
-        if($CONST_NUM.int != 0)
-            printError(String.format("[Line #%s] Array \"%s\" has 0 size.", $CONST_NUM.getLine()));
+        if($CONST_NUM.int == 0)
+            printError(String.format("[Line #%s] Array has 0 size.", $CONST_NUM.getLine()));
     }
     remainder=array_decl_dimensions[$t] {
         $return_type = new ArrayType($CONST_NUM.int, $remainder.return_type);
