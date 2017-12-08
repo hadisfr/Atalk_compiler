@@ -2,7 +2,7 @@ import java.util.*;
 
 public class SymbolTableReceiverItem extends SymbolTableItem {
 
-    public static final String key_word = "recv_";
+    public static final String key_word = "recv" + SymbolTableItem.delimiter;
 
     private Receiver receiver;
     private int size;
@@ -16,8 +16,8 @@ public class SymbolTableReceiverItem extends SymbolTableItem {
     @Override
     public String getKey() {
         ArrayList<String> argTypes = receiver.getArgTypes();
-        String argsKey = String.join("_", argTypes);
-        return key_word + receiver.getName() + "_" + argsKey;
+        String argsKey = String.join(SymbolTableItem.delimiter, argTypes);
+        return key_word + receiver.getName() + SymbolTableItem.delimiter + argsKey;
     }
 
     public int getSize(){
