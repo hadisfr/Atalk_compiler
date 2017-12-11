@@ -18,6 +18,8 @@ class Stack<E> {
     if (top == -1)
       return null;
     --top;
-    return elements.get(top + 1);
+    E e = elements.get(top + 1);
+    elements.remove(top + 1);
+    return e;
   }
 }
