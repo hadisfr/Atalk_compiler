@@ -310,7 +310,8 @@ stm_if_elseif_else [boolean isInLoop]:
 
 stm_foreach:
         {beginScope();}
-        'foreach' firstID=ID 'in' secondID=ID NL
+        'foreach' ID 'in' expr NL
+        /*'foreach' firstID=ID 'in' secondID=ID NL
         {
             SymbolTableItem array = SymbolTable.top.get(SymbolTableVariableItemBase.getKey($secondID.text));
             Type iteratorType;
@@ -336,7 +337,7 @@ stm_foreach:
             } else {
                 // not in SymbolTable
             }
-        }
+        }*/
             statements [true]
         end_rule NL
     ;
