@@ -1,4 +1,4 @@
-grammar Atalk;
+grammar AtalkPass1;
 
 @header {
     import java.util.*;
