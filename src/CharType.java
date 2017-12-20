@@ -1,4 +1,4 @@
-public class CharType extends Type {
+public class CharType extends IntType {
 	
 	@Override
 	public int size() {
