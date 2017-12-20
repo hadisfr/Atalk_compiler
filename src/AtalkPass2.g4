@@ -1,5 +1,24 @@
 grammar AtalkPass2;
 
+@members{
+    Type checkTypes(Type firstType, Type secondType){
+        if(firstType == null || secondType == null)
+            return null;
+        if(firstType.getClass() == secondType.getClass()){
+            return firstType;
+        }
+        else if(firstType.getClass().isAssignableFrom(secondType.getClass())){
+            return firstType;
+        }
+        else if(secondType.getClass().isAssignableFrom(firstType.getClass())){
+            return secondType;
+        }
+        else{
+            return NoType.getInstance();
+        }
+    }
+}
+
 program:
         (actor | NL)*
     ;
@@ -149,51 +168,91 @@ expr_mult_tmp returns [Type return_type]:
 
 expr_un returns [Type return_type]:
         ('not' | '-') expr_un
-    |   expr_mem
+    |   expr_mem {
+            $return_type = $expr_mem.return_type;
+        }
     ;
 
 expr_mem returns [Type return_type]:
-        expr_other expr_mem_tmp
+        expr_other expr_mem_tmp [$expr_other.return_type] {
+            $return_type = $expr_mem_tmp.return_type;
+        }
     ;
 
-expr_mem_tmp returns [Type return_type]:
-        '[' expr ']' expr_mem_tmp
-    |
+expr_mem_tmp [Type input_type] returns [Type return_type] locals [Type local_type, boolean failed]:
+        '[' expr ']'{
+            $failed = false;
+            if($expr.return_type instanceof IntType){
+                if($input_type instanceof ArrayType){
+                    $local_type = ((ArrayType)($input_type)).getMemberType();
+                }
+                {
+                    $local_type = $input_type;
+                    $failed = true;
+                    $return_type = NoType.getInstance();
+                }
+            }
+            else{
+                $return_type = NoType.getInstance();
+            }
+        }
+        secondMemTmp = expr_mem_tmp [$local_type] 
+        {
+            if($failed == false){
+                $return_type = $secondMemTmp.return_type;
+            }
+        }
+    | {
+        $return_type = $input_type;
+    }
     ;
 
 expr_other returns [Type return_type]:
         CONST_NUM {
             $return_type = IntType.getInstance();
         }
-    |   CONST_CHAR{
+    |   CONST_CHAR {
             $return_type = CharType.getInstance();
         }
     |   CONST_STR
     |   ID
-    |   inline_array
-    {
-        //return_type = new Array;
-    }
+    |   inline_array {
+            $return_type = $inline_array.return_type;
+        }
     |   'read' '(' CONST_NUM ')'
-    |   '(' expr ')'
+    |   '(' expr ')' {
+            $return_type = $expr.return_type;
+        }
     ;
 
 inline_array returns [int size, Type return_type]:
     '{' expr inline_array_member '}'
     {
         $size = $inline_array_member.size;
-        $return_type = $expr.return_type;//TODO: set return type for inline_array
+        if($inline_array_member.return_type == null){
+            $return_type = $expr.return_type;
+        }
+        else{
+            $return_type = checkTypes($expr.return_type, $inline_array_member.return_type);
+        }
     }
     ;
 
-inline_array_member returns [int size]:
+inline_array_member returns [int size, Type return_type]:
     (',' expr) secondMember = inline_array_member
     {
         $size = $secondMember.size + 1;
+        if($secondMember.return_type == null){
+            $return_type = $expr.return_type;
+        }
+        else{
+            $return_type = checkTypes($expr.return_type, $secondMember.return_type);
+        }
     }
     |
     {
         $size = 0;
+        $return_type = null;
     }
     ;
 
