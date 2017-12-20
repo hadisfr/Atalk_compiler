@@ -84,91 +84,117 @@ stm_assignment:
         expr NL
     ;
 
-expr:
+expr returns [Type return_type]:
         expr_assign
     ;
 
-expr_assign:
+expr_assign returns [Type return_type]:
         expr_or '=' expr_assign
     |   expr_or
     ;
 
-expr_or:
+expr_or returns [Type return_type]:
         expr_and expr_or_tmp
     ;
 
-expr_or_tmp:
+expr_or_tmp returns [Type return_type]:
         'or' expr_and expr_or_tmp
     |
     ;
 
-expr_and:
+expr_and returns [Type return_type]:
         expr_eq expr_and_tmp
     ;
 
-expr_and_tmp:
+expr_and_tmp returns [Type return_type]:
         'and' expr_eq expr_and_tmp
     |
     ;
 
-expr_eq:
+expr_eq returns [Type return_type]:
         expr_cmp expr_eq_tmp
     ;
 
-expr_eq_tmp:
+expr_eq_tmp returns [Type return_type]:
         ('==' | '<>') expr_cmp expr_eq_tmp
     |
     ;
 
-expr_cmp:
+expr_cmp returns [Type return_type]:
         expr_add expr_cmp_tmp
     ;
 
-expr_cmp_tmp:
+expr_cmp_tmp returns [Type return_type]:
         ('<' | '>') expr_add expr_cmp_tmp
     |
     ;
 
-expr_add:
+expr_add returns [Type return_type]:
         expr_mult expr_add_tmp
     ;
 
-expr_add_tmp:
+expr_add_tmp returns [Type return_type]:
         ('+' | '-') expr_mult expr_add_tmp
     |
     ;
 
-expr_mult:
+expr_mult returns [Type return_type]:
         expr_un expr_mult_tmp
     ;
 
-expr_mult_tmp:
+expr_mult_tmp returns [Type return_type]:
         ('*' | '/') expr_un expr_mult_tmp
     |
     ;
 
-expr_un:
+expr_un returns [Type return_type]:
         ('not' | '-') expr_un
     |   expr_mem
     ;
 
-expr_mem:
+expr_mem returns [Type return_type]:
         expr_other expr_mem_tmp
     ;
 
-expr_mem_tmp:
+expr_mem_tmp returns [Type return_type]:
         '[' expr ']' expr_mem_tmp
     |
     ;
 
-expr_other:
-        CONST_NUM
-    |   CONST_CHAR
+expr_other returns [Type return_type]:
+        CONST_NUM {
+            $return_type = IntType.getInstance();
+        }
+    |   CONST_CHAR{
+            $return_type = CharType.getInstance();
+        }
     |   CONST_STR
     |   ID
-    |   '{' expr (',' expr)* '}'
+    |   inline_array
+    {
+        //return_type = new Array;
+    }
     |   'read' '(' CONST_NUM ')'
     |   '(' expr ')'
+    ;
+
+inline_array returns [int size, Type return_type]:
+    '{' expr inline_array_member '}'
+    {
+        $size = $inline_array_member.size;
+        $return_type = $expr.return_type;//TODO: set return type for inline_array
+    }
+    ;
+
+inline_array_member returns [int size]:
+    (',' expr) secondMember = inline_array_member
+    {
+        $size = $secondMember.size + 1;
+    }
+    |
+    {
+        $size = 0;
+    }
     ;
 
 CONST_NUM:

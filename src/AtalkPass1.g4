@@ -445,9 +445,18 @@ expr_other:
     |    CONST_CHAR
     |    CONST_STR
     |    ID
-    |    '{' expr (',' expr)* '}'
+    |    inline_array
     |    'read' '(' CONST_NUM ')'
     |    '(' expr ')'
+    ;
+
+inline_array returns [int size, Type return_type]:
+    '{' expr inline_array_member '}'
+    ;
+
+inline_array_member returns [int size]:
+    (',' expr) secondMember = inline_array_member
+    |
     ;
 
 CONST_NUM:
