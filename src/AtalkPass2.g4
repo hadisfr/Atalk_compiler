@@ -20,6 +20,15 @@ grammar AtalkPass2;
         }
     }
 
+    Type assignmentCheckTypes(Type Ltype, Type Rtype){
+        if(Ltype instanceof CharType || Ltype instanceof IntType){
+            if(Ltype.getClass().isAssignableFrom(Rtype.getClass())){
+                return Ltype;
+            }
+        }
+        return NoType.getInstance();
+    }
+
     void beginScope() {
         SymbolTable.push();
     }
@@ -126,17 +135,36 @@ end_rule:
     }
     ;
 
-expr returns [Type return_type]:
-        expr_assign
+expr returns [Type return_type, boolean isLeftHand]:
+        expr_assign {
+            $return_type = $expr_assign.return_type;
+            $isLeftHand = $expr_assign.isLeftHand;
+        }
     ;
 
-expr_assign returns [Type return_type]:
-        expr_or '=' expr_assign
-    |   expr_or
+expr_assign returns [Type return_type, boolean isLeftHand]:
+        expr_or '=' secondExpr = expr_assign {
+            $isLeftHand = $expr_or.isLeftHand;
+            if($expr_or.isLeftHand == true){
+                if($expr_or.return_type instanceof CharType || $expr_or.return_type instanceof IntType){
+                    
+                }
+            }
+        }
+    |   expr_or {
+        $return_type = $expr_or.return_type;
+        $isLeftHand = $expr_or.isLeftHand;
+    }
     ;
 
-expr_or returns [Type return_type]:
+expr_or returns [Type return_type, boolean isLeftHand]:
         expr_and expr_or_tmp {
+            if($expr_or_tmp.return_type == null){
+                $isLeftHand = $expr_and.isLeftHand;
+            }
+            else{
+                $isLeftHand = false;
+            }
             if($expr_or_tmp.return_type == null){
                 $return_type = $expr_and.return_type;
             }
@@ -160,8 +188,14 @@ expr_or_tmp returns [Type return_type]:
     }
     ;
 
-expr_and returns [Type return_type]:
+expr_and returns [Type return_type, boolean isLeftHand]:
         expr_eq expr_and_tmp {
+            if($expr_and_tmp.return_type == null){
+                $isLeftHand = $expr_eq.isLeftHand;
+            }
+            else{
+                $isLeftHand = false;
+            }
             if($expr_and_tmp.return_type == null){
                 $return_type = $expr_eq.return_type;
             }
@@ -185,8 +219,14 @@ expr_and_tmp returns [Type return_type]:
     }
     ;
 
-expr_eq returns [Type return_type]:
+expr_eq returns [Type return_type, boolean isLeftHand]:
         expr_cmp expr_eq_tmp {
+            if($expr_eq_tmp.return_type == null){
+                $isLeftHand = $expr_cmp.isLeftHand;
+            }
+            else{
+                $isLeftHand = false;
+            }
             if($expr_eq_tmp.return_type == null){
                 $return_type = $expr_cmp.return_type;
             }
@@ -210,8 +250,14 @@ expr_eq_tmp returns [Type return_type]:
     }
     ;
 
-expr_cmp returns [Type return_type]:
+expr_cmp returns [Type return_type, boolean isLeftHand]:
         expr_add expr_cmp_tmp {
+            if($expr_cmp_tmp.return_type == null){
+                $isLeftHand = $expr_add.isLeftHand;
+            }
+            else{
+                $isLeftHand = false;
+            }
             if($expr_cmp_tmp.return_type == null){
                 $return_type = $expr_add.return_type;
             }
@@ -235,8 +281,14 @@ expr_cmp_tmp returns [Type return_type]:
     }
     ;
 
-expr_add returns [Type return_type]:
+expr_add returns [Type return_type, boolean isLeftHand]:
         expr_mult expr_add_tmp {
+            if($expr_add_tmp.return_type == null){
+                $isLeftHand = $expr_mult.isLeftHand;
+            }
+            else{
+                $isLeftHand = false;
+            }
             if($expr_add_tmp.return_type == null){
                 $return_type = $expr_mult.return_type;
             }
@@ -260,8 +312,15 @@ expr_add_tmp returns [Type return_type]:
     }
     ;
 
-expr_mult returns [Type return_type]:
+expr_mult returns [Type return_type, boolean isLeftHand]:
         expr_un expr_mult_tmp {
+            if($expr_mult_tmp.return_type == null){
+                $isLeftHand = $expr_un.isLeftHand;
+            }
+            else{
+                $isLeftHand = false;
+            }
+
             if($expr_mult_tmp.return_type == null){
                 $return_type = $expr_un.return_type;
             }
@@ -285,18 +344,21 @@ expr_mult_tmp returns [Type return_type]:
     }
     ;
 
-expr_un returns [Type return_type]:
+expr_un returns [Type return_type, boolean isLeftHand]:
         ('not' | '-') secondExpr = expr_un {
             $return_type = $secondExpr.return_type;
+            $isLeftHand = false;
         }
     |   expr_mem {
             $return_type = $expr_mem.return_type;
+            $isLeftHand = $expr_mem.isLeftHand;
         }
     ;
 
-expr_mem returns [Type return_type]:
+expr_mem returns [Type return_type, boolean isLeftHand]:
         expr_other expr_mem_tmp [$expr_other.return_type] {
             $return_type = $expr_mem_tmp.return_type;
+            $isLeftHand = $expr_other.isLeftHand;
         }
     ;
 
@@ -328,21 +390,40 @@ expr_mem_tmp [Type input_type] returns [Type return_type] locals [Type local_typ
     }
     ;
 
-expr_other returns [Type return_type]:
+expr_other returns [Type return_type, boolean isLeftHand]:
         CONST_NUM {
             $return_type = IntType.getInstance();
+            $isLeftHand = false;
         }
     |   CONST_CHAR {
             $return_type = CharType.getInstance();
+            $isLeftHand = false;
         }
     |   CONST_STR
-    |   ID
+    |   ID {
+            SymbolTableItem item = SymbolTable.top.get(SymbolTableVariableItemBase.getKey($ID.text));
+            if(item instanceof SymbolTableVariableItemBase){
+                Variable IDvar = ((SymbolTableVariableItemBase) item).getVariable();
+                Type IDtype = IDvar.getType();
+                $return_type = IDtype;
+                $isLeftHand = true;
+            }
+            else{
+                $return_type = NoType.getInstance();
+                UI.printError("Can't assign value to non variable item");
+                $isLeftHand = false;                
+            }
+        }
     |   inline_array {
             $return_type = $inline_array.return_type;
+            $isLeftHand = false;                            
         }
-    |   'read' '(' CONST_NUM ')'
+    |   'read' '(' CONST_NUM ')'{
+            $isLeftHand = false;                
+        }
     |   '(' expr ')' {
             $return_type = $expr.return_type;
+            $isLeftHand = $expr.isLeftHand;
         }
     ;
 
