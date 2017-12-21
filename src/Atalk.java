@@ -5,7 +5,7 @@ import java.io.IOException;
 // Visit https://stackoverflow.com/questions/26451636/how-do-i-use-antlr-generated-parser-and-lexer
 public class Atalk {
     public static void main(String[] args) throws IOException {
-        ANTLRInputStream reader = new ANTLRFileStream(args[0]);
+        ANTLRInputStream reader = new ANTLRFileStream(args[0]);  // deprecated
 
         // Pass #1
         AtalkPass1Lexer pass1Lexer = new AtalkPass1Lexer(reader);
