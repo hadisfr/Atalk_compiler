@@ -11,14 +11,13 @@ public class Atalk {
         AtalkPass1Lexer pass1Lexer = new AtalkPass1Lexer(reader);
         CommonTokenStream pass1Tokens = new CommonTokenStream(pass1Lexer);
         AtalkPass1Parser pass1Parser = new AtalkPass1Parser(pass1Tokens);
-        ParseTree pass1Tree = pass1Parser.program(); // Program is starting production rule
-        // System.out.println(pass1Tree.toStringTree());
+        ParseTree pass1Tree = pass1Parser.program(); // program is starting production rule
         
         // Pass #2
         reader.reset();
         AtalkPass2Lexer pass2Lexer = new AtalkPass2Lexer(reader);
         CommonTokenStream pass2Tokens = new CommonTokenStream(pass2Lexer);
         AtalkPass2Parser pass2Parser = new AtalkPass2Parser(pass2Tokens);
-        ParseTree pass2Tree = pass2Parser.program();
+        ParseTree pass2Tree = pass2Parser.program(); // program is starting production rule
     }
 }
