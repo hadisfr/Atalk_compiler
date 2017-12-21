@@ -22,11 +22,21 @@ public final class UI {
     }
 
     static String blue(String str) {
-        return "\033[1;92m" + str + "\033[0;39m";
+        return "\033[1;96m" + str + "\033[0;39m";
     }
 
     static String green(String str) {
-        return "\033[1;96m" + str + "\033[0;39m";
+        return "\033[1;92m" + str + "\033[0;39m";
+    }
+
+    static String dark_blue(String str) {
+        return "\033[1;94m" + str + "\033[0;39m";
+    }
+
+    static void printHeader(String det) {
+        print(dark_blue("======================="));
+        print("\t" + det);
+        print(dark_blue("======================="));
     }
 
     static void printDetail(OutputCategory type, String det) {

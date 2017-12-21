@@ -81,7 +81,7 @@ grammar AtalkPass1;
 }
 
 program locals [boolean hasActor]:
-        {UI.print("Pass 1");}
+        {UI.printHeader("Pass 1");}
         (actor [false] {$hasActor = true;} | NL)*
         {
             if($hasActor == false)

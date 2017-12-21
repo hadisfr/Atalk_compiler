@@ -31,7 +31,7 @@ grammar AtalkPass2;
 }
 
 program:
-        {UI.print("Pass 2");}
+        {UI.printHeader("Pass 2");}
         (actor | NL)*
     ;
 
