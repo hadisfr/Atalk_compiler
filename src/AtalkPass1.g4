@@ -129,6 +129,7 @@ grammar AtalkPass1;
 }
 
 program locals [boolean hasActor]:
+        {print("Pass 1");}
         (actor [false] {$hasActor = true;} | NL)*
         {
             if($hasActor == false)

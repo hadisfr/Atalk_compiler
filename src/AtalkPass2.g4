@@ -19,16 +19,31 @@ grammar AtalkPass2;
             return NoType.getInstance();
         }
     }
+
+    void print(String str) {
+        System.out.println(str);
+    }
+
+    void beginScope() {
+        SymbolTable.push();
+    }
+
+    void endScope() {
+        print("Stack offset: " + SymbolTable.top.getOffset(Register.SP));
+        SymbolTable.pop();
+    }
 }
 
 program:
+        {print("Pass 2");}
         (actor | NL)*
     ;
 
 actor:
+    {beginScope();}
         'actor' ID '<' CONST_NUM '>' NL
             (state | receiver | NL)*
-        'end' (NL | EOF)
+        end_rule (NL | EOF)
     ;
 
 state:
@@ -36,9 +51,10 @@ state:
     ;
 
 receiver:
+    {beginScope();}
         'receiver' ID '(' (type ID (',' type ID)*)? ')' NL
             statements
-        'end' NL
+        end_rule NL
     ;
 
 type:
@@ -47,9 +63,10 @@ type:
     ;
 
 block:
+    {beginScope();}
         'begin' NL
             statements
-        'end' NL
+        end_rule NL
     ;
 
 statements:
@@ -81,16 +98,18 @@ stm_write:
     ;
 
 stm_if_elseif_else:
+    {beginScope();}
         'if' expr NL statements
         ('elseif' expr NL statements)*
         ('else' NL statements)?
-        'end' NL
+        end_rule NL
     ;
 
 stm_foreach:
+    {beginScope();}
         'foreach' ID 'in' expr NL
             statements
-        'end' NL
+        end_rule NL
     ;
 
 stm_quit:
@@ -103,6 +122,12 @@ stm_break:
 
 stm_assignment:
         expr NL
+    ;
+
+end_rule:
+    'end' {
+        endScope();
+    }
     ;
 
 expr returns [Type return_type]:
