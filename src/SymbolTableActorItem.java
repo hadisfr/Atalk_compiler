@@ -13,8 +13,12 @@ public class SymbolTableActorItem extends SymbolTableItem {
 
 	@Override
 	public String getKey() {
-		return key_word + actor.getName();
+        return getKey(actor.getName());
 	}
+
+    public static String getKey(String name) {
+        return key_word + name;
+    }
 
 	public int getSize(){
 	    return size;

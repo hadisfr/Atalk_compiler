@@ -47,7 +47,7 @@ program:
 actor:
     {beginScope();}
         'actor' ID '<' CONST_NUM '>' NL
-            (state | receiver | NL)*
+            (state | receiver [$ID.text] | NL)*
         end_rule (NL | EOF)
     ;
 
@@ -55,10 +55,13 @@ state:
         type ID (',' ID)* NL
     ;
 
-receiver:
+receiver [String container_actor] locals [boolean is_init]:
     {beginScope();}
-        'receiver' ID '(' (type ID (',' type ID)*)? ')' NL
-            statements
+        'receiver' rcvr_id=ID '(' (type first_arg_id=ID (',' type ID)*)? ')' NL
+        {
+            $is_init = ($rcvr_id.text.equals("init") && ($first_arg_id == null));
+        }
+            statements [container_actor, $is_init]
         end_rule NL
     ;
 
@@ -67,27 +70,27 @@ type:
     |   'int' ('[' CONST_NUM ']')*
     ;
 
-block:
+block [String container_actor, boolean is_init]:
     {beginScope();}
         'begin' NL
-            statements
+            statements [container_actor, is_init]
         end_rule NL
     ;
 
-statements:
-        (statement | NL)*
+statements [String container_actor, boolean is_init]:
+        (statement [container_actor, is_init] | NL)*
     ;
 
-statement:
+statement [String container_actor, boolean is_init]:
         stm_vardef
     |   stm_assignment
-    |   stm_foreach
-    |   stm_if_elseif_else
+    |   stm_foreach [container_actor, is_init]
+    |   stm_if_elseif_else [container_actor, is_init]
     |   stm_quit
     |   stm_break
-    |   stm_tell
+    |   stm_tell [container_actor, is_init]
     |   stm_write
-    |   block
+    |   block [container_actor, is_init]
     ;
 
 stm_vardef:
@@ -95,26 +98,45 @@ stm_vardef:
         type ID ('=' expr)? (',' ID ('=' expr)?)* NL
     ;
 
-stm_tell:
-        (ID | 'sender' | 'self') '<<' ID '(' (expr (',' expr)*)? ')' NL
+stm_tell [String container_actor, boolean is_init]:
+        actr=(ID | 'sender' | 'self') '<<' rcvr=ID '(' (expr (',' expr)*)? ')' NL
+        {
+            if($actr.text != "sender") {
+                String actor_name = (($actr.text.equals("self")) ? container_actor : $actr.text);
+                SymbolTableItem item = SymbolTable.top.get(SymbolTableActorItem.getKey(actor_name));
+                if(item == null) {
+                    UI.printError(String.format(
+                        "[Line #%s] Undefined actor \"%s\" has been used.",
+                        $actr.getLine(),
+                        $actr.text));
+                } else {
+                    // TODO check recv existance.
+                }
+            } else {
+                if($is_init)
+                    UI.printError(String.format(
+                        "[Line #%s] Invalid keyword \"sender\" has been used in default receiver \"init()\".",
+                        $actr.getLine()));
+            }
+        }
     ;
 
 stm_write:
         'write' '(' expr ')' NL
     ;
 
-stm_if_elseif_else:
+stm_if_elseif_else [String container_actor, boolean is_init]:
     {beginScope();}
-        'if' expr NL statements
-        ('elseif' expr NL statements)*
-        ('else' NL statements)?
+        'if' expr NL statements [container_actor, is_init]
+        ('elseif' expr NL statements [container_actor, is_init])*
+        ('else' NL statements [container_actor, is_init])?
         end_rule NL
     ;
 
-stm_foreach:
+stm_foreach [String container_actor, boolean is_init]:
     {beginScope();}
         'foreach' ID 'in' expr NL
-            statements
+            statements [container_actor, is_init]
         end_rule NL
     ;
 
