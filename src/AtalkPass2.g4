@@ -4,6 +4,8 @@ grammar AtalkPass2;
     Type checkTypes(Type firstType, Type secondType){
         if(firstType == null || secondType == null)
             return null;
+        if(firstType instanceof NoType || secondType instanceof NoType)
+            return NoType.getInstance();
         if(firstType.getClass() == secondType.getClass()){
             return firstType;
         }
@@ -113,61 +115,159 @@ expr_assign returns [Type return_type]:
     ;
 
 expr_or returns [Type return_type]:
-        expr_and expr_or_tmp
+        expr_and expr_or_tmp {
+            if($expr_or_tmp.return_type == null){
+                $return_type = $expr_and.return_type;
+            }
+            else{
+                $return_type = checkTypes($expr_and.return_type, $expr_or_tmp.return_type);                
+            }
+        }
     ;
 
 expr_or_tmp returns [Type return_type]:
-        'or' expr_and expr_or_tmp
-    |
+        'or' expr_and secondExpr = expr_or_tmp {
+            if($secondExpr.return_type == null){
+                $return_type = $expr_and.return_type;
+            }
+            else{
+                $return_type = checkTypes($expr_and.return_type, $secondExpr.return_type);                
+            }
+        }
+    | {
+        $return_type = null;        
+    }
     ;
 
 expr_and returns [Type return_type]:
-        expr_eq expr_and_tmp
+        expr_eq expr_and_tmp {
+            if($expr_and_tmp.return_type == null){
+                $return_type = $expr_eq.return_type;
+            }
+            else{
+                $return_type = checkTypes($expr_eq.return_type, $expr_and_tmp.return_type);                
+            }
+        }
     ;
 
 expr_and_tmp returns [Type return_type]:
-        'and' expr_eq expr_and_tmp
-    |
+        'and' expr_eq secondExpr = expr_and_tmp {
+            if($secondExpr.return_type == null){
+                $return_type = $expr_eq.return_type;
+            }
+            else{
+                $return_type = checkTypes($expr_eq.return_type, $secondExpr.return_type);                
+            }
+        }
+    | {
+        $return_type = null;        
+    }
     ;
 
 expr_eq returns [Type return_type]:
-        expr_cmp expr_eq_tmp
+        expr_cmp expr_eq_tmp {
+            if($expr_eq_tmp.return_type == null){
+                $return_type = $expr_cmp.return_type;
+            }
+            else{
+                $return_type = checkTypes($expr_cmp.return_type, $expr_eq_tmp.return_type);                
+            }
+        }
     ;
 
 expr_eq_tmp returns [Type return_type]:
-        ('==' | '<>') expr_cmp expr_eq_tmp
-    |
+        ('==' | '<>') expr_cmp secondExpr = expr_eq_tmp {
+            if($secondExpr.return_type == null){
+                $return_type = $expr_cmp.return_type;
+            }
+            else{
+                $return_type = checkTypes($expr_cmp.return_type, $secondExpr.return_type);                
+            }
+        }
+    | {
+        $return_type = null;
+    }
     ;
 
 expr_cmp returns [Type return_type]:
-        expr_add expr_cmp_tmp
+        expr_add expr_cmp_tmp {
+            if($expr_cmp_tmp.return_type == null){
+                $return_type = $expr_add.return_type;
+            }
+            else{
+                $return_type = checkTypes($expr_add.return_type, $expr_cmp_tmp.return_type);
+            }
+        }
     ;
 
 expr_cmp_tmp returns [Type return_type]:
-        ('<' | '>') expr_add expr_cmp_tmp
-    |
+        ('<' | '>') expr_add secondExpr = expr_cmp_tmp {
+            if($secondExpr.return_type == null){
+                $return_type = $expr_add.return_type;
+            }
+            else{
+                $return_type = checkTypes($expr_add.return_type, $secondExpr.return_type);                
+            }
+        }
+    | {
+        $return_type = null;
+    }
     ;
 
 expr_add returns [Type return_type]:
-        expr_mult expr_add_tmp
+        expr_mult expr_add_tmp {
+            if($expr_add_tmp.return_type == null){
+                $return_type = $expr_mult.return_type;
+            }
+            else{
+                $return_type = checkTypes($expr_mult.return_type, $expr_add_tmp.return_type);
+            }
+        }
     ;
 
 expr_add_tmp returns [Type return_type]:
-        ('+' | '-') expr_mult expr_add_tmp
-    |
+        ('+' | '-') expr_mult secondExpr = expr_add_tmp {
+            if($secondExpr.return_type == null){
+                $return_type = $expr_mult.return_type;
+            }
+            else{
+                $return_type = checkTypes($expr_mult.return_type, $secondExpr.return_type);                
+            }
+        }
+    | {
+        $return_type = null;
+    }
     ;
 
 expr_mult returns [Type return_type]:
-        expr_un expr_mult_tmp
+        expr_un expr_mult_tmp {
+            if($expr_mult_tmp.return_type == null){
+                $return_type = $expr_un.return_type;
+            }
+            else{
+                $return_type = checkTypes($expr_un.return_type, $expr_mult_tmp.return_type);
+            }
+        }
     ;
 
 expr_mult_tmp returns [Type return_type]:
-        ('*' | '/') expr_un expr_mult_tmp
-    |
+        ('*' | '/') expr_un secondExpr = expr_mult_tmp{
+            if($secondExpr.return_type == null){
+                $return_type = $expr_un.return_type;
+            }
+            else{
+                $return_type = checkTypes($expr_un.return_type, $secondExpr.return_type);
+            }
+        }
+    | {
+        $return_type = null;
+    }
     ;
 
 expr_un returns [Type return_type]:
-        ('not' | '-') expr_un
+        ('not' | '-') secondExpr = expr_un {
+            $return_type = $secondExpr.return_type;
+        }
     |   expr_mem {
             $return_type = $expr_mem.return_type;
         }
