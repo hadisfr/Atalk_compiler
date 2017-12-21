@@ -91,6 +91,7 @@ statement:
     ;
 
 stm_vardef:
+    {SymbolTable.define();}
         type ID ('=' expr)? (',' ID ('=' expr)?)* NL
     ;
 
@@ -402,16 +403,29 @@ expr_other returns [Type return_type, boolean isLeftHand]:
     |   CONST_STR
     |   ID {
             SymbolTableItem item = SymbolTable.top.get(SymbolTableVariableItemBase.getKey($ID.text));
-            if(item instanceof SymbolTableVariableItemBase){
-                Variable IDvar = ((SymbolTableVariableItemBase) item).getVariable();
-                Type IDtype = IDvar.getType();
-                $return_type = IDtype;
-                $isLeftHand = true;
-            }
-            else{
+            if(item == null) {
+                UI.printError(String.format(
+                    "[Line #%s] Undefined variable \"%s\" has been used.",
+                    $ID.getLine(),
+                    $ID.text));
                 $return_type = NoType.getInstance();
-                UI.printError("Can't assign value to non variable item");
-                $isLeftHand = false;                
+                $isLeftHand = false;
+            }
+            else {
+                if(item instanceof SymbolTableVariableItemBase){
+                    Variable IDvar = ((SymbolTableVariableItemBase) item).getVariable();
+                    Type IDtype = IDvar.getType();
+                    $return_type = IDtype;
+                    $isLeftHand = true;
+                }
+                else{
+                    UI.printError(String.format(
+                        "[Line #%s] Can't assign value to non variable item \"%s\".",
+                        $ID.getLine(),
+                        $ID.text));
+                    $return_type = NoType.getInstance();
+                    $isLeftHand = false;
+                }
             }
         }
     |   inline_array {

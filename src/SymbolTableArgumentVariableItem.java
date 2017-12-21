@@ -11,6 +11,6 @@ public class SymbolTableArgumentVariableItem extends SymbolTableVariableItemBase
 
 	@Override
 	public boolean useMustBeComesAfterDef() {
-		return true;
+		return false;
 	}
 }

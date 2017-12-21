@@ -242,6 +242,7 @@ statement [boolean isInLoop]:
     ;
 
 stm_vardef:
+        {SymbolTable.define();}
         type id_def[$type.return_type, UI.VariableScopeState.LOCAL] ('=' expr)? (',' id_def[$type.return_type, UI.VariableScopeState.LOCAL] ('=' expr)?)* NL
     ;
 
