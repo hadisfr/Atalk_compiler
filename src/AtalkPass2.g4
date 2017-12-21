@@ -20,22 +20,18 @@ grammar AtalkPass2;
         }
     }
 
-    void print(String str) {
-        System.out.println(str);
-    }
-
     void beginScope() {
         SymbolTable.push();
     }
 
     void endScope() {
-        print("Stack offset: " + SymbolTable.top.getOffset(Register.SP));
+        UI.print("Stack offset: " + SymbolTable.top.getOffset(Register.SP));
         SymbolTable.pop();
     }
 }
 
 program:
-        {print("Pass 2");}
+        {UI.print("Pass 2");}
         (actor | NL)*
     ;
 
