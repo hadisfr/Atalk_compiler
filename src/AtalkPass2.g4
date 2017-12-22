@@ -122,7 +122,16 @@ stm_tell [String container_actor, boolean is_init]:
     ;
 
 stm_write:
-        'write' '(' expr ')' NL
+        'write' '(' expr ')' NL {
+            if(!($expr.return_type instanceof IntType || $expr.return_type instanceof CharType)){
+                //print error
+            }
+            else if($expr.return_type instanceof ArrayType){
+                if(!(((ArrayType)$expr.return_type).getMemberType() instanceof CharType)){
+                    //print error
+                }
+            }
+        }
     ;
 
 stm_if_elseif_else [String container_actor, boolean is_init]:
