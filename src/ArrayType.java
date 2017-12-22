@@ -31,4 +31,8 @@ public class ArrayType extends Type {
 		return memberType;
 	}
 
+	public int getLength(){
+		return length;
+	}
+
 }

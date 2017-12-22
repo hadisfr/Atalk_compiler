@@ -6,7 +6,15 @@ grammar AtalkPass2;
             return null;
         if(firstType instanceof NoType || secondType instanceof NoType)
             return NoType.getInstance();
-        if(firstType.getClass() == secondType.getClass()){
+        if(firstType.getClass().equals(secondType.getClass())){
+            if(firstType.getClass().equals(ArrayType.class)){
+                int lengthOne = ((ArrayType)firstType).getLength();
+                int lengthTwo = ((ArrayType)secondType).getLength();
+                if(lengthOne != lengthTwo)
+                    return NoType.getInstance();
+                Type memberType = checkTypes(((ArrayType)firstType).getMemberType(), ((ArrayType)secondType).getMemberType());
+                return new ArrayType(lengthOne, memberType);
+            }
             return firstType;
         }
         else if(firstType.getClass().isAssignableFrom(secondType.getClass())){
