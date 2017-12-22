@@ -4,14 +4,18 @@ grammar AtalkPass2;
     Type checkTypes(Type firstType, Type secondType){
         if(firstType == null || secondType == null)
             return null;
-        if(firstType instanceof NoType || secondType instanceof NoType)
+        if(firstType instanceof NoType || secondType instanceof NoType){
+            UI.printError("Assignment types don't match");
             return NoType.getInstance();
+        }
         if(firstType.getClass().equals(secondType.getClass())){
             if(firstType.getClass().equals(ArrayType.class)){
                 int lengthOne = ((ArrayType)firstType).getLength();
                 int lengthTwo = ((ArrayType)secondType).getLength();
-                if(lengthOne != lengthTwo)
+                if(lengthOne != lengthTwo){
+                    UI.printError("Assignment types don't match");
                     return NoType.getInstance();
+                }
                 Type memberType = checkTypes(((ArrayType)firstType).getMemberType(), ((ArrayType)secondType).getMemberType());
                 return new ArrayType(lengthOne, memberType);
             }
@@ -24,6 +28,7 @@ grammar AtalkPass2;
             return secondType;
         }
         else{
+            UI.printError("Assignment types don't match");
             return NoType.getInstance();
         }
     }
@@ -31,6 +36,10 @@ grammar AtalkPass2;
     Type assignmentCheckTypes(Type Ltype, Type Rtype){
         if(Ltype == null || Rtype == null)
             return null;
+        if(Ltype instanceof NoType || Rtype instanceof NoType){
+            UI.printError("Assignment types don't match");
+            return NoType.getInstance();
+        }
         if(Ltype.getClass().equals(Rtype.getClass())){
             if(Ltype instanceof CharType || Ltype instanceof IntType){
                 if(Ltype.getClass().isAssignableFrom(Rtype.getClass())){
@@ -40,8 +49,10 @@ grammar AtalkPass2;
             else if(Ltype instanceof ArrayType){
                 int lengthOne = ((ArrayType)Ltype).getLength();
                 int lengthTwo = ((ArrayType)Rtype).getLength();
-                if(lengthOne != lengthTwo)
+                if(lengthOne != lengthTwo){
+                    UI.printError("Assignment types don't match");
                     return NoType.getInstance();
+                }
                 Type memberType = checkTypes(((ArrayType)Ltype).getMemberType(), ((ArrayType)Rtype).getMemberType());
                 return new ArrayType(lengthOne, memberType);
             }
@@ -142,9 +153,6 @@ stm_vardef returns [Type return_type]:
             }
             Type mainType = assignmentCheckTypes($type.return_type, local_type);
             $return_type = mainType;
-            if(mainType instanceof NoType){
-                //error
-            }
         }
     ;
 
@@ -195,12 +203,9 @@ stm_tell [String container_actor, boolean is_init]:
 
 stm_write:
         'write' '(' expr ')' NL {
-            if(!($expr.return_type instanceof IntType || $expr.return_type instanceof CharType)){
-                //print error
-            }
-            else if($expr.return_type instanceof ArrayType){
+            if($expr.return_type instanceof ArrayType){
                 if(!(((ArrayType)$expr.return_type).getMemberType() instanceof CharType)){
-                    //print error
+                    UI.printError("Can't write an array of Integer");
                 }
             }
         }
@@ -252,7 +257,10 @@ expr_assign returns [Type return_type, boolean isLeftHand]:
             if($expr_or.isLeftHand == true){
                 $return_type = assignmentCheckTypes($expr_or.return_type, $secondExpr.return_type);
             }
-            $return_type = NoType.getInstance();
+            else{
+                $return_type = NoType.getInstance();
+                UI.printError("\"" + $expr_or.text + "\"" + " is not a Lvalue");
+            }
         }
     |   expr_or {
         $return_type = $expr_or.return_type;
@@ -272,7 +280,7 @@ expr_or returns [Type return_type, boolean isLeftHand]:
                 $return_type = $expr_and.return_type;
             }
             else{
-                $return_type = checkTypes($expr_and.return_type, $expr_or_tmp.return_type);                
+                $return_type = checkTypes($expr_and.return_type, $expr_or_tmp.return_type);
             }
         }
     ;
@@ -283,7 +291,7 @@ expr_or_tmp returns [Type return_type]:
                 $return_type = $expr_and.return_type;
             }
             else{
-                $return_type = checkTypes($expr_and.return_type, $secondExpr.return_type);                
+                $return_type = checkTypes($expr_and.return_type, $secondExpr.return_type);
             }
         }
     | {
@@ -472,14 +480,16 @@ expr_mem_tmp [Type input_type] returns [Type return_type] locals [Type local_typ
                 if($input_type instanceof ArrayType){
                     $local_type = ((ArrayType)($input_type)).getMemberType();
                 }
-                {
+                else{
                     $local_type = $input_type;
                     $failed = true;
                     $return_type = NoType.getInstance();
+                    UI.printError("Can't access a non array type using \"[]\" operator");
                 }
             }
             else{
                 $return_type = NoType.getInstance();
+                UI.printError("Can only access array members with int");
             }
         }
         secondMemTmp = expr_mem_tmp [$local_type] 
