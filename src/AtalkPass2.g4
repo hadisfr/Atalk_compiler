@@ -29,6 +29,8 @@ grammar AtalkPass2;
     }
 
     Type assignmentCheckTypes(Type Ltype, Type Rtype){
+        if(Ltype == null || Rtype == null)
+            return null;
         if(Ltype.getClass().equals(Rtype.getClass())){
             if(Ltype instanceof CharType || Ltype instanceof IntType){
                 if(Ltype.getClass().isAssignableFrom(Rtype.getClass())){
@@ -83,9 +85,26 @@ receiver [String container_actor] locals [boolean is_init]:
         end_rule NL
     ;
 
-type:
-        'char' ('[' CONST_NUM ']')*
-    |   'int' ('[' CONST_NUM ']')*
+basetype returns [Type return_type]:
+    'char' {$return_type = CharType.getInstance();}
+    | 'int' {$return_type = IntType.getInstance();}
+    ;
+
+type returns [Type return_type]:
+        basetype array_decl_dimensions [$basetype.return_type] {$return_type = $array_decl_dimensions.return_type;}
+    ;
+
+array_decl_dimensions [Type t] returns [Type return_type]:
+    '[' CONST_NUM ']' {
+        if($CONST_NUM.int == 0)
+            UI.printError(String.format("[Line #%s] Array has 0 size.", $CONST_NUM.getLine()));
+    }
+    remainder=array_decl_dimensions[$t] {
+        $return_type = new ArrayType($CONST_NUM.int, $remainder.return_type);
+    }
+    | {
+        $return_type = $t;
+    }
     ;
 
 block [String container_actor, boolean is_init]:
@@ -111,9 +130,44 @@ statement [String container_actor, boolean is_init]:
     |   block [container_actor, is_init]
     ;
 
-stm_vardef:
+stm_vardef returns [Type return_type]:
     {SymbolTable.define();}
-        type ID ('=' expr)? (',' ID ('=' expr)?)* NL
+        type ID vardef_right_hand vardef_many NL {
+            Type local_type;
+            if($vardef_many.return_type == null){
+                local_type = $vardef_right_hand.return_type;
+            }
+            else{
+                local_type = checkTypes($vardef_right_hand.return_type, $vardef_many.return_type);
+            }
+            Type mainType = assignmentCheckTypes($type.return_type, local_type);
+            $return_type = mainType;
+            if(mainType instanceof NoType){
+                //error
+            }
+        }
+    ;
+
+vardef_right_hand returns [Type return_type]:
+        ('=' expr){
+            $return_type = $expr.return_type;
+        }
+        | {
+            $return_type = null;
+        }
+    ;
+
+vardef_many returns [Type return_type]:
+        ',' ID vardef_right_hand secondVardef = vardef_many {
+            if($secondVardef.return_type == null)
+                $return_type = null;
+            else{
+                $return_type = checkTypes($vardef_many.return_type, $secondVardef.return_type);
+            }
+        }
+        | {
+            $return_type = null;
+        }
     ;
 
 stm_tell [String container_actor, boolean is_init]:
