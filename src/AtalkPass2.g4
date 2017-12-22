@@ -29,9 +29,19 @@ grammar AtalkPass2;
     }
 
     Type assignmentCheckTypes(Type Ltype, Type Rtype){
-        if(Ltype instanceof CharType || Ltype instanceof IntType){
-            if(Ltype.getClass().isAssignableFrom(Rtype.getClass())){
-                return Ltype;
+        if(Ltype.getClass().equals(Rtype.getClass())){
+            if(Ltype instanceof CharType || Ltype instanceof IntType){
+                if(Ltype.getClass().isAssignableFrom(Rtype.getClass())){
+                    return Ltype;
+                }
+            }
+            else if(Ltype instanceof ArrayType){
+                int lengthOne = ((ArrayType)Ltype).getLength();
+                int lengthTwo = ((ArrayType)Rtype).getLength();
+                if(lengthOne != lengthTwo)
+                    return NoType.getInstance();
+                Type memberType = checkTypes(((ArrayType)Ltype).getMemberType(), ((ArrayType)Rtype).getMemberType());
+                return new ArrayType(lengthOne, memberType);
             }
         }
         return NoType.getInstance();
@@ -186,10 +196,9 @@ expr_assign returns [Type return_type, boolean isLeftHand]:
         expr_or '=' secondExpr = expr_assign {
             $isLeftHand = $expr_or.isLeftHand;
             if($expr_or.isLeftHand == true){
-                if($expr_or.return_type instanceof CharType || $expr_or.return_type instanceof IntType){
-                    
-                }
+                $return_type = assignmentCheckTypes($expr_or.return_type, $secondExpr.return_type);
             }
+            $return_type = NoType.getInstance();
         }
     |   expr_or {
         $return_type = $expr_or.return_type;
