@@ -424,6 +424,7 @@ expr_other returns [Type return_type, boolean isLeftHand]:
         }
     |   CONST_STR {
             $return_type = new ArrayType($CONST_STR.getText().length(), CharType.getInstance());
+            $isLeftHand = false;
     }
     |   ID {
             SymbolTableItem item = SymbolTable.top.get(SymbolTableVariableItemBase.getKey($ID.text));
@@ -454,10 +455,11 @@ expr_other returns [Type return_type, boolean isLeftHand]:
         }
     |   inline_array {
             $return_type = new ArrayType($inline_array.size, $inline_array.return_type);
-            $isLeftHand = false;                            
+            $isLeftHand = false;
         }
     |   'read' '(' CONST_NUM ')'{
-            $isLeftHand = false;                
+            $return_type = new ArrayType(Integer.parseInt($CONST_NUM.getText()), CharType.getInstance());
+            $isLeftHand = false;               
         }
     |   '(' expr ')' {
             $return_type = $expr.return_type;
