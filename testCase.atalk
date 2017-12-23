@@ -10,6 +10,7 @@ actor Adder<34>
 	# Receivers
 	receiver init()
 		addsCount = 0
+        Tiny << init()
 	end
 
 	receiver add(int x, char y)
