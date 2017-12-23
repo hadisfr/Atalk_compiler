@@ -72,7 +72,9 @@ grammar AtalkPass2;
 
 program:
         {UI.printHeader("Pass 2");}
+        {beginScope();}
         (actor | NL)*
+        {endScope();}
     ;
 
 actor:

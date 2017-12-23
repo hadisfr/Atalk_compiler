@@ -82,11 +82,13 @@ grammar AtalkPass1;
 
 program locals [boolean hasActor]:
         {UI.printHeader("Pass 1");}
+        {beginScope();}
         (actor [false] {$hasActor = true;} | NL)*
         {
             if($hasActor == false)
                 UI.printError("No actors found");
         }
+        {endScope();}
     ;
 
 actor [boolean isInLoop]:
@@ -95,6 +97,10 @@ actor [boolean isInLoop]:
             UI.printDetail(UI.OutputCategory.Actor, $ID.text + " <" + $CONST_NUM.int + ">");
             if($CONST_NUM.int == 0)
                 UI.printError(String.format("[Line #%s] Actor \"%s\" has 0 mailboxSize.", $ID.getLine(), $ID.text));
+        }
+            (state [UI.VariableScopeState.GLOBAL] | receiver [$isInLoop] | NL)*
+        end_rule (NL | EOF)
+        {
             try {
                 putActor($ID.text, $CONST_NUM.int);
             }
@@ -106,8 +112,6 @@ actor [boolean isInLoop]:
                 }
             }
         }
-            (state [UI.VariableScopeState.GLOBAL] | receiver [$isInLoop] | NL)*
-        end_rule (NL | EOF)
     ;
 
 state [UI.VariableScopeState scopeState]:
@@ -159,6 +163,9 @@ id_def [Type typee, UI.VariableScopeState scopeState] returns [String name]
 receiver [boolean isInLoop]:
         {beginScope();}
         'receiver' ID '(' args ')' NL 
+            statements [$isInLoop]
+        end_rule
+        NL
         {
             try {
                 putReceiver($ID.text, $args.vars);
@@ -171,9 +178,6 @@ receiver [boolean isInLoop]:
                 }
             }
         }
-            statements [$isInLoop]
-        end_rule
-        NL
     ;
 
 args returns [ArrayList<Variable> vars]:
