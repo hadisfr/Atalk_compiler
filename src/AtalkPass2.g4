@@ -68,6 +68,8 @@ grammar AtalkPass2;
         UI.print("Stack offset: " + SymbolTable.top.getOffset(Register.SP));
         SymbolTable.pop();
     }
+
+    Translator mips = new Translator();
 }
 
 program:
