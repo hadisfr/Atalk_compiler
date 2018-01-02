@@ -45,6 +45,8 @@ public class SymbolTable {
 		this.pre = pre;
 		this.items = new HashMap<String, SymbolTableItem>();
 		this.offsets = new HashMap<Register, Integer>();
+		if(pre != null)
+			setOffset(Register.GP, pre.getOffset(Register.GP));
 	}
 
 	public void put(SymbolTableItem item) throws ItemAlreadyExistsException {
@@ -76,6 +78,8 @@ public class SymbolTable {
 
 	public void setOffset(Register baseRegister, int value) {
 		offsets.put(baseRegister, value);
+		if(baseRegister == Register.GP && pre != null)
+			pre.setOffset(baseRegister, value);
 	}
 
 	public SymbolTableItem getInCurrentScope(String key) {
