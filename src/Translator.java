@@ -41,7 +41,7 @@ public class Translator {
     public void addToStack(int x){
         instructions.add("# adding a number to stack");
         instructions.add("li $a0, " + x);
-        push("a0");
+        pushStack("a0");
         instructions.add("# end of adding a number to stack");
 
     }
@@ -50,7 +50,7 @@ public class Translator {
         adr = adr * -1;
         instructions.add("# start of adding variable to stack");
         instructions.add("lw $a0, " + adr + "($fp)");
-        push("a0");
+        pushStack("a0");
         instructions.add("# end of adding variable to stack");
     }
 
@@ -58,7 +58,7 @@ public class Translator {
         adr = adr * -1;
         instructions.add("# start of adding address to stack");
         instructions.add("addiu $a0, $fp, " + adr);
-        push("a0");
+        pushStack("a0");
         instructions.add("# end of adding address to stack");
     }
 
@@ -66,7 +66,7 @@ public class Translator {
         adr = adr * -1;
         instructions.add("# start of adding global address to stack");
         instructions.add("addiu $a0, $gp, " + adr);
-        push("a0");
+        pushStack("a0");
         instructions.add("# end of adding global address to stack");
     }
 
@@ -101,7 +101,7 @@ public class Translator {
             instructions.add("lw $a1, 4($sp)");
             popStack();
             instructions.add("mul $a0, $a0, $a1");
-            push("a0");
+            pushStack("a0");
         }
         else if (s.equals("/")){
             instructions.add("lw $a0, 4($sp)");
@@ -109,7 +109,7 @@ public class Translator {
             instructions.add("lw $a1, 4($sp)");
             popStack();
             instructions.add("div $a0, $a1, $a0");
-            push("a0");
+            pushStack("a0");
         }
         else if (s.equals("+")){
             instructions.add("lw $a0, 4($sp)");
@@ -117,7 +117,7 @@ public class Translator {
             instructions.add("lw $a1, 4($sp)");
             popStack();
             instructions.add("add $a0, $a0, $a1");
-            push("a0");
+            pushStack("a0");
         }
         else if (s.equals("-")){
             instructions.add("lw $a0, 4($sp)");
@@ -125,7 +125,7 @@ public class Translator {
             instructions.add("lw $a1, 4($sp)");
             popStack();
             instructions.add("sub $a0, $a1, $a0");
-            push("a0");
+            pushStack("a0");
         }
         instructions.add("# end of operation " + s);
     }
@@ -140,34 +140,31 @@ public class Translator {
         instructions.add("# end of writing");
     }
 
-    public void push(String src) {
+    public void pushStack(String src) {
         instructions.add("sw $" + src + ", 0($sp)");
         instructions.add("addiu $sp, $sp, -4");
-    }
-
-    private void addComment(String comment){
-        instructions.add("# " + comment);
     }
     
     public void addLocalVariable(int adr, boolean initialized){
         adr = adr * -1;
-        String comment = "adding local variable";
-        addComment(comment);
-        if(initialized == true){
+        initInstructions.add("# adding a local variable");
+        if(initialized == true) {
             instructions.add("lw $a0, 4($sp)");
+            popStack();
         }
-        else{
-            instructions.add("li $a0, 0");//TODO: add minus 1 as default
+        else {
+            instructions.add("li $a0, 0");
         }
-        instructions.add("sw $a0, " + adr + "($fp)");
-        addComment("end of " + comment);
+        // instructions.add("sw $a0, " + adr + "($fp)");
+        pushStack("a0");
+        initInstructions.add("# end of adding a local variable");
     }
 
     public void addGlobalToStack(int adr){
         adr = adr * -1;
         instructions.add("# start of adding global variable to stack");
         instructions.add("lw $a0, " + adr + "($gp)");
-        push("a0");
+        pushStack("a0");
         instructions.add("# end of adding global variable to stack");
     }
 
