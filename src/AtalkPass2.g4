@@ -76,7 +76,7 @@ program:
         {UI.printHeader("Pass 2");}
         {beginScope();}
         (actor | NL)*
-        {endScope();}
+        {endScope(); mips.makeOutput();}
     ;
 
 actor:
@@ -87,7 +87,15 @@ actor:
     ;
 
 state:
-        type ID (',' ID)* NL
+        type state_many[$type.return_type] (',' state_many[$type.return_type])* NL       
+    ;
+
+state_many [Type input_type] :
+        ID {
+            int offset = ((SymbolTableVariableItemBase)SymbolTable.top.get(SymbolTableVariableItemBase.getKey($ID.text))).getOffset();
+            mips.addGlobalVariable(offset,
+                $input_type.size() / Type.WORD_BYTES);
+        }
     ;
 
 receiver [String container_actor] locals [boolean is_init]:
@@ -147,12 +155,17 @@ statement [String container_actor, boolean is_init]:
 
 stm_vardef returns [Type return_type]:
     {SymbolTable.define();}
-        type ID vardef_right_hand vardef_many NL {
+        type ID vardef_right_hand {
+            int offset = ((SymbolTableVariableItemBase)SymbolTable.top.get(SymbolTableVariableItemBase.getKey($ID.text))).getOffset();
+            mips.addLocalVariable(offset,
+                $type.return_type.size() / Type.WORD_BYTES, $vardef_right_hand.initialized);  
+        } 
+        vardef_many[$type.return_type] NL {
             Type local_type;
             if($vardef_many.return_type == null){
                 local_type = $vardef_right_hand.return_type;
             }
-            else{
+            else {
                 local_type = checkTypes($vardef_right_hand.return_type, $vardef_many.return_type);
             }
             Type mainType = assignmentCheckTypes($type.return_type, local_type);
@@ -160,17 +173,24 @@ stm_vardef returns [Type return_type]:
         }
     ;
 
-vardef_right_hand returns [Type return_type]:
+vardef_right_hand returns [Type return_type, boolean initialized]:
         ('=' expr){
             $return_type = $expr.return_type;
+            $initialized = true;
         }
         | {
             $return_type = null;
+            $initialized = false;
         }
     ;
 
-vardef_many returns [Type return_type]:
-        ',' ID vardef_right_hand secondVardef = vardef_many {
+vardef_many [Type input_type] returns [Type return_type]:
+        ',' ID vardef_right_hand {
+            int offset = ((SymbolTableVariableItemBase)SymbolTable.top.get(SymbolTableVariableItemBase.getKey($ID.text))).getOffset();
+            mips.addLocalVariable(offset,
+                $input_type.size() / Type.WORD_BYTES, $vardef_right_hand.initialized);  
+        }
+        secondVardef = vardef_many[$input_type] {
             if($secondVardef.return_type == null)
                 $return_type = null;
             else{
@@ -248,7 +268,7 @@ end_rule:
     }
     ;
 
-expr returns [Type return_type, boolean isLeftHand]:
+expr [boolean nowIsLeft] returns [Type return_type, boolean isLeftHand]:
         expr_assign {
             $return_type = $expr_assign.return_type;
             $isLeftHand = $expr_assign.isLeftHand;
@@ -544,6 +564,15 @@ expr_other returns [Type return_type, boolean isLeftHand]:
                         $ID.text));
                     $return_type = NoType.getInstance();
                     $isLeftHand = false;
+                }
+                SymbolTableVariableItemBase var = (SymbolTableVariableItemBase) item;
+                if (var.getBaseRegister() == Register.SP){
+                    if ($nowIsLeft == false) mips.addToStack($id.text, var.getOffset());
+                    else mips.addAddressToStack($id.text, var.getOffset());
+                }
+                else {
+                    if ($nowIsLeft == false) mips.addGlobalToStack(var.getOffset());
+                    else mips.addGlobalAddressToStack($id.text, var.getOffset());
                 }
             }
         }

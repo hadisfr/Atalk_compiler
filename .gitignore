@@ -25,3 +25,4 @@
 /**/.vscode
 # Sublime
 *.sublime-workspace
+src/out.asm

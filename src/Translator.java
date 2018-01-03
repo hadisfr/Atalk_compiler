@@ -145,18 +145,14 @@ public class Translator {
         instructions.add("addiu $sp, $sp, -4");
     }
     
-    public void addLocalVariable(int adr, boolean initialized){
+    public void addLocalVariable(int adr, int size, boolean initialized){
         adr = adr * -1;
         initInstructions.add("# adding a local variable");
-        if(initialized == true) {
-            instructions.add("lw $a0, 4($sp)");
-            popStack();
+        if(initialized != true) {
+            initInstructions.add("li $a0, 0");
+            for(int i = 0; i < size; i++)
+                pushStack("a0");
         }
-        else {
-            instructions.add("li $a0, 0");
-        }
-        // instructions.add("sw $a0, " + adr + "($fp)");
-        pushStack("a0");
         initInstructions.add("# end of adding a local variable");
     }
 
@@ -168,11 +164,12 @@ public class Translator {
         instructions.add("# end of adding global variable to stack");
     }
 
-    public void addGlobalVariable(int adr, int x){
+    public void addGlobalVariable(int adr, int size){
         adr = adr * -1;
         initInstructions.add("# adding a global variable");
-        initInstructions.add("li $a0, " + x);
-        initInstructions.add("sw $a0, " + adr + "($gp)");
+        initInstructions.add("li $a0, 0");
+        for(int i = 0; i < size; i++)
+            initInstructions.add("sw $a0, " + (adr + 4 * i) + "($gp)");
         initInstructions.add("# end of adding a global variable");
     }
 }
