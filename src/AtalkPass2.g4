@@ -232,18 +232,18 @@ stm_write:
                     UI.printError("Can't write an array.");
                 }
             }
-            String isInt = "int";
+            String type_str = "int";
             if($expr.return_type instanceof ArrayType){
                 if(((ArrayType)$expr.return_type).getMemberType() instanceof CharType){
                     int size = ((ArrayType)$expr.return_type).getLength();
-                    isInt = "char";
-                    mips.write(isInt, size);
+                    type_str = "char";
+                    mips.write(type_str, size);
                 }
             }
             else{
                 if($expr.return_type instanceof CharType)
-                    isInt = "char";
-                mips.write(isInt);                
+                    type_str = "char";
+                mips.write(type_str);                
             }
         }
     ;
@@ -572,17 +572,16 @@ expr_other returns [Type return_type, boolean isLeftHand, boolean isId, SymbolTa
             $return_type = IntType.getInstance();
             $isLeftHand = false;
             $isId = false;
-            mips.addToStack(Integer.parseInt($CONST_NUM.getText()));
+            mips.addToStack(Integer.parseInt($CONST_NUM.text));
         }
     |   CONST_CHAR {
             $return_type = CharType.getInstance();
             $isLeftHand = false;
             $isId = false;
-            // TODO: remove '
-            mips.addToStack(Integer.parseInt($CONST_CHAR.getText()));
+            mips.addToStack($CONST_CHAR.text.charAt(1));
         }
     |   CONST_STR {
-            $return_type = new ArrayType($CONST_STR.getText().length(), CharType.getInstance());
+            $return_type = new ArrayType($CONST_STR.text.length(), CharType.getInstance());
             $isLeftHand = false;
             $isId = false;
             // TODO: add handler codes to expr_mem
@@ -623,7 +622,7 @@ expr_other returns [Type return_type, boolean isLeftHand, boolean isId, SymbolTa
             $isId = false;
         }
     |   'read' '(' CONST_NUM ')'{
-            $return_type = new ArrayType(Integer.parseInt($CONST_NUM.getText()), CharType.getInstance());
+            $return_type = new ArrayType(Integer.parseInt($CONST_NUM.text), CharType.getInstance());
             $isLeftHand = false;               
             $isId = false;
         }
