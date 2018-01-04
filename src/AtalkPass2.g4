@@ -268,7 +268,7 @@ end_rule:
     }
     ;
 
-expr [boolean nowIsLeft] returns [Type return_type, boolean isLeftHand]:
+expr returns [Type return_type, boolean isLeftHand]:
         expr_assign {
             $return_type = $expr_assign.return_type;
             $isLeftHand = $expr_assign.isLeftHand;
@@ -564,15 +564,6 @@ expr_other returns [Type return_type, boolean isLeftHand]:
                         $ID.text));
                     $return_type = NoType.getInstance();
                     $isLeftHand = false;
-                }
-                SymbolTableVariableItemBase var = (SymbolTableVariableItemBase) item;
-                if (var.getBaseRegister() == Register.SP){
-                    if ($nowIsLeft == false) mips.addToStack($id.text, var.getOffset());
-                    else mips.addAddressToStack($id.text, var.getOffset());
-                }
-                else {
-                    if ($nowIsLeft == false) mips.addGlobalToStack(var.getOffset());
-                    else mips.addGlobalAddressToStack($id.text, var.getOffset());
                 }
             }
         }
