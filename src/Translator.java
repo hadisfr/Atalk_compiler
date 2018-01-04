@@ -96,7 +96,7 @@ public class Translator {
         if (s.equals("-"))
             instructions.add("neg $a0");
         else if (s.equals("not"))
-            instructions.add("# not");  // TODO: complete
+            instructions.add("not $a0, $a0");
         else
             instructions.add("# unary operation " + s + " did not handled.");
         pushStack("a0");
@@ -126,9 +126,9 @@ public class Translator {
         else if (s.equals("<>"))
             instructions.add("# <>");  // TODO: complete
         else if (s.equals("and"))
-            instructions.add("# and");  // TODO: complete
+            instructions.add("and $a0, $a0, $a1");
         else if (s.equals("or"))
-            instructions.add("# or");  // TODO: complete
+            instructions.add("or $a0, $a0, $a1");
         else
             instructions.add("# binary operation " + s + " did not handled.");
         pushStack("a0");
