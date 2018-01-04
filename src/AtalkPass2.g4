@@ -581,10 +581,13 @@ expr_other returns [Type return_type, boolean isLeftHand, boolean isId, SymbolTa
             mips.addToStack($CONST_CHAR.text.charAt(1));
         }
     |   CONST_STR {
-            $return_type = new ArrayType($CONST_STR.text.length(), CharType.getInstance());
+            String str = $CONST_STR.text;
+            str = str.substring(1, str.length()-1);
+            $return_type = new ArrayType(str.length(), CharType.getInstance());
             $isLeftHand = false;
             $isId = false;
-            // TODO: add handler codes to expr_mem
+            for(int i = 0; i < str.length(); i++)
+                mips.addToStack(str.charAt(i));
     }
     |   ID {
             $isId = true;

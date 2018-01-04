@@ -45,7 +45,6 @@ public class Translator {
         instructions.add("li $a0, " + x);
         pushStack("a0");
         instructions.add("# end of adding a number to stack");
-
     }
 
     public void addToStack(String s, int adr){
@@ -163,11 +162,11 @@ public class Translator {
         for(int i = 0; i < size; i++) {
             instructions.add("lw $a0, " + ((size - i) * 4) + "($sp)");
             this.addSystemCall(syscall_number);
-            instructions.add("addi $a0, $zero, 10");
-            this.addSystemCall(11);
         }
         for(int i = 0; i < size; i++)
             popStack();
+        instructions.add("addi $a0, $zero, 10");
+        this.addSystemCall(11);
         instructions.add("# end of writing");
     }
     public void write(String type) {
