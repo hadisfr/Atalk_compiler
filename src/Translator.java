@@ -6,6 +6,7 @@ public class Translator {
     private File output;
     private ArrayList <String> instructions;
     private ArrayList <String> initInstructions;
+    private int labelCounter;
 
     public Translator(){
         instructions = new ArrayList<String>();
@@ -16,6 +17,11 @@ public class Translator {
         } catch (Exception e){
             e.printStackTrace();
         }
+        labelCounter = 0;
+    }
+
+    private String getLabel() {
+        return "label" + (labelCounter++);
     }
 
     public void makeOutput(){
@@ -89,6 +95,16 @@ public class Translator {
         instructions.add("# end of assign");
     }
 
+    private void compareCommand(String cmd, String src_left, String src_right, String dst) {
+        String label_middle = getLabel();
+        String label_end = getLabel();
+        instructions.add(cmd + " $" + src_left + ", $" + src_right  + ", "+ label_middle);
+        instructions.add("addi $" + dst + ", $zero, 0");
+        instructions.add("j " + label_end);
+        instructions.add(label_middle + ":\t" + "addi $" + dst + ", $zero, 1");
+        instructions.add(label_end+":");
+    }
+
     public void unaryOperationCommand(String s){
         instructions.add("# unary operation " + s);
         instructions.add("lw $a0, 4($sp)");
@@ -117,18 +133,18 @@ public class Translator {
             instructions.add("add $a0, $a0, $a1");
         else if (s.equals("-"))
             instructions.add("sub $a0, $a1, $a0");
-        else if (s.equals("<"))
-            instructions.add("# <");  // TODO: complete
-        else if (s.equals(">"))
-            instructions.add("# >");  // TODO: complete
-        else if (s.equals("=="))
-            instructions.add("# ==");  // TODO: complete
-        else if (s.equals("<>"))
-            instructions.add("# <>");  // TODO: complete
         else if (s.equals("and"))
             instructions.add("and $a0, $a0, $a1");
         else if (s.equals("or"))
             instructions.add("or $a0, $a0, $a1");
+        else if (s.equals("=="))
+            compareCommand("beq", "a1", "a0", "a0");
+        else if (s.equals("<>"))
+            compareCommand("bne", "a1", "a0", "a0");
+        else if (s.equals("<"))
+            compareCommand("blt", "a1", "a0", "a0");
+        else if (s.equals(">"))
+            compareCommand("bgt", "a1", "a0", "a0");
         else
             instructions.add("# binary operation " + s + " did not handled.");
         pushStack("a0");
