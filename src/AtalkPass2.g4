@@ -539,16 +539,21 @@ expr_other returns [Type return_type, boolean isLeftHand, boolean isId]:
             $return_type = IntType.getInstance();
             $isLeftHand = false;
             $isId = false;
+            // TODO: move following line to expr_mem
+            mips.addToStack(Integer.parseInt($CONST_NUM.getText()));
         }
     |   CONST_CHAR {
             $return_type = CharType.getInstance();
             $isLeftHand = false;
-            $isId = false;            
+            $isId = false;
+            // TODO: move following line to expr_mem
+            mips.addToStack(Integer.parseInt($CONST_CHAR.getText()));
         }
     |   CONST_STR {
             $return_type = new ArrayType($CONST_STR.getText().length(), CharType.getInstance());
             $isLeftHand = false;
             $isId = false;
+            // TODO: add handler codes to expr_mem
     }
     |   ID {
             $isId = true;
@@ -576,6 +581,16 @@ expr_other returns [Type return_type, boolean isLeftHand, boolean isId]:
                     $return_type = NoType.getInstance();
                     $isLeftHand = false;
                 }
+                // TODO: move following 9 lines to expr_mem
+                /* SymbolTableVariableItemBase var = (SymbolTableVariableItemBase) item;
+                if (var.getBaseRegister() == Register.SP){
+                    if ($ nowIsLeft == false) mips.addToStack($ID.text, var.getOffset());
+                    else mips.addAddressToStack($ID.text, var.getOffset());
+                }
+                else {
+                    if ($ nowIsLeft == false) mips.addGlobalToStack(var.getOffset());
+                    else mips.addGlobalAddressToStack($ID.text, var.getOffset());
+                } */
             }
         }
     |   inline_array {
