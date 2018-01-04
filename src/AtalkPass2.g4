@@ -625,9 +625,12 @@ expr_other returns [Type return_type, boolean isLeftHand, boolean isId, SymbolTa
             $isId = false;
         }
     |   'read' '(' CONST_NUM ')'{
-            $return_type = new ArrayType(Integer.parseInt($CONST_NUM.text), CharType.getInstance());
+            int len = Integer.parseInt($CONST_NUM.text);
+            $return_type = new ArrayType(len, CharType.getInstance());
             $isLeftHand = false;               
             $isId = false;
+            for(int i = 0; i < len ; i++)
+                mips.read();
         }
     |   '(' expr ')' {
             $return_type = $expr.return_type;

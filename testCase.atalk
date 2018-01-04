@@ -15,7 +15,7 @@ actor Adder<34>
 		c = 3
 		c = addsCount = 10
 		addsCount = addsCount - 3
-        write(addsCount)
+        write(read(5))
 	end
 
 end

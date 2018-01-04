@@ -170,7 +170,12 @@ public class Translator {
         instructions.add("# end of writing");
     }
     public void write(String type) {
-        write(type, 1);
+        this.write(type, 1);
+    }
+
+    public void read() {
+        this.addSystemCall(12);
+        this.pushStack("v0");
     }
 
     public void pushStack(String src) {
