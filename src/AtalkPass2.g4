@@ -229,7 +229,7 @@ stm_write:
         'write' '(' expr ')' NL {
             if($expr.return_type instanceof ArrayType){
                 if(!(((ArrayType)$expr.return_type).getMemberType() instanceof CharType)){
-                    UI.printError("Can't write an array of Integer");
+                    UI.printError("Can't write an array.");
                 }
             }
             String isInt = "int";
@@ -273,7 +273,7 @@ stm_break:
 
 stm_assignment:
         expr NL {
-            //mips.popStack(); //TODO: should we do this?!
+            mips.popStack();
         }
     ;
 
@@ -519,7 +519,6 @@ expr_mem [boolean nowIsLeft] returns [Type return_type, boolean isLeftHand]:
             $isLeftHand = $expr_other.isLeftHand;
 
             if($expr_other.isId == true){
-                UI.print($expr_other.IDText);
                 SymbolTableVariableItemBase var = (SymbolTableVariableItemBase) $expr_other.IDitem;
                 Type thisType = var.getVariable().getType();
                 int dimensions = 0;
@@ -573,14 +572,13 @@ expr_other returns [Type return_type, boolean isLeftHand, boolean isId, SymbolTa
             $return_type = IntType.getInstance();
             $isLeftHand = false;
             $isId = false;
-            // TODO: move following line to expr_mem
             mips.addToStack(Integer.parseInt($CONST_NUM.getText()));
         }
     |   CONST_CHAR {
             $return_type = CharType.getInstance();
             $isLeftHand = false;
             $isId = false;
-            // TODO: move following line to expr_mem
+            // TODO: remove '
             mips.addToStack(Integer.parseInt($CONST_CHAR.getText()));
         }
     |   CONST_STR {
@@ -617,7 +615,6 @@ expr_other returns [Type return_type, boolean isLeftHand, boolean isId, SymbolTa
                     $return_type = NoType.getInstance();
                     $isLeftHand = false;
                 }
-                // TODO: move following 9 lines to expr_mem
             }
         }
     |   inline_array {

@@ -152,14 +152,26 @@ public class Translator {
         instructions.add("# end of binary operation " + s);
     }
 
-    public void write(){
+    public void write(String type, int size) {
+        final int invalid_syscall_number = -1;
+        int syscall_number = (type == "int") ? 1 : (type == "char") ? 11 : invalid_syscall_number;
+        if(syscall_number == invalid_syscall_number) {
+            instructions.add("# unsupported writing type");
+            return;
+        }
         instructions.add("# writing");
-        instructions.add("lw $a0, 4($sp)");
-        this.addSystemCall(1);
-        popStack();
-        instructions.add("addi $a0, $zero, 10");
-        this.addSystemCall(11);
+        for(int i = 0; i < size; i++) {
+            instructions.add("lw $a0, " + ((size - i) * 4) + "($sp)");
+            this.addSystemCall(syscall_number);
+            instructions.add("addi $a0, $zero, 10");
+            this.addSystemCall(11);
+        }
+        for(int i = 0; i < size; i++)
+            popStack();
         instructions.add("# end of writing");
+    }
+    public void write(String type) {
+        write(type, 1);
     }
 
     public void pushStack(String src) {
