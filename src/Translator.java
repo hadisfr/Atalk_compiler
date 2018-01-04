@@ -1,7 +1,3 @@
-/**
- * Created by vrasa on 12/26/2016.
- */
-
 import java.util.*;
 import java.io.*;
 
