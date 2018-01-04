@@ -14,6 +14,8 @@
 /**/*Listener.java
 /**/*Parser.java
 
+**/out.asm
+
 .fetch_time_cache
 
 #IntelliJ
@@ -25,4 +27,3 @@
 /**/.vscode
 # Sublime
 *.sublime-workspace
-src/out.asm
