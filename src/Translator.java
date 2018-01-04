@@ -93,41 +93,50 @@ public class Translator {
         instructions.add("# end of assign");
     }
 
-    public void operationCommand(String s){
-        instructions.add("# operation " + s);
-        if (s.equals("*")){
-            instructions.add("lw $a0, 4($sp)");
-            popStack();
-            instructions.add("lw $a1, 4($sp)");
-            popStack();
+    public void unaryOperationCommand(String s){
+        instructions.add("# unary operation " + s);
+        instructions.add("lw $a0, 4($sp)");
+        popStack();
+        if (s.equals("-"))
+            instructions.add("neg $a0");
+        else if (s.equals("not"))
+            instructions.add("# not");  // TODO: complete
+        else
+            instructions.add("# unary operation " + s + " did not handled.");
+        pushStack("a0");
+        instructions.add("# end of unary operation " + s);
+    }
+
+    public void binaryOperationCommand(String s){
+        instructions.add("# binary operation " + s);
+        instructions.add("lw $a0, 4($sp)");
+        popStack();
+        instructions.add("lw $a1, 4($sp)");
+        popStack();
+        if (s.equals("*"))
             instructions.add("mul $a0, $a0, $a1");
-            pushStack("a0");
-        }
-        else if (s.equals("/")){
-            instructions.add("lw $a0, 4($sp)");
-            popStack();
-            instructions.add("lw $a1, 4($sp)");
-            popStack();
+        else if (s.equals("/"))
             instructions.add("div $a0, $a1, $a0");
-            pushStack("a0");
-        }
-        else if (s.equals("+")){
-            instructions.add("lw $a0, 4($sp)");
-            popStack();
-            instructions.add("lw $a1, 4($sp)");
-            popStack();
+        else if (s.equals("+"))
             instructions.add("add $a0, $a0, $a1");
-            pushStack("a0");
-        }
-        else if (s.equals("-")){
-            instructions.add("lw $a0, 4($sp)");
-            popStack();
-            instructions.add("lw $a1, 4($sp)");
-            popStack();
+        else if (s.equals("-"))
             instructions.add("sub $a0, $a1, $a0");
-            pushStack("a0");
-        }
-        instructions.add("# end of operation " + s);
+        else if (s.equals("<"))
+            instructions.add("# <");  // TODO: complete
+        else if (s.equals(">"))
+            instructions.add("# >");  // TODO: complete
+        else if (s.equals("=="))
+            instructions.add("# ==");  // TODO: complete
+        else if (s.equals("<>"))
+            instructions.add("# <>");  // TODO: complete
+        else if (s.equals("and"))
+            instructions.add("# and");  // TODO: complete
+        else if (s.equals("or"))
+            instructions.add("# or");  // TODO: complete
+        else
+            instructions.add("# binary operation " + s + " did not handled.");
+        pushStack("a0");
+        instructions.add("# end of binary operation " + s);
     }
 
     public void write(){

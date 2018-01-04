@@ -310,13 +310,14 @@ expr_or [boolean nowIsLeft] returns [Type return_type, boolean isLeftHand]:
     ;
 
 expr_or_tmp returns [Type return_type]:
-        'or' expr_and [false] secondExpr = expr_or_tmp {
+        op='or' expr_and [false] secondExpr = expr_or_tmp {
             if($secondExpr.return_type == null){
                 $return_type = $expr_and.return_type;
             }
             else{
                 $return_type = checkTypes($expr_and.return_type, $secondExpr.return_type);
             }
+            mips.binaryOperationCommand($op.text);
         }
     | {
         $return_type = null;        
@@ -341,13 +342,14 @@ expr_and [boolean nowIsLeft] returns [Type return_type, boolean isLeftHand]:
     ;
 
 expr_and_tmp returns [Type return_type]:
-        'and' expr_eq [false] secondExpr = expr_and_tmp {
+        op='and' expr_eq [false] secondExpr = expr_and_tmp {
             if($secondExpr.return_type == null){
                 $return_type = $expr_eq.return_type;
             }
             else{
                 $return_type = checkTypes($expr_eq.return_type, $secondExpr.return_type);                
             }
+            mips.binaryOperationCommand($op.text);
         }
     | {
         $return_type = null;        
@@ -372,13 +374,14 @@ expr_eq [boolean nowIsLeft] returns [Type return_type, boolean isLeftHand]:
     ;
 
 expr_eq_tmp returns [Type return_type]:
-        ('==' | '<>') expr_cmp [false] secondExpr = expr_eq_tmp {
+        op=('==' | '<>') expr_cmp [false] secondExpr = expr_eq_tmp {
             if($secondExpr.return_type == null){
                 $return_type = $expr_cmp.return_type;
             }
             else{
                 $return_type = checkTypes($expr_cmp.return_type, $secondExpr.return_type);                
             }
+            mips.binaryOperationCommand($op.text);
         }
     | {
         $return_type = null;
@@ -403,13 +406,14 @@ expr_cmp [boolean nowIsLeft] returns [Type return_type, boolean isLeftHand]:
     ;
 
 expr_cmp_tmp returns [Type return_type]:
-        ('<' | '>') expr_add [false] secondExpr = expr_cmp_tmp {
+        op=('<' | '>') expr_add [false] secondExpr = expr_cmp_tmp {
             if($secondExpr.return_type == null){
                 $return_type = $expr_add.return_type;
             }
             else{
                 $return_type = checkTypes($expr_add.return_type, $secondExpr.return_type);                
             }
+            mips.binaryOperationCommand($op.text);
         }
     | {
         $return_type = null;
@@ -434,13 +438,14 @@ expr_add [boolean nowIsLeft] returns [Type return_type, boolean isLeftHand]:
     ;
 
 expr_add_tmp returns [Type return_type]:
-        ('+' | '-') expr_mult [false] secondExpr = expr_add_tmp {
+        op=('+' | '-') expr_mult [false] secondExpr = expr_add_tmp {
             if($secondExpr.return_type == null){
                 $return_type = $expr_mult.return_type;
             }
             else{
                 $return_type = checkTypes($expr_mult.return_type, $secondExpr.return_type);                
             }
+            mips.binaryOperationCommand($op.text);
         }
     | {
         $return_type = null;
@@ -466,13 +471,14 @@ expr_mult [boolean nowIsLeft] returns [Type return_type, boolean isLeftHand]:
     ;
 
 expr_mult_tmp returns [Type return_type]:
-        ('*' | '/') expr_un [false] secondExpr = expr_mult_tmp{
+        op=('*' | '/') expr_un [false] secondExpr = expr_mult_tmp{
             if($secondExpr.return_type == null){
                 $return_type = $expr_un.return_type;
             }
             else{
                 $return_type = checkTypes($expr_un.return_type, $secondExpr.return_type);
             }
+            mips.binaryOperationCommand($op.text);
         }
     | {
         $return_type = null;
@@ -480,9 +486,10 @@ expr_mult_tmp returns [Type return_type]:
     ;
 
 expr_un [boolean nowIsLeft] returns [Type return_type, boolean isLeftHand]:
-        ('not' | '-') secondExpr = expr_un [false] {
+        op=('not' | '-') secondExpr = expr_un [false] {
             $return_type = $secondExpr.return_type;
             $isLeftHand = false;
+            mips.unaryOperationCommand($op.text);
         }
     |   expr_mem [$nowIsLeft] {
             $return_type = $expr_mem.return_type;
