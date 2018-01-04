@@ -232,8 +232,19 @@ stm_write:
                     UI.printError("Can't write an array of Integer");
                 }
             }
-            mips.popStack();
-            mips.write();
+            String isInt = "int";
+            if($expr.return_type instanceof ArrayType){
+                if(((ArrayType)$expr.return_type).getMemberType instanceof CharType){
+                    int size = ((ArrayType)$expr.return_type).getLength();
+                    isInt = "char";
+                    mips.write(isInt, size);
+                }
+            }
+            else{
+                if($expr.return_type instanceof CharType)
+                    isInt = "char";
+                mips.write(isInt);                
+            }
         }
     ;
 
