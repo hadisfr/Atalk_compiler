@@ -276,7 +276,7 @@ expr returns [Type return_type, boolean isLeftHand]:
     ;
 
 expr_assign returns [Type return_type, boolean isLeftHand]:
-        expr_or '=' secondExpr = expr_assign {
+        expr_or [true] '=' secondExpr = expr_assign {
             $isLeftHand = $expr_or.isLeftHand;
             if($expr_or.isLeftHand == true){
                 $return_type = assignmentCheckTypes($expr_or.return_type, $secondExpr.return_type);
@@ -286,14 +286,14 @@ expr_assign returns [Type return_type, boolean isLeftHand]:
                 UI.printError("\"" + $expr_or.text + "\"" + " is not a Lvalue");
             }
         }
-    |   expr_or {
+    |   expr_or [false] {
         $return_type = $expr_or.return_type;
         $isLeftHand = $expr_or.isLeftHand;
     }
     ;
 
-expr_or returns [Type return_type, boolean isLeftHand]:
-        expr_and expr_or_tmp {
+expr_or [boolean nowIsLeft] returns [Type return_type, boolean isLeftHand]:
+        expr_and [$nowIsLeft] expr_or_tmp {
             if($expr_or_tmp.return_type == null){
                 $isLeftHand = $expr_and.isLeftHand;
             }
@@ -310,7 +310,7 @@ expr_or returns [Type return_type, boolean isLeftHand]:
     ;
 
 expr_or_tmp returns [Type return_type]:
-        'or' expr_and secondExpr = expr_or_tmp {
+        'or' expr_and [false] secondExpr = expr_or_tmp {
             if($secondExpr.return_type == null){
                 $return_type = $expr_and.return_type;
             }
@@ -323,8 +323,8 @@ expr_or_tmp returns [Type return_type]:
     }
     ;
 
-expr_and returns [Type return_type, boolean isLeftHand]:
-        expr_eq expr_and_tmp {
+expr_and [boolean nowIsLeft] returns [Type return_type, boolean isLeftHand]:
+        expr_eq [$nowIsLeft] expr_and_tmp {
             if($expr_and_tmp.return_type == null){
                 $isLeftHand = $expr_eq.isLeftHand;
             }
@@ -341,7 +341,7 @@ expr_and returns [Type return_type, boolean isLeftHand]:
     ;
 
 expr_and_tmp returns [Type return_type]:
-        'and' expr_eq secondExpr = expr_and_tmp {
+        'and' expr_eq [false] secondExpr = expr_and_tmp {
             if($secondExpr.return_type == null){
                 $return_type = $expr_eq.return_type;
             }
@@ -354,8 +354,8 @@ expr_and_tmp returns [Type return_type]:
     }
     ;
 
-expr_eq returns [Type return_type, boolean isLeftHand]:
-        expr_cmp expr_eq_tmp {
+expr_eq [boolean nowIsLeft] returns [Type return_type, boolean isLeftHand]:
+        expr_cmp [$nowIsLeft] expr_eq_tmp {
             if($expr_eq_tmp.return_type == null){
                 $isLeftHand = $expr_cmp.isLeftHand;
             }
@@ -372,7 +372,7 @@ expr_eq returns [Type return_type, boolean isLeftHand]:
     ;
 
 expr_eq_tmp returns [Type return_type]:
-        ('==' | '<>') expr_cmp secondExpr = expr_eq_tmp {
+        ('==' | '<>') expr_cmp [false] secondExpr = expr_eq_tmp {
             if($secondExpr.return_type == null){
                 $return_type = $expr_cmp.return_type;
             }
@@ -385,8 +385,8 @@ expr_eq_tmp returns [Type return_type]:
     }
     ;
 
-expr_cmp returns [Type return_type, boolean isLeftHand]:
-        expr_add expr_cmp_tmp {
+expr_cmp [boolean nowIsLeft] returns [Type return_type, boolean isLeftHand]:
+        expr_add [$nowIsLeft] expr_cmp_tmp {
             if($expr_cmp_tmp.return_type == null){
                 $isLeftHand = $expr_add.isLeftHand;
             }
@@ -403,7 +403,7 @@ expr_cmp returns [Type return_type, boolean isLeftHand]:
     ;
 
 expr_cmp_tmp returns [Type return_type]:
-        ('<' | '>') expr_add secondExpr = expr_cmp_tmp {
+        ('<' | '>') expr_add [false] secondExpr = expr_cmp_tmp {
             if($secondExpr.return_type == null){
                 $return_type = $expr_add.return_type;
             }
@@ -416,8 +416,8 @@ expr_cmp_tmp returns [Type return_type]:
     }
     ;
 
-expr_add returns [Type return_type, boolean isLeftHand]:
-        expr_mult expr_add_tmp {
+expr_add [boolean nowIsLeft] returns [Type return_type, boolean isLeftHand]:
+        expr_mult [$nowIsLeft] expr_add_tmp {
             if($expr_add_tmp.return_type == null){
                 $isLeftHand = $expr_mult.isLeftHand;
             }
@@ -434,7 +434,7 @@ expr_add returns [Type return_type, boolean isLeftHand]:
     ;
 
 expr_add_tmp returns [Type return_type]:
-        ('+' | '-') expr_mult secondExpr = expr_add_tmp {
+        ('+' | '-') expr_mult [false] secondExpr = expr_add_tmp {
             if($secondExpr.return_type == null){
                 $return_type = $expr_mult.return_type;
             }
@@ -447,8 +447,8 @@ expr_add_tmp returns [Type return_type]:
     }
     ;
 
-expr_mult returns [Type return_type, boolean isLeftHand]:
-        expr_un expr_mult_tmp {
+expr_mult [boolean nowIsLeft] returns [Type return_type, boolean isLeftHand]:
+        expr_un [$nowIsLeft] expr_mult_tmp {
             if($expr_mult_tmp.return_type == null){
                 $isLeftHand = $expr_un.isLeftHand;
             }
@@ -466,7 +466,7 @@ expr_mult returns [Type return_type, boolean isLeftHand]:
     ;
 
 expr_mult_tmp returns [Type return_type]:
-        ('*' | '/') expr_un secondExpr = expr_mult_tmp{
+        ('*' | '/') expr_un [false] secondExpr = expr_mult_tmp{
             if($secondExpr.return_type == null){
                 $return_type = $expr_un.return_type;
             }
@@ -479,25 +479,25 @@ expr_mult_tmp returns [Type return_type]:
     }
     ;
 
-expr_un returns [Type return_type, boolean isLeftHand]:
-        ('not' | '-') secondExpr = expr_un {
+expr_un [boolean nowIsLeft] returns [Type return_type, boolean isLeftHand]:
+        ('not' | '-') secondExpr = expr_un [false] {
             $return_type = $secondExpr.return_type;
             $isLeftHand = false;
         }
-    |   expr_mem {
+    |   expr_mem [$nowIsLeft] {
             $return_type = $expr_mem.return_type;
             $isLeftHand = $expr_mem.isLeftHand;
         }
     ;
 
-expr_mem returns [Type return_type, boolean isLeftHand]:
+expr_mem [boolean nowIsLeft] returns [Type return_type, boolean isLeftHand]:
         expr_other expr_mem_tmp [$expr_other.return_type] {
             $return_type = $expr_mem_tmp.return_type;
             $isLeftHand = $expr_other.isLeftHand;
         }
     ;
 
-expr_mem_tmp [Type input_type] returns [Type return_type] locals [Type local_type, boolean failed]:
+expr_mem_tmp [Type input_type] returns [Type return_type, int offset] locals [Type local_type, boolean failed]:
         '[' expr ']'{
             $failed = false;
             if($expr.return_type instanceof IntType){
@@ -527,20 +527,24 @@ expr_mem_tmp [Type input_type] returns [Type return_type] locals [Type local_typ
     }
     ;
 
-expr_other returns [Type return_type, boolean isLeftHand]:
+expr_other returns [Type return_type, boolean isLeftHand, boolean isId]:
         CONST_NUM {
             $return_type = IntType.getInstance();
             $isLeftHand = false;
+            $isId = false;
         }
     |   CONST_CHAR {
             $return_type = CharType.getInstance();
             $isLeftHand = false;
+            $isId = false;            
         }
     |   CONST_STR {
             $return_type = new ArrayType($CONST_STR.getText().length(), CharType.getInstance());
             $isLeftHand = false;
+            $isId = false;
     }
     |   ID {
+            $isId = true;
             SymbolTableItem item = SymbolTable.top.get(SymbolTableVariableItemBase.getKey($ID.text));
             if(item == null) {
                 UI.printError(String.format(
@@ -570,14 +574,17 @@ expr_other returns [Type return_type, boolean isLeftHand]:
     |   inline_array {
             $return_type = new ArrayType($inline_array.size, $inline_array.return_type);
             $isLeftHand = false;
+            $isId = false;
         }
     |   'read' '(' CONST_NUM ')'{
             $return_type = new ArrayType(Integer.parseInt($CONST_NUM.getText()), CharType.getInstance());
             $isLeftHand = false;               
+            $isId = false;
         }
     |   '(' expr ')' {
             $return_type = $expr.return_type;
             $isLeftHand = $expr.isLeftHand;
+            $isId = false;
         }
     ;
 
