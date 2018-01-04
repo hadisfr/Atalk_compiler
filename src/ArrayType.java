@@ -35,4 +35,10 @@ public class ArrayType extends Type {
 		return length;
 	}
 
+	public int getDimension(){
+		int result = 1;
+		for(Type iterator = memberType; iterator instanceof ArrayType; iterator = ((ArrayType)memberType).getMemberType())
+			result++;
+		return result;
+	}
 }

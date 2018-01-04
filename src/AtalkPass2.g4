@@ -232,6 +232,7 @@ stm_write:
                     UI.printError("Can't write an array of Integer");
                 }
             }
+            mips.popStack();
             mips.write();
         }
     ;
@@ -286,6 +287,7 @@ expr_assign returns [Type return_type, boolean isLeftHand]:
                 $return_type = NoType.getInstance();
                 UI.printError("\"" + $expr_or.text + "\"" + " is not a Lvalue");
             }
+            mips.assignCommand();
         }
     |   expr_or [false] {
         $return_type = $expr_or.return_type;
@@ -502,6 +504,24 @@ expr_mem [boolean nowIsLeft] returns [Type return_type, boolean isLeftHand]:
         expr_other expr_mem_tmp [$expr_other.return_type] {
             $return_type = $expr_mem_tmp.return_type;
             $isLeftHand = $expr_other.isLeftHand;
+
+            if($expr_other.isId == true){
+                UI.print($expr_other.IDText);
+                SymbolTableVariableItemBase var = (SymbolTableVariableItemBase) $expr_other.IDitem;
+                Type thisType = var.getVariable().getType();
+                int dimensions = 0;
+                if(thisType instanceof ArrayType){
+                    dimensions = ((ArrayType)thisType).getDimension();
+                }
+                if (var.getBaseRegister() == Register.SP){
+                    if ($nowIsLeft == false) mips.addToStack($expr_other.IDText, var.getOffset());
+                    else mips.addAddressToStack($expr_other.IDText, var.getOffset());
+                }
+                else {
+                    if ($nowIsLeft == false) mips.addGlobalToStack(var.getOffset());
+                    else mips.addGlobalAddressToStack($expr_other.IDText, var.getOffset());
+                }
+            }
         }
     ;
 
@@ -535,7 +555,7 @@ expr_mem_tmp [Type input_type] returns [Type return_type, int offset] locals [Ty
     }
     ;
 
-expr_other returns [Type return_type, boolean isLeftHand, boolean isId]:
+expr_other returns [Type return_type, boolean isLeftHand, boolean isId, SymbolTableItem IDitem, String IDText]:
         CONST_NUM {
             $return_type = IntType.getInstance();
             $isLeftHand = false;
@@ -558,7 +578,9 @@ expr_other returns [Type return_type, boolean isLeftHand, boolean isId]:
     }
     |   ID {
             $isId = true;
+            $IDText = $ID.text;
             SymbolTableItem item = SymbolTable.top.get(SymbolTableVariableItemBase.getKey($ID.text));
+            $IDitem = item;
             if(item == null) {
                 UI.printError(String.format(
                     "[Line #%s] Undefined variable \"%s\" has been used.",
@@ -583,15 +605,6 @@ expr_other returns [Type return_type, boolean isLeftHand, boolean isId]:
                     $isLeftHand = false;
                 }
                 // TODO: move following 9 lines to expr_mem
-                /* SymbolTableVariableItemBase var = (SymbolTableVariableItemBase) item;
-                if (var.getBaseRegister() == Register.SP){
-                    if ($ nowIsLeft == false) mips.addToStack($ID.text, var.getOffset());
-                    else mips.addAddressToStack($ID.text, var.getOffset());
-                }
-                else {
-                    if ($ nowIsLeft == false) mips.addGlobalToStack(var.getOffset());
-                    else mips.addGlobalAddressToStack($ID.text, var.getOffset());
-                } */
             }
         }
     |   inline_array {
