@@ -232,6 +232,7 @@ stm_write:
                     UI.printError("Can't write an array of Integer");
                 }
             }
+            mips.write();
         }
     ;
 
