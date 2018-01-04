@@ -9,12 +9,12 @@ actor Adder<34>
 
 	# Receivers
 	receiver init()
-		int b = 10
+		int b = 5
 		addsCount = b + 20
 		int c
+		c = 3
 		c = addsCount = 10
 		addsCount = addsCount - 3
-		addsCount + 1
         write(1)
 	end
 

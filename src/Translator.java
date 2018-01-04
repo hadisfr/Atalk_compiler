@@ -92,6 +92,7 @@ public class Translator {
         instructions.add("lw $a1, 4($sp)");
         popStack();
         instructions.add("sw $a0, 0($a1)");
+        pushStack("a0");
         instructions.add("# end of assign");
     }
 

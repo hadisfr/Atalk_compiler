@@ -261,7 +261,9 @@ stm_break:
     ;
 
 stm_assignment:
-        expr NL
+        expr NL {
+            //mips.popStack(); //TODO: should we do this?!
+        }
     ;
 
 end_rule:
