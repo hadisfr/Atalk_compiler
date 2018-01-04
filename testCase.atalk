@@ -9,40 +9,8 @@ actor Adder<34>
 
 	# Receivers
 	receiver init()
-		addsCount = 0
-        Tiny << init()
+		addsCount = 20
+        write(2 + 3)
 	end
 
-	receiver add(int x, char y)
-	    int z
-	    int[3] iterate
-		addsCount = addsCount + 1
-		write(x + y)
-        begin
-            int jallal
-            foreach iterator in iterate
-                int[2][3] jallal
-                if a < b
-                    break
-                else
-                    char[2][2] jallal
-                end
-            end
-            #break
-        end
-	end
-
-    receiver add(int[3][2][1] x, char[12][24] y)
-	        int a = 5 , c =2
-    		addsCount = addsCount + 1
-    		write(x + y)
-    end
-end
-
-
-actor Tiny<50>
-    int YooHaHa
-end
-
-actor Buggy<0>
 end
