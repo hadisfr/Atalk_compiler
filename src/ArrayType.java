@@ -45,11 +45,12 @@ public class ArrayType extends Type {
 	}
 
 	public ArrayList<Integer> getDimensionsSize(){
-		ArrayList<Integer> result = new ArrayList<>();
-		result.add(length);
-		for(Type iterator = memberType; iterator instanceof ArrayType; iterator = ((ArrayType)memberType).getMemberType()){
-			result.add(((ArrayType)iterator).getLength());
-		}
+		ArrayList<Integer> result;
+		if(memberType instanceof ArrayType)
+			result = ((ArrayType)memberType).getDimensionsSize();
+		else
+			result = new ArrayList<>();
+		result.add(0, length);
 		return result;
 	}
 }
