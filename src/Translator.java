@@ -195,8 +195,10 @@ public class Translator {
         popStack();
         if (s.equals("-"))
             instructions.add("neg $a0");
-        else if (s.equals("not"))
-            instructions.add("not $a0, $a0");
+        else if (s.equals("not")) {
+            instructions.add("addi, $a1, $zero, 0");
+            compareCommand("beq", "a1", "a0", "a0");
+        }
         else
             instructions.add("# unary operation " + s + " did not handled.");
         pushStack("a0");
