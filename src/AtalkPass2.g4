@@ -515,7 +515,7 @@ expr_un [boolean nowIsLeft] returns [Type return_type, boolean isLeftHand]:
 
 expr_mem [boolean nowIsLeft] returns [Type return_type, boolean isLeftHand]:
         expr_other {
-            if($expr_other.return_type instanceof ArrayType)
+            if($expr_other.isId == true && $expr_other.return_type instanceof ArrayType)
                 mips.addToStack(0);
         } expr_mem_tmp [$expr_other.return_type] {
             $return_type = $expr_mem_tmp.return_type;
