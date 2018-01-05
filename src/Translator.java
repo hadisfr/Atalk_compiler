@@ -219,7 +219,7 @@ public class Translator {
         instructions.add("lw $a1, 4($sp)");
         popStack();
         instructions.add("mult $a0, $a0, $a1");
-        instructions.add("lw $a0, 4($sp)");
+        instructions.add("lw $a1, 4($sp)");
         popStack();
         instructions.add("add $a0, $a0, $a1");
         pushStack("a0");
