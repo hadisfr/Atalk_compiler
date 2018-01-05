@@ -1,7 +1,7 @@
 actor Adder<34>
 	# Variables
 	int addsCount, myVar
-	char [3][5] addsArray
+	int [3][5] addsArray
 	int [3][2] addsArrayInt
 
 	char salam, chetori
