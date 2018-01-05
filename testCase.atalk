@@ -1,7 +1,7 @@
 actor Adder<34>
 	# Variables
 	int addsCount, myVar
-	char [3][5][5] addsArray
+	char [3][5] addsArray
 	int [3][2] addsArrayInt
 
 	char salam, chetori
@@ -9,7 +9,8 @@ actor Adder<34>
 
 	# Receivers
 	receiver init()
-		addsArray[1][2][3] = 10
+		addsArray[1][2] = 10
+		write(addsArray[1][2])
 	end
 
 end
