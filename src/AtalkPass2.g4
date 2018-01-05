@@ -407,7 +407,13 @@ expr_eq_tmp returns [Type return_type]:
             else{
                 $return_type = checkTypes($expr_cmp.return_type, $secondExpr.return_type);                
             }
-            mips.binaryOperationCommand($op.text);
+            int size = 1;
+            if($secondExpr.return_type instanceof ArrayType){
+                ArrayList<Integer> dimensionsList = ((ArrayType)$expr_or.return_type).getDimensionsSize();
+                for(int i = 0; i < dimensionsList.size(); i++)
+                    size *= dimensionsList.get(i);
+            }
+            mips.binaryOperationCommand($op.text, size);
         }
     | {
         $return_type = null;
