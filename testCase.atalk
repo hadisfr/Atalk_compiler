@@ -3,6 +3,7 @@ actor Adder<34>
 	int addsCount, myVar
 	int [3][5] addsArray
 	int [3][2] addsArrayInt
+	char[5] a, b, c
 
 	char salam, chetori
 	char jallal
@@ -11,6 +12,10 @@ actor Adder<34>
 	receiver init()
 		addsArray[1][2] = 10
 		write(addsArray[1][2])
+		a = "Hello"
+		b = a
+		c = b
+		write(c)
 	end
 
 end
