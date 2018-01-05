@@ -142,15 +142,24 @@ public class Translator {
         instructions.add("# end syscall");
     }
 
-    public void assignCommand(){
+    public void assignCommand(int size) {
         instructions.add("# start of assign");
-        instructions.add("lw $a0, 4($sp)");
-        popStack();
-        instructions.add("lw $a1, 4($sp)");
-        popStack();
-        instructions.add("sw $a0, 0($a1)");
-        pushStack("a0");
+        instructions.add("lw $a1, " + ((size + 1) * 4) + "($sp)");
+        for(int i = 0; i < size; i++) {
+            instructions.add("lw $a0, " + ((size - i) * 4) + "($sp)");
+            instructions.add("sw $a0, " + -(i * 4) + "($a1)");
+        }
+        for(int i = 0; i < size; i++)
+            popStack();  // data
+        popStack();  // addr
+        for(int i = 0; i < size; i++) {
+            instructions.add("lw $a0, " + -(i * 4) + "($a1)");
+            pushStack("a0");
+        }
         instructions.add("# end of assign");
+    }
+    public void assignCommand() {
+        assignCommand(1);
     }
 
     private void compareCommand(String cmd, String src_left, String src_right, String dst) {
