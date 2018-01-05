@@ -165,11 +165,28 @@ public class Translator {
     private void compareCommand(String cmd, String src_left, String src_right, String dst) {
         String label_middle = getLabel();
         String label_end = getLabel();
-        instructions.add(cmd + " $" + src_left + ", $" + src_right  + ", "+ label_middle);
+        instructions.add(cmd + " $" + src_left + ", $" + src_right  + ", " + label_middle);
         instructions.add("addi $" + dst + ", $zero, 0");
         instructions.add("j " + label_end);
         instructions.add(label_middle + ":\t" + "addi $" + dst + ", $zero, 1");
         instructions.add(label_end+":");
+    }
+    private void compareCommand(boolean is_equal, String temp_left, String temp_right, String dst, int size) {
+        String label1 = getLabel();
+        String label0 = getLabel();
+        String label_end = getLabel();
+        for(int i = 0; i < size; i++) {
+            instructions.add("lw $" + temp_right + ", " + (size - i) * 4 + "($sp)");  // right operand
+            instructions.add("lw $" + temp_left + ", " + (2 * size - i) * 4 + "($sp)");  // left operand
+            instructions.add("bne, $" + temp_left + ", $" + temp_right + ", " + (is_equal ? label0 : label1));
+        }
+        instructions.add("j " + (is_equal ? label1 : label0));
+        instructions.add(label0 + ":\t" + "addi $" + dst + ", $zero, 0");
+        instructions.add("j " + label_end);
+        instructions.add(label1 + ":\t" + "addi $" + dst + ", $zero, 1");
+        instructions.add(label_end + ":");
+        for(int i = 0; i < size * 2; i++)
+            popStack();
     }
 
     public void unaryOperationCommand(String s){
@@ -216,6 +233,22 @@ public class Translator {
             instructions.add("# binary operation " + s + " did not handled.");
         pushStack("a0");
         instructions.add("# end of binary operation " + s);
+    }
+
+    public void binaryOperationCommand(String s, int size) {
+        if(size == 1)
+            binaryOperationCommand(s);
+        else {
+            instructions.add("# start of binary operation " + s);
+            if (s.equals("=="))
+                compareCommand(true, "a1", "a2", "a0", size);
+            else if (s.equals("<>"))
+                compareCommand(false, "a1", "a2", "a0", size);
+            else
+                instructions.add("# binary operation " + s + " did not handled.");
+            pushStack("a0");
+            instructions.add("# end of binary operation " + s);
+        }
     }
 
     public void write(String type, int size) {
