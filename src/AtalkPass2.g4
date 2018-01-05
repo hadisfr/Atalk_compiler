@@ -525,6 +525,10 @@ expr_mem [boolean nowIsLeft] returns [Type return_type, boolean isLeftHand]:
                 SymbolTableVariableItemBase var = (SymbolTableVariableItemBase) $expr_other.IDitem;
                 Type thisType = var.getVariable().getType();
                 if(thisType instanceof ArrayType){
+                    if (var.getBaseRegister() == Register.SP)
+                        mips.addAddressToStack($expr_other.IDText, var.getOffset());
+                    else
+                        mips.addGlobalAddressToStack($expr_other.IDText, var.getOffset());
                     ArrayList<Integer> dimensionsList = ((ArrayType)thisType).getDimensionsSize();
                     int arrayOffset = 1;
                     for(int i = $expr_mem_tmp.levels; i < dimensionsList.size(); i++)
