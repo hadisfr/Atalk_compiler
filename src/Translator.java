@@ -210,4 +210,17 @@ public class Translator {
             initInstructions.add("sw $a0, " + (adr + 4 * i) + "($gp)");
         initInstructions.add("# end of adding a global variable");
     }
+
+    public void arrayLengthCalculate(int length) {
+        initInstructions.add("# start of calculating array length");
+        instructions.add("addi $a0, $zero, " + length);
+        instructions.add("lw $a1, 4($sp)");
+        popStack();
+        instructions.add("mult $a0, $a0, $a1");
+        instructions.add("lw $a0, 4($sp)");
+        popStack();
+        instructions.add("add $a0, $a0, $a1");
+        pushStack("a0");
+        initInstructions.add("# end of calculating array length");
+    }
 }
