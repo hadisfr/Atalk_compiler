@@ -273,7 +273,8 @@ stm_break:
 
 stm_assignment:
         expr NL {
-            mips.popStack();
+            for(int i = 0; i < $expr.numberOfPops; i++)
+                mips.popStack();
         }
     ;
 
@@ -283,14 +284,15 @@ end_rule:
     }
     ;
 
-expr returns [Type return_type, boolean isLeftHand]:
+expr returns [Type return_type, boolean isLeftHand, int numberOfPops]:
         expr_assign {
             $return_type = $expr_assign.return_type;
             $isLeftHand = $expr_assign.isLeftHand;
+            $numberOfPops = $expr_assign.numberOfPops;
         }
     ;
 
-expr_assign returns [Type return_type, boolean isLeftHand]:
+expr_assign returns [Type return_type, boolean isLeftHand, int numberOfPops]:
         expr_or [true] '=' secondExpr = expr_assign {
             $isLeftHand = $expr_or.isLeftHand;
             if($expr_or.isLeftHand == true){
@@ -300,11 +302,19 @@ expr_assign returns [Type return_type, boolean isLeftHand]:
                 $return_type = NoType.getInstance();
                 UI.printError("\"" + $expr_or.text + "\"" + " is not a Lvalue");
             }
-            mips.assignCommand();
+            ArrayList<Integer> dimensionsList = new ArrayList();
+            int size = 1;
+            if($expr_or.return_type instanceof ArrayType)
+                dimensionsList = ((ArrayType)$expr_or.return_type).getDimensionsSize();
+            for(int i = 0; i < dimensionsList.size(); i++)
+                size *= dimensionsList.get(i);
+            $numberOfPops = size;
+            mips.assignCommand(size);
         }
     |   expr_or [false] {
         $return_type = $expr_or.return_type;
         $isLeftHand = $expr_or.isLeftHand;
+        $numberOfPops = 1;
     }
     ;
 
