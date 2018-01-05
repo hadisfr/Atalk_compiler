@@ -514,7 +514,9 @@ expr_un [boolean nowIsLeft] returns [Type return_type, boolean isLeftHand]:
     ;
 
 expr_mem [boolean nowIsLeft] returns [Type return_type, boolean isLeftHand]:
-        expr_other expr_mem_tmp [$expr_other.return_type] {
+        expr_other {
+            mips.addToStack(0);
+        } expr_mem_tmp [$expr_other.return_type] {
             $return_type = $expr_mem_tmp.return_type;
             $isLeftHand = $expr_other.isLeftHand;
 
@@ -555,6 +557,13 @@ expr_mem_tmp [Type input_type] returns [Type return_type, int offset] locals [Ty
                 $return_type = NoType.getInstance();
                 UI.printError("Can only access array members with int");
             }
+
+            ArrayList<Integer> dimensions = ((ArrayType)$input_type).getDimensionsSize();
+            int dimensionsMult = 1;
+            for(int i = 0; i < dimensions.size(); i++)
+                dimensionsMult *= dimensions.get(i);
+            // mips.arrayLengthCalculate(dimensionsMult);
+
         }
         secondMemTmp = expr_mem_tmp [$local_type] 
         {
@@ -564,6 +573,8 @@ expr_mem_tmp [Type input_type] returns [Type return_type, int offset] locals [Ty
         }
     | {
         $return_type = $input_type;
+
+        mips.popStack();
     }
     ;
 

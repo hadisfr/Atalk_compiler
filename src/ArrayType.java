@@ -1,3 +1,5 @@
+import java.util.*;
+
 public class ArrayType extends Type {
 
 	private int length;
@@ -39,6 +41,14 @@ public class ArrayType extends Type {
 		int result = 1;
 		for(Type iterator = memberType; iterator instanceof ArrayType; iterator = ((ArrayType)memberType).getMemberType())
 			result++;
+		return result;
+	}
+
+	public ArrayList<Integer> getDimensionsSize(){
+		ArrayList<Integer> result = new ArrayList<>();
+		for(Type iterator = memberType; iterator instanceof ArrayType; iterator = ((ArrayType)memberType).getMemberType()){
+			result.add(((ArrayType)iterator).getLength());
+		}
 		return result;
 	}
 }
