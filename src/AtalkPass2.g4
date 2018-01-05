@@ -250,9 +250,40 @@ stm_write:
 
 stm_if_elseif_else [String container_actor, boolean is_init]:
     {beginScope();}
-        'if' expr NL statements [container_actor, is_init]
-        ('elseif' expr NL statements [container_actor, is_init])*
-        ('else' NL statements [container_actor, is_init])?
+        'if' {
+            mips.addComment("start if");
+            String label_end = mips.getLabel();
+            String label_next = mips.getLabel();
+        } expr NL {
+            mips.check_if_expr(label_next);
+        }
+        statements [container_actor, is_init] {
+            mips.jump(label_end);
+        }
+        (
+            'elseif' {
+                mips.addComment("elseif");
+                mips.addLabel(label_next);
+                label_next = mips.getLabel();
+            } expr NL {
+                mips.check_if_expr(label_next);
+            }
+            statements [container_actor, is_init] {
+                mips.jump(label_end);
+            }
+        )*
+        (
+            'else' {
+                mips.addComment("else");
+                mips.addLabel(label_next);
+                label_next = mips.getLabel();
+            } NL statements [container_actor, is_init]
+        )?
+        {
+            mips.addLabel(label_next);
+            mips.addLabel(label_end);
+            mips.addComment("end if");
+        }
         end_rule NL
     ;
 

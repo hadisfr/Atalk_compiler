@@ -1,16 +1,16 @@
 actor Adder<34>
-	int myVar
 	char[2] a, b
 
 	receiver init()
-		a = "Hi"
-		# if(a == "Hi")
-		#	b = "T "
-		# else
-		#	b = "F "
-		# end
-		myVar = (a == "Hi")
-		write(myVar)
+		a = read(2)
+		b = "<>"
+		if(a == "HE")
+			b = "he"
+		elseif(a == "HI")
+			b = "hi"
+		elseif(a == "Hh")
+			b = "hH"
+		end
+		write(b)
 	end
-
 end

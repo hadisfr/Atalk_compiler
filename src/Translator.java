@@ -20,7 +20,7 @@ public class Translator {
         labelCounter = 0;
     }
 
-    private String getLabel() {
+    public String getLabel() {
         return "label" + (labelCounter++);
     }
 
@@ -318,5 +318,23 @@ public class Translator {
         instructions.add("add $a0, $a0, $a1");
         pushStack("a0");
         instructions.add("# end of calculating array length");
+    }
+
+    public void addLabel(String label) {
+        instructions.add(label + ":");
+    }
+
+    public void addComment(String comment) {
+        instructions.add("# " + comment);
+    }
+
+    public void check_if_expr(String label) {
+        instructions.add("lw $a0, 4($sp)");
+        popStack();
+        instructions.add("beqz $a0, " + label);
+    }
+
+    public void jump(String label) {
+        instructions.add("j " + label);
     }
 }
