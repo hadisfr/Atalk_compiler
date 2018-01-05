@@ -1,21 +1,16 @@
 actor Adder<34>
-	# Variables
-	int addsCount, myVar
-	int [3][5] addsArray
-	int [3][2] addsArrayInt
-	char[5] a, b, c
+	int myVar
+	char[2] a, b
 
-	char salam, chetori
-	char jallal
-
-	# Receivers
 	receiver init()
-		addsArray[1][2] = 10
-		write(addsArray[1][2])
-		a = "Hello"
-		b = a
-		c = b
-		write(c)
+		a = "Hi"
+		# if(a == "Hi")
+		#	b = "T "
+		# else
+		#	b = "F "
+		# end
+		myVar = (a == "Hi")
+		write(myVar)
 	end
 
 end
