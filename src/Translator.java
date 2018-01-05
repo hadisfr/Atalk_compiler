@@ -41,7 +41,7 @@ public class Translator {
     }
 
     public void addToStack(int x){
-        instructions.add("# adding a number to stack");
+        instructions.add("# start of adding a number to stack");
         instructions.add("li $a0, " + x);
         pushStack("a0");
         instructions.add("# end of adding a number to stack");
@@ -72,7 +72,7 @@ public class Translator {
     }
 
     public void popStack(){
-        instructions.add("# pop stack");
+        instructions.add("# start of pop stack");
         instructions.add("addiu $sp, $sp, 4");
         instructions.add("# end of pop stack");
     }
@@ -106,7 +106,7 @@ public class Translator {
     }
 
     public void unaryOperationCommand(String s){
-        instructions.add("# unary operation " + s);
+        instructions.add("# start of unary operation " + s);
         instructions.add("lw $a0, 4($sp)");
         popStack();
         if (s.equals("-"))
@@ -120,7 +120,7 @@ public class Translator {
     }
 
     public void binaryOperationCommand(String s){
-        instructions.add("# binary operation " + s);
+        instructions.add("# start of binary operation " + s);
         instructions.add("lw $a0, 4($sp)");
         popStack();
         instructions.add("lw $a1, 4($sp)");
@@ -158,7 +158,7 @@ public class Translator {
             instructions.add("# unsupported writing type");
             return;
         }
-        instructions.add("# writing");
+        instructions.add("# start of writing");
         for(int i = 0; i < size; i++) {
             instructions.add("lw $a0, " + ((size - i) * 4) + "($sp)");
             this.addSystemCall(syscall_number);
@@ -179,13 +179,15 @@ public class Translator {
     }
 
     public void pushStack(String src) {
+        instructions.add("# start of push to stack");
         instructions.add("sw $" + src + ", 0($sp)");
         instructions.add("addiu $sp, $sp, -4");
+        instructions.add("# end of push to stack");
     }
     
     public void addLocalVariable(int adr, int size, boolean initialized){
         adr = adr * -1;
-        initInstructions.add("# adding a local variable");
+        initInstructions.add("# start of adding a local variable");
         if(initialized != true) {
             initInstructions.add("li $a0, 0");
             for(int i = 0; i < size; i++)
@@ -204,10 +206,23 @@ public class Translator {
 
     public void addGlobalVariable(int adr, int size){
         adr = adr * -1;
-        initInstructions.add("# adding a global variable");
+        initInstructions.add("# start of adding a global variable");
         initInstructions.add("li $a0, 0");
         for(int i = 0; i < size; i++)
             initInstructions.add("sw $a0, " + (adr + 4 * i) + "($gp)");
         initInstructions.add("# end of adding a global variable");
+    }
+
+    public void arrayLengthCalculate(int length) {
+        initInstructions.add("# start of calculating array length");
+        instructions.add("addi $a0, $zero, " + length);
+        instructions.add("lw $a1, 4($sp)");
+        popStack();
+        instructions.add("mult $a0, $a0, $a1");
+        instructions.add("lw $a0, 4($sp)");
+        popStack();
+        instructions.add("add $a0, $a0, $a1");
+        pushStack("a0");
+        initInstructions.add("# end of calculating array length");
     }
 }
