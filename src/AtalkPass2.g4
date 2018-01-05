@@ -408,7 +408,7 @@ expr_eq_tmp returns [Type return_type]:
                 $return_type = checkTypes($expr_cmp.return_type, $secondExpr.return_type);                
             }
             int size = 1;
-            if($secondExpr.return_type instanceof ArrayType){
+            if($expr_cmp.return_type instanceof ArrayType){
                 ArrayList<Integer> dimensionsList = ((ArrayType)$expr_cmp.return_type).getDimensionsSize();
                 for(int i = 0; i < dimensionsList.size(); i++)
                     size *= dimensionsList.get(i);
