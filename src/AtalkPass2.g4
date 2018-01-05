@@ -523,9 +523,19 @@ expr_mem [boolean nowIsLeft] returns [Type return_type, boolean isLeftHand]:
             if($expr_other.isId == true){
                 SymbolTableVariableItemBase var = (SymbolTableVariableItemBase) $expr_other.IDitem;
                 Type thisType = var.getVariable().getType();
-                int dimensions = 0;
                 if(thisType instanceof ArrayType){
-                    dimensions = ((ArrayType)thisType).getDimension();
+                    ArrayList<Integer> dimensionsList = ((ArrayType)thisType).getDimensionsSize();
+                    int arrayOffset = 1;
+                    for(int i = $expr_mem_tmp.levels; i < dimensionsList.size(); i++)
+                        arrayOffset *= dimensionsList.get(i);
+                    if (var.getBaseRegister() == Register.SP){
+                        if ($nowIsLeft == false) mips.addArrayToStack(arrayOffset);
+                        else mips.addArrayAddressToStack();
+                    }
+                    else {
+                        if ($nowIsLeft == false) mips.addGlobalArrayToStack(arrayOffset);
+                        else mips.addGlobalArrayAddressToStack();
+                    }
                 }
                 if (var.getBaseRegister() == Register.SP){
                     if ($nowIsLeft == false) mips.addToStack($expr_other.IDText, var.getOffset());
@@ -539,7 +549,7 @@ expr_mem [boolean nowIsLeft] returns [Type return_type, boolean isLeftHand]:
         }
     ;
 
-expr_mem_tmp [Type input_type] returns [Type return_type, int offset] locals [Type local_type, boolean failed]:
+expr_mem_tmp [Type input_type] returns [Type return_type, int levels] locals [Type local_type, boolean failed]:
         '[' expr ']'{
             $failed = false;
             if($expr.return_type instanceof IntType){
@@ -561,19 +571,21 @@ expr_mem_tmp [Type input_type] returns [Type return_type, int offset] locals [Ty
             ArrayList<Integer> dimensions = ((ArrayType)$input_type).getDimensionsSize();
             int dimensionsMult = 1;
             for(int i = 0; i < dimensions.size(); i++)
-                dimensionsMult *= dimensions.get(i);
-            // mips.arrayLengthCalculate(dimensionsMult);
-
+                if(i != 0)
+                    dimensionsMult *= dimensions.get(i);
+            mips.arrayLengthCalculate(dimensionsMult);
         }
         secondMemTmp = expr_mem_tmp [$local_type] 
         {
             if($failed == false){
                 $return_type = $secondMemTmp.return_type;
             }
+            $levels = $secondMemTmp.levels + 1;
         }
     | {
         $return_type = $input_type;
 
+        $levels = 0;
         mips.popStack();
     }
     ;
