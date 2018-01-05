@@ -48,27 +48,84 @@ public class Translator {
     }
 
     public void addToStack(String s, int adr){
-        adr = adr * -1;
         instructions.add("# start of adding variable to stack");
-        instructions.add("lw $a0, " + adr + "($fp)");
-        pushStack("a0");
+        addToStack("fp", s, adr);
         instructions.add("# end of adding variable to stack");
     }
 
+    public void addGlobalToStack(String s, int adr){
+        instructions.add("# start of adding global variable to stack");
+        addToStack("gp", s, adr);
+        instructions.add("# end of adding global variable to stack");
+    }
+
     public void addAddressToStack(String s, int adr) {
-        adr = adr * -1;
         instructions.add("# start of adding address to stack");
-        instructions.add("addiu $a0, $fp, " + adr);
-        pushStack("a0");
+        addAddressToStack("fp", s, adr);
         instructions.add("# end of adding address to stack");
     }
 
     public void addGlobalAddressToStack(String s, int adr){
-        adr = adr * -1;
         instructions.add("# start of adding global address to stack");
-        instructions.add("addiu $a0, $gp, " + adr);
-        pushStack("a0");
+        addAddressToStack("gp", s, adr);
         instructions.add("# end of adding global address to stack");
+    }
+
+    private void addToStack(String ref, String s, int adr) {
+        adr = adr * -1;
+        instructions.add("lw $a0, " + adr + "($" + ref + ")");
+        pushStack("a0");
+    }
+
+    private void addAddressToStack(String ref, String s, int adr) {
+        adr = adr * -1;
+        instructions.add("addiu $a0, $" + ref + ", " + adr);
+        pushStack("a0");
+    }
+
+    public void addArrayToStack(int size) {
+        instructions.add("# start of adding local array to stack");
+        addArrayToStack("fp", size);
+        instructions.add("# end of adding local array to stack");
+    }
+
+    public void addGlobalArrayToStack(int size) {
+        instructions.add("# start of adding local array to stack");
+        addArrayToStack("gp", size);
+        instructions.add("# end of adding local array to stack");
+    }
+
+    public void addArrayAddressToStack() {
+        instructions.add("# start of adding local array address to stack");
+        addArrayAddressToStack("fp");
+        instructions.add("# end of adding local array address to stack");
+    }
+
+    public void addGlobalArrayAddressToStack() {
+        instructions.add("# start of adding global array address to stack");
+        addArrayAddressToStack("gp");
+        instructions.add("# end of adding global array address to stack");
+    }
+
+    private void addArrayToStack(String ref, int size) {
+        addArrayAddressToStack(ref);
+        instructions.add("lw $a1, 4($sp)");
+        popStack();
+        for(int i = 0; i < size; i++) {
+            instructions.add("sw $a0, " + (i * -4) + "($a1)");
+            pushStack("a0");
+        }
+    }
+
+    private void addArrayAddressToStack(String ref) {
+        instructions.add("lw $a0, 4($sp)");
+        popStack();
+        instructions.add("lw $a1, 4($sp)");
+        popStack();
+        instructions.add("add $a0, $a0, $a1");
+        instructions.add("neg $a0, $a0");
+        instructions.add("add $a0, $a0, $" + ref);
+        pushStack("a0");
     }
 
     public void popStack(){
@@ -194,14 +251,6 @@ public class Translator {
                 pushStack("a0");
         }
         initInstructions.add("# end of adding a local variable");
-    }
-
-    public void addGlobalToStack(int adr){
-        adr = adr * -1;
-        instructions.add("# start of adding global variable to stack");
-        instructions.add("lw $a0, " + adr + "($gp)");
-        pushStack("a0");
-        instructions.add("# end of adding global variable to stack");
     }
 
     public void addGlobalVariable(int adr, int size){
