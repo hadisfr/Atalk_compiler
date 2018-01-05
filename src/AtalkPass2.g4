@@ -532,7 +532,7 @@ expr_mem [boolean nowIsLeft] returns [Type return_type, boolean isLeftHand]:
                     else mips.addAddressToStack($expr_other.IDText, var.getOffset());
                 }
                 else {
-                    if ($nowIsLeft == false) mips.addGlobalToStack(var.getOffset());
+                    if ($nowIsLeft == false) mips.addGlobalToStack($expr_other.IDText, var.getOffset());
                     else mips.addGlobalAddressToStack($expr_other.IDText, var.getOffset());
                 }
             }
