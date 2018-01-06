@@ -80,6 +80,7 @@ program:
         (actor | NL)*
         {
             endScope();
+            // mips.add_scheduler(ArrayList<String> actor_labels);  // TODO: make actor_labels
             mips.makeOutput();
         }
     ;

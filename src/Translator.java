@@ -8,7 +8,7 @@ public class Translator {
     private ArrayList <String> initInstructions;
     private ArrayList <String> argsInitInstruction;
     private int labelCounter;
-    public final String scheduler_label = "main";
+    public final String scheduler_label = "schd";
 
     public Translator(){
         instructions = new ArrayList<String>();
@@ -21,6 +21,10 @@ public class Translator {
             e.printStackTrace();
         }
         labelCounter = 0;
+
+        initInstructions.add("main:");
+        initInstructions.add("move " + Register.FP + ", " + Register.SP);
+        // TODO: init other ref regs
     }
 
     public String getLabel() {
@@ -28,11 +32,10 @@ public class Translator {
     }
 
     public void makeOutput(){
-        this.addSystemCall(10);
         try {
+            initInstructions.add("j " + scheduler_label);
+
             PrintWriter writer = new PrintWriter(output);
-            writer.println("main:");
-            writer.println("move " + Register.FP + ", " + Register.SP);
             for (int i=0;i<initInstructions.size();i++){
                 writer.println(initInstructions.get(i));
             }
@@ -409,5 +412,37 @@ public class Translator {
         instructions.add("lw $t1, 0($t0)");  // addr of recv handler
         instructions.add("jr $t1");
         instructions.add("# end of actor's turn");
+    }
+
+    public void add_scheduler(ArrayList<String> actor_labels) {
+        String jumper_label = getLabel();
+        String new_round_label = getLabel();
+        String exit_label = getLabel();
+
+        initInstructions.add("# start of scheduler initialization");
+        initInstructions.add("li " + Register.RUN + ", 0");
+        initInstructions.add("li " + Register.CNT + ", 0");
+        initInstructions.add("# end of scheduler initialization");
+
+        instructions.add("# start of scheduler");
+        instructions.add(scheduler_label + ":");
+        instructions.add("add " + Register.CNT + ", " + Register.CNT + ", 1");
+        instructions.add("li $t0, " + actor_labels.size());
+        instructions.add("bgt " + Register.CNT + ", $t0, " + new_round_label);
+        instructions.add("la $t0, " + jumper_label);
+        instructions.add("add #t0, $t0, " + Register.CNT);
+        instructions.add("sub, $t0, $t0, 1");
+        instructions.add("jr $t0");
+        instructions.add(jumper_label + ":");
+        for(int i = 0; i < actor_labels.size(); i++)
+            instructions.add("j " + actor_labels.get(i));
+        instructions.add(new_round_label + ":");
+        instructions.add("beqz " + Register.RUN + ", " + exit_label);
+        instructions.add("li " + Register.RUN + ", 0");
+        instructions.add("li " + Register.CNT + ", 0");
+        instructions.add("j " + scheduler_label);
+        instructions.add(exit_label + ":");
+        addSystemCall(10);
+        instructions.add("# end of scheduler");
     }
 }
