@@ -341,6 +341,7 @@ public class Translator {
         adr *= -1;
         argsInitInstruction.add("# start of adding a argument variable");
         for(int i = 0; i < size; i++) {
+            // ARGS_ADDR should be set before call
             argsInitInstruction.add("lw $t0, " + (-4 * i) + "(" + Register.ARGS_ADDR + ")");
             argsInitInstruction.add("sw $t0, " + (adr - 4 * i) + "(" + Register.AP + ")");
         }
@@ -385,5 +386,28 @@ public class Translator {
         instructions.add("# end of recv definition");
         instructions.addAll(argsInitInstruction);
         argsInitInstruction = new ArrayList<String>();
+    }
+
+    public void define_actor(String label, int adr) {
+        adr *= -1;
+
+        initInstructions.add("# start of actor definition");
+        initInstructions.add("sw $zero, " + adr + "(" + Register.MP + ")");  // number of msgs in mailbox
+        initInstructions.add("# end of actor definition");
+
+        instructions.add("# start of actor's turn");
+        instructions.add(label + ":");
+        instructions.add("lw $t0, " + adr + "(" + Register.MP + ")");  // number of msgs in mailbox
+        instructions.add("beqz $t0, " + scheduler_label);  // empty mailbox
+        instructions.add("sub $t1, $t0, 1");
+        instructions.add("sw $t1, " + adr + "(" + Register.MP + ")");  // next number of msgs in mailbox
+        instructions.add("add $t0, $t0, $t0");
+        instructions.add("neg $t0 $t0");
+        instructions.add("add $t0, $t0, " + Register.MP);
+        instructions.add("lw " + Register.ARGS_ADDR + ", 0($t0)");  // start addr of args
+        instructions.add("add $t0, $t0, 1");
+        instructions.add("lw $t1, 0($t0)");  // addr of recv handler
+        instructions.add("jr $t1");
+        instructions.add("# end of actor's turn");
     }
 }
