@@ -313,13 +313,13 @@ public class Translator {
     
     public void addLocalVariable(int adr, int size, boolean initialized){
         adr = adr * -1;
-        initInstructions.add("# start of adding a local variable");
+        instructions.add("# start of adding a local variable");
         if(initialized != true) {
-            initInstructions.add("li $t0, 0");
+            instructions.add("li $t0, 0");
             for(int i = 0; i < size; i++)
                 pushStack(new Register("$t0"));
         }
-        initInstructions.add("# end of adding a local variable");
+        instructions.add("# end of adding a local variable");
     }
 
     public void addGlobalVariable(int adr, int size){
@@ -333,12 +333,12 @@ public class Translator {
 
     public void addArgumentVariable(int adr, int size) {
         adr = adr * -1;
-        initInstructions.add("# start of adding a argument variable");
+        instructions.add("# start of adding a argument variable");
         for(int i = 0; i < size; i++) {
             instructions.add("lw $t0, " + (-4 * i) + "(" + Register.ARGS_ADDR + ")");
             instructions.add("sw $t0, " + (adr - 4 * i) + "(" + Register.AP + ")");
         }
-        initInstructions.add("# end of adding a argument variable");
+        instructions.add("# end of adding a argument variable");
     }
 
     public void arrayLengthCalculate(int length) {
