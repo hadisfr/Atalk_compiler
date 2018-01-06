@@ -101,7 +101,9 @@ state:
 
 state_many [Type input_type] :
         ID {
-            int offset = ((SymbolTableVariableItemBase)SymbolTable.top.get(SymbolTableVariableItemBase.getKey($ID.text))).getOffset();
+            int offset =
+                ((SymbolTableVariableItemBase)SymbolTable.top.get(SymbolTableVariableItemBase.getKey($ID.text)))
+                .getOffset();
             mips.addGlobalVariable(offset,
                 $input_type.size() / Type.WORD_BYTES);
         }
@@ -113,11 +115,15 @@ receiver [String container_actor] locals [boolean is_init, ArrayList<String> typ
         $typeKeys = new ArrayList();
     }
         'receiver' rcvr_id=ID '(' (first_type=type first_arg_id=ID {
-            int offset = ((SymbolTableVariableItemBase)SymbolTable.top.get(SymbolTableVariableItemBase.getKey($first_arg_id.text))).getOffset();
+            int offset =
+                ((SymbolTableVariableItemBase)SymbolTable.top.get(SymbolTableVariableItemBase.getKey($first_arg_id.text)))
+                .getOffset();
             mips.addArgumentVariable(offset, $first_type.return_type.size() / Type.WORD_BYTES);
             $typeKeys.add($first_type.return_type.toString());
         } (',' second_type =  type second_arg_id=ID{
-            offset = ((SymbolTableVariableItemBase)SymbolTable.top.get(SymbolTableVariableItemBase.getKey($second_arg_id.text))).getOffset();
+            offset =
+                ((SymbolTableVariableItemBase)SymbolTable.top.get(SymbolTableVariableItemBase.getKey($second_arg_id.text)))
+                .getOffset();
             mips.addArgumentVariable(offset, $second_type.return_type.size() / Type.WORD_BYTES);
             $typeKeys.add($second_type.return_type.toString());
         })*)? ')' NL
@@ -186,7 +192,9 @@ statement [String container_actor, boolean is_init]:
 stm_vardef returns [Type return_type]:
     {SymbolTable.define();}
         type ID vardef_right_hand {
-            int offset = ((SymbolTableVariableItemBase)SymbolTable.top.get(SymbolTableVariableItemBase.getKey($ID.text))).getOffset();
+            int offset =
+                ((SymbolTableVariableItemBase)SymbolTable.top.get(SymbolTableVariableItemBase.getKey($ID.text)))
+                .getOffset();
             mips.addLocalVariable(offset,
                 $type.return_type.size() / Type.WORD_BYTES, $vardef_right_hand.initialized);  
         } 
@@ -216,7 +224,9 @@ vardef_right_hand returns [Type return_type, boolean initialized]:
 
 vardef_many [Type input_type] returns [Type return_type]:
         ',' ID vardef_right_hand {
-            int offset = ((SymbolTableVariableItemBase)SymbolTable.top.get(SymbolTableVariableItemBase.getKey($ID.text))).getOffset();
+            int offset =
+                ((SymbolTableVariableItemBase)SymbolTable.top.get(SymbolTableVariableItemBase.getKey($ID.text)))
+                .getOffset();
             mips.addLocalVariable(offset,
                 $input_type.size() / Type.WORD_BYTES, $vardef_right_hand.initialized);  
         }
