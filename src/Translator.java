@@ -42,8 +42,8 @@ public class Translator {
 
     public void addToStack(int x){
         instructions.add("# start of adding a number to stack");
-        instructions.add("li $a0, " + x);
-        pushStack("a0");
+        instructions.add("li $t0, " + x);
+        pushStack("t0");
         instructions.add("# end of adding a number to stack");
     }
 
@@ -73,14 +73,14 @@ public class Translator {
 
     private void addToStack(String ref, String s, int adr) {
         adr = adr * -1;
-        instructions.add("lw $a0, " + adr + "($" + ref + ")");
-        pushStack("a0");
+        instructions.add("lw $t0, " + adr + "($" + ref + ")");
+        pushStack("t0");
     }
 
     private void addAddressToStack(String ref, String s, int adr) {
         adr = adr * -1;
-        instructions.add("addiu $a0, $" + ref + ", " + adr);
-        pushStack("a0");
+        instructions.add("addiu $t0, $" + ref + ", " + adr);
+        pushStack("t0");
     }
 
     public void addArrayToStack(int size) {
@@ -109,24 +109,24 @@ public class Translator {
 
     private void addArrayToStack(String ref, int size) {
         addArrayAddressToStack(ref);
-        instructions.add("lw $a1, 4($sp)");  // start addr
+        instructions.add("lw $t1, 4($sp)");  // start addr
         popStack();
         for(int i = 0; i < size; i++) {
-            instructions.add("lw $a0, " + (i * -4) + "($a1)");
-            pushStack("a0");
+            instructions.add("lw $t0, " + (i * -4) + "($t1)");
+            pushStack("t0");
         }
     }
 
     private void addArrayAddressToStack(String ref) {
-        instructions.add("lw $a0, 4($sp)");  // array start addr
+        instructions.add("lw $t0, 4($sp)");  // array start addr
         popStack();
-        instructions.add("lw $a1, 4($sp)");  // array length
+        instructions.add("lw $t1, 4($sp)");  // array length
         popStack();
-        instructions.add("addi $a2, $zero, 4");
-        instructions.add("mul $a1, $a1, $a2");
-        instructions.add("neg $a1, $a1");
-        instructions.add("add $a0, $a0, $a1");
-        pushStack("a0");
+        instructions.add("addi $t2, $zero, 4");
+        instructions.add("mul $t1, $t1, $t2");
+        instructions.add("neg $t1, $t1");
+        instructions.add("add $t0, $t0, $t1");
+        pushStack("t0");
     }
 
     public void popStack(){
@@ -144,17 +144,17 @@ public class Translator {
 
     public void assignCommand(int size) {
         instructions.add("# start of assign");
-        instructions.add("lw $a1, " + ((size + 1) * 4) + "($sp)");
+        instructions.add("lw $t1, " + ((size + 1) * 4) + "($sp)");
         for(int i = 0; i < size; i++) {
-            instructions.add("lw $a0, " + ((size - i) * 4) + "($sp)");
-            instructions.add("sw $a0, " + -(i * 4) + "($a1)");
+            instructions.add("lw $t0, " + ((size - i) * 4) + "($sp)");
+            instructions.add("sw $t0, " + -(i * 4) + "($t1)");
         }
         for(int i = 0; i < size; i++)
             popStack();  // data
         popStack();  // addr
         for(int i = 0; i < size; i++) {
-            instructions.add("lw $a0, " + -(i * 4) + "($a1)");
-            pushStack("a0");
+            instructions.add("lw $t0, " + -(i * 4) + "($t1)");
+            pushStack("t0");
         }
         instructions.add("# end of assign");
     }
@@ -191,49 +191,49 @@ public class Translator {
 
     public void unaryOperationCommand(String s){
         instructions.add("# start of unary operation " + s);
-        instructions.add("lw $a0, 4($sp)");
+        instructions.add("lw $t0, 4($sp)");
         popStack();
         if (s.equals("-"))
-            instructions.add("neg $a0");
+            instructions.add("neg $t0");
         else if (s.equals("not")) {
-            instructions.add("addi, $a1, $zero, 0");
-            compareCommand("beq", "a1", "a0", "a0");
+            instructions.add("addi, $t1, $zero, 0");
+            compareCommand("beq", "t1", "t0", "t0");
         }
         else
             instructions.add("# unary operation " + s + " did not handled.");
-        pushStack("a0");
+        pushStack("t0");
         instructions.add("# end of unary operation " + s);
     }
 
     public void binaryOperationCommand(String s){
         instructions.add("# start of binary operation " + s);
-        instructions.add("lw $a0, 4($sp)");
+        instructions.add("lw $t0, 4($sp)");
         popStack();
-        instructions.add("lw $a1, 4($sp)");
+        instructions.add("lw $t1, 4($sp)");
         popStack();
         if (s.equals("*"))
-            instructions.add("mul $a0, $a0, $a1");
+            instructions.add("mul $t0, $t0, $t1");
         else if (s.equals("/"))
-            instructions.add("div $a0, $a1, $a0");
+            instructions.add("div $t0, $t1, $t0");
         else if (s.equals("+"))
-            instructions.add("add $a0, $a0, $a1");
+            instructions.add("add $t0, $t0, $t1");
         else if (s.equals("-"))
-            instructions.add("sub $a0, $a1, $a0");
+            instructions.add("sub $t0, $t1, $t0");
         else if (s.equals("and"))
-            instructions.add("and $a0, $a0, $a1");
+            instructions.add("and $t0, $t0, $t1");
         else if (s.equals("or"))
-            instructions.add("or $a0, $a0, $a1");
+            instructions.add("or $t0, $t0, $t1");
         else if (s.equals("=="))
-            compareCommand("beq", "a1", "a0", "a0");
+            compareCommand("beq", "t1", "t0", "t0");
         else if (s.equals("<>"))
-            compareCommand("bne", "a1", "a0", "a0");
+            compareCommand("bne", "t1", "t0", "t0");
         else if (s.equals("<"))
-            compareCommand("blt", "a1", "a0", "a0");
+            compareCommand("blt", "t1", "t0", "t0");
         else if (s.equals(">"))
-            compareCommand("bgt", "a1", "a0", "a0");
+            compareCommand("bgt", "t1", "t0", "t0");
         else
             instructions.add("# binary operation " + s + " did not handled.");
-        pushStack("a0");
+        pushStack("t0");
         instructions.add("# end of binary operation " + s);
     }
 
@@ -243,12 +243,12 @@ public class Translator {
         else {
             instructions.add("# start of binary operation " + s);
             if (s.equals("=="))
-                compareCommand(true, "a1", "a2", "a0", size);
+                compareCommand(true, "t1", "t2", "t0", size);
             else if (s.equals("<>"))
-                compareCommand(false, "a1", "a2", "a0", size);
+                compareCommand(false, "t1", "t2", "t0", size);
             else
                 instructions.add("# binary operation " + s + " did not handled.");
-            pushStack("a0");
+            pushStack("t0");
             instructions.add("# end of binary operation " + s);
         }
     }
@@ -291,9 +291,9 @@ public class Translator {
         adr = adr * -1;
         initInstructions.add("# start of adding a local variable");
         if(initialized != true) {
-            initInstructions.add("li $a0, 0");
+            initInstructions.add("li $t0, 0");
             for(int i = 0; i < size; i++)
-                pushStack("a0");
+                pushStack("t0");
         }
         initInstructions.add("# end of adding a local variable");
     }
@@ -301,22 +301,29 @@ public class Translator {
     public void addGlobalVariable(int adr, int size){
         adr = adr * -1;
         initInstructions.add("# start of adding a global variable");
-        initInstructions.add("li $a0, 0");
+        initInstructions.add("li $t0, 0");
         for(int i = 0; i < size; i++)
-            initInstructions.add("sw $a0, " + (adr - 4 * i) + "($gp)");
+            initInstructions.add("sw $t0, " + (adr - 4 * i) + "($gp)");
+        initInstructions.add("# end of adding a global variable");
+    }
+
+    public void addArgumentVariable(int adr, int size) {
+        adr = adr * -1;
+        initInstructions.add("# start of adding a global variable");
+        // TODO: complete
         initInstructions.add("# end of adding a global variable");
     }
 
     public void arrayLengthCalculate(int length) {
         instructions.add("# start of calculating array length");
-        instructions.add("addi $a0, $zero, " + length);
-        instructions.add("lw $a1, 4($sp)");
+        instructions.add("addi $t0, $zero, " + length);
+        instructions.add("lw $t1, 4($sp)");
         popStack();
-        instructions.add("mul $a0, $a0, $a1");
-        instructions.add("lw $a1, 4($sp)");
+        instructions.add("mul $t0, $t0, $t1");
+        instructions.add("lw $t1, 4($sp)");
         popStack();
-        instructions.add("add $a0, $a0, $a1");
-        pushStack("a0");
+        instructions.add("add $t0, $t0, $t1");
+        pushStack("t0");
         instructions.add("# end of calculating array length");
     }
 
@@ -329,9 +336,9 @@ public class Translator {
     }
 
     public void check_if_expr(String label) {
-        instructions.add("lw $a0, 4($sp)");
+        instructions.add("lw $t0, 4($sp)");
         popStack();
-        instructions.add("beqz $a0, " + label);
+        instructions.add("beqz $t0, " + label);
     }
 
     public void jump(String label) {
