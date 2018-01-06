@@ -73,16 +73,25 @@ grammar AtalkPass2;
 }
 
 program:
-        {UI.printHeader("Pass 2");}
-        {beginScope();}
+        {
+            UI.printHeader("Pass 2");
+            beginScope();
+        }
         (actor | NL)*
-        {endScope(); mips.makeOutput();}
+        {
+            endScope();
+            mips.makeOutput();
+        }
     ;
 
 actor:
     {beginScope();}
-        'actor' ID '<' CONST_NUM '>' NL
+        'actor' actor_id=ID '<' CONST_NUM '>' NL
             (state | receiver [$ID.text] | NL)*
+        {
+            // define_actor($actor_id.text, int adr);  // TODO: get adr from symbol table
+            // TODO: check if actor has `init()` recv, use codes like `self << init()`
+        }
         end_rule (NL | EOF)
     ;
 
@@ -240,7 +249,7 @@ stm_tell [String container_actor, boolean is_init] locals [ArrayList<String> typ
             for(int i = 0; i < $typeKeys.size(); i++)
                 keys = keys + "#" + $typeKeys.get(i);
             
-            //use keys and argsSize as you wish
+            // TODO: add `tell` function
             
             if($actr.text != "sender") {
                 String actor_name = (($actr.text.equals("self")) ? container_actor : $actr.text);
@@ -252,6 +261,7 @@ stm_tell [String container_actor, boolean is_init] locals [ArrayList<String> typ
                         $actr.text));
                 } else {
                     // TODO check recv existance.
+                    // TODO: handle casting
                 }
             } else {
                 if($is_init)
@@ -290,7 +300,7 @@ stm_if_elseif_else [String container_actor, boolean is_init]:
         'if' {
             mips.addComment("start if");
             String label_end = mips.getLabel();
-            String label_next = mips.getLabel();
+            String label_next = mips.getLabel();  // TODO: should be pased to statements to handle break
         } expr NL {
             mips.check_if_expr(label_next);
         }
@@ -324,19 +334,21 @@ stm_if_elseif_else [String container_actor, boolean is_init]:
         end_rule NL
     ;
 
-stm_foreach [String container_actor, boolean is_init]:
+stm_foreach [String container_actor, boolean is_init]:  // TODO: support foreach
     {beginScope();}
         'foreach' ID 'in' expr NL
             statements [container_actor, is_init]
         end_rule NL
     ;
 
-stm_quit:
+stm_quit:  // TODO: support quit
         'quit' NL
     ;
 
-stm_break:
-        'break' NL
+stm_break:  // TODO: support break
+        'break' {
+            // mips.jump(label_end);
+        } NL
     ;
 
 stm_assignment:
