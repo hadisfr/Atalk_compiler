@@ -259,9 +259,7 @@ stm_tell [String container_actor, boolean is_init] locals [ArrayList<String> typ
                 keys += "#";
             for(int i = 0; i < $typeKeys.size(); i++)
                 keys = keys + "#" + $typeKeys.get(i);
-            
-            // TODO: add `tell` function
-            
+
             if($actr.text != "sender") {
                 String actor_name = (($actr.text.equals("self")) ? container_actor : $actr.text);
                 SymbolTableItem item = SymbolTable.top.get(SymbolTableActorItem.getKey(actor_name));
@@ -273,6 +271,11 @@ stm_tell [String container_actor, boolean is_init] locals [ArrayList<String> typ
                 } else {
                     // TODO check recv existance.
                     // TODO: handle casting
+                    /* tell(int actor_adr, String receiver_label, int size) // TODO:
+                            get actor_adr from symbol_table using $actor_name.text
+                            make receiver_label using $actor_name.text and typeKeys
+                            calculate sum of length of all args
+                    */
                 }
             } else {
                 if($is_init)
@@ -352,8 +355,10 @@ stm_foreach [String container_actor, boolean is_init]:  // TODO: support foreach
         end_rule NL
     ;
 
-stm_quit:  // TODO: support quit
-        'quit' NL
+stm_quit:
+        'quit' {
+            mips.quit()
+        } NL
     ;
 
 stm_break:  // TODO: support break

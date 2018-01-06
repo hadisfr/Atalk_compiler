@@ -9,6 +9,7 @@ public class Translator {
     private ArrayList <String> argsInitInstruction;
     private int labelCounter;
     public final String scheduler_label = "schd";
+    public final String quit_label = "quit";
 
     public Translator(){
         instructions = new ArrayList<String>();
@@ -34,6 +35,8 @@ public class Translator {
     public void makeOutput(){
         try {
             initInstructions.add("j " + scheduler_label);
+            instructions.add(quit_label + ":");
+            addSystemCall(10);
 
             PrintWriter writer = new PrintWriter(output);
             for (int i=0;i<initInstructions.size();i++){
@@ -417,7 +420,6 @@ public class Translator {
     public void add_scheduler(ArrayList<String> actor_labels) {
         String jumper_label = getLabel();
         String new_round_label = getLabel();
-        String exit_label = getLabel();
 
         initInstructions.add("# start of scheduler initialization");
         initInstructions.add("li " + Register.RUN + ", 0");
@@ -437,12 +439,20 @@ public class Translator {
         for(int i = 0; i < actor_labels.size(); i++)
             instructions.add("j " + actor_labels.get(i));
         instructions.add(new_round_label + ":");
-        instructions.add("beqz " + Register.RUN + ", " + exit_label);
+        instructions.add("beqz " + Register.RUN + ", " + quit_label);
         instructions.add("li " + Register.RUN + ", 0");
         instructions.add("li " + Register.CNT + ", 0");
         instructions.add("j " + scheduler_label);
-        instructions.add(exit_label + ":");
-        addSystemCall(10);
         instructions.add("# end of scheduler");
+    }
+
+    public void quit() {
+        instructions.add("j " + quit_label);
+    }
+
+    public void tell(int actor_adr, String receiver_label, int size) {
+        instructions.add("# start of tell");
+        // TODO: complete
+        instructions.add("# end of tell");
     }
 }
