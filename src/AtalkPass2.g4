@@ -99,19 +99,29 @@ state_many [Type input_type] :
         }
     ;
 
-receiver [String container_actor] locals [boolean is_init]:
-    {beginScope();}
+receiver [String container_actor] locals [boolean is_init, ArrayList<String> typeKeys]:
+    {
+        beginScope();
+        $typeKeys = new ArrayList();
+    }
         'receiver' rcvr_id=ID '(' (first_type=type first_arg_id=ID {
             int offset = ((SymbolTableVariableItemBase)SymbolTable.top.get(SymbolTableVariableItemBase.getKey($first_arg_id.text))).getOffset();
             mips.addArgumentVariable(offset, $first_type.return_type.size() / Type.WORD_BYTES);
+            $typeKeys.add($first_type.return_type.toString());
         } (',' second_type =  type second_arg_id=ID{
             offset = ((SymbolTableVariableItemBase)SymbolTable.top.get(SymbolTableVariableItemBase.getKey($second_arg_id.text))).getOffset();
             mips.addArgumentVariable(offset, $second_type.return_type.size() / Type.WORD_BYTES);
+            $typeKeys.add($second_type.return_type.toString());
         })*)? ')' NL
         {
             $is_init = ($rcvr_id.text.equals("init") && ($first_arg_id == null));
-
-            mips.define_receiver("label");  // TODO: add true label
+            String keys = "recv#";
+            keys += $rcvr_id.text;
+            if($typeKeys.size() == 0)
+                keys += "#";
+            for(int i = 0; i < $typeKeys.size(); i++)
+                keys = keys + "#" + $typeKeys.get(i);
+            mips.define_receiver($container_actor + "_" + keys);
         }
             statements [container_actor, $is_init]
         {
