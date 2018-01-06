@@ -1,7 +1,7 @@
 public class Register {
 
 	public static final Register ACC = new Register("$a0"); // Accumulator
-	public static final Register ARGS_ADDR = new Register("$a1"); // Accumulator
+	public static final Register ARGS_ADDR = new Register("$a1"); // ARGS_ADDR
 	public static final Register SP = new Register("$sp"); // Stack Pointer
 	public static final Register GP = new Register("$gp"); // Global Pointer
 	public static final Register FP = new Register("$fp"); // Frame Pointer
