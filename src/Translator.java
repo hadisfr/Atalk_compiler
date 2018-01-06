@@ -59,6 +59,12 @@ public class Translator {
         instructions.add("# end of adding global variable to stack");
     }
 
+    public void addArgumentToStack(String s, int adr){
+        instructions.add("# start of adding argument variable to stack");
+        addToStack(Register.AP, s, adr);
+        instructions.add("# end of adding argument variable to stack");
+    }
+
     public void addAddressToStack(String s, int adr) {
         instructions.add("# start of local variable's adding address to stack");
         addAddressToStack(Register.FP, s, adr);
@@ -69,6 +75,12 @@ public class Translator {
         instructions.add("# start of adding global variable's address to stack");
         addAddressToStack(Register.GP, s, adr);
         instructions.add("# end of adding global variable's address to stack");
+    }
+
+    public void addArgumentAddressToStack(String s, int adr){
+        instructions.add("# start of adding argument variable's address to stack");
+        addAddressToStack(Register.AP, s, adr);
+        instructions.add("# end of adding argument variable's address to stack");
     }
 
     private void addToStack(Register ref, String s, int adr) {
@@ -95,6 +107,12 @@ public class Translator {
         instructions.add("# end of adding global array to stack");
     }
 
+    public void addArgumentArrayToStack(int size) {
+        instructions.add("# start of adding argument array to stack");
+        addArrayToStack(Register.AP, size);
+        instructions.add("# end of adding argument array to stack");
+    }
+
     public void addArrayAddressToStack() {
         instructions.add("# start of adding local array's address to stack");
         addArrayAddressToStack(Register.FP);
@@ -105,6 +123,12 @@ public class Translator {
         instructions.add("# start of adding global array's address to stack");
         addArrayAddressToStack(Register.GP);
         instructions.add("# end of adding global array's address to stack");
+    }
+
+    public void addArgumentArrayAddressToStack() {
+        instructions.add("# start of adding argument array's address to stack");
+        addArrayAddressToStack(Register.AP);
+        instructions.add("# end of adding argument array's address to stack");
     }
 
     private void addArrayToStack(Register ref, int size) {
@@ -309,9 +333,12 @@ public class Translator {
 
     public void addArgumentVariable(int adr, int size) {
         adr = adr * -1;
-        initInstructions.add("# start of adding a global variable");
-        // TODO: complete
-        initInstructions.add("# end of adding a global variable");
+        initInstructions.add("# start of adding a argument variable");
+        for(int i = 0; i < size; i++) {
+            instructions.add("lw $t0, " + (-4 * i) + "(" + Register.ARGS_ADDR + ")");
+            instructions.add("sw $t0, " + (adr - 4 * i) + "(" + Register.AP + ")");
+        }
+        initInstructions.add("# end of adding a argument variable");
     }
 
     public void arrayLengthCalculate(int length) {
