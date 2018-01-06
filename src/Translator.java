@@ -87,13 +87,13 @@ public class Translator {
     }
 
     private void addToStack(Register ref, String s, int adr) {
-        adr = adr * -1;
+        adr *= -1;
         instructions.add("lw $t0, " + adr + "(" + ref + ")");
         pushStack(new Register("$t0"));
     }
 
     private void addAddressToStack(Register ref, String s, int adr) {
-        adr = adr * -1;
+        adr *= -1;
         instructions.add("addiu $t0, " + ref + ", " + adr);
         pushStack(new Register("$t0"));
     }
@@ -318,7 +318,7 @@ public class Translator {
     }
     
     public void addLocalVariable(int adr, int size, boolean initialized){
-        adr = adr * -1;
+        adr *= -1;
         instructions.add("# start of adding a local variable");
         if(initialized != true) {
             instructions.add("li $t0, 0");
@@ -329,7 +329,7 @@ public class Translator {
     }
 
     public void addGlobalVariable(int adr, int size){
-        adr = adr * -1;
+        adr *= -1;
         initInstructions.add("# start of adding a global variable");
         initInstructions.add("li $t0, 0");
         for(int i = 0; i < size; i++)
@@ -338,7 +338,7 @@ public class Translator {
     }
 
     public void addArgumentVariable(int adr, int size) {
-        adr = adr * -1;
+        adr *= -1;
         argsInitInstruction.add("# start of adding a argument variable");
         for(int i = 0; i < size; i++) {
             argsInitInstruction.add("lw $t0, " + (-4 * i) + "(" + Register.ARGS_ADDR + ")");
