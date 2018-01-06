@@ -70,7 +70,6 @@ grammar AtalkPass2;
     }
 
     Translator mips = new Translator();
-    String scheduler_label = "main";
 }
 
 program:
@@ -115,7 +114,7 @@ receiver [String container_actor] locals [boolean is_init]:
         }
             statements [container_actor, $is_init]
         {
-            // mips.jump(scheduler_label);
+            // mips.jump(mips.scheduler_label);
         }
         end_rule NL
     ;

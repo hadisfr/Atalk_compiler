@@ -8,6 +8,7 @@ public class Translator {
     private ArrayList <String> initInstructions;
     private ArrayList <String> argsInitInstruction;
     private int labelCounter;
+    public final String scheduler_label = "main";
 
     public Translator(){
         instructions = new ArrayList<String>();
