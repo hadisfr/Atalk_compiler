@@ -40,7 +40,7 @@ grammar AtalkPass1;
         SymbolTableArgumentVariableItem item =
             new SymbolTableArgumentVariableItem(
                 new Variable(name, type),
-                SymbolTable.top.getOffset(Register.TEMP9)
+                SymbolTable.top.getOffset(Register.AP)
             );
         UI.printDetail(UI.OutputCategory.ArgumentVar, name + "\t" + type + "\t" + "Offset:"
         + ((SymbolTableVariableItemBase)item).getOffset()

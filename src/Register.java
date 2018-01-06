@@ -11,9 +11,9 @@ public class Register {
 	public static final Register TEMP4 = new Register("$t4");
 	public static final Register TEMP5 = new Register("$t5");
 	public static final Register TEMP6 = new Register("$t6");
-	public static final Register TEMP7 = new Register("$t7");
-	public static final Register TEMP8 = new Register("$t8");
-	public static final Register TEMP9 = new Register("$t9"); 
+	public static final Register TP = new Register("$t7"); // Args Tell Pointer
+	public static final Register MP = new Register("$t8"); // Mailboxes' Pointer
+	public static final Register AP = new Register("$t9"); // Args Recv Pointer
 	public static final Register SYS_REG = new Register("$v0");
 	public static final Register ZERO = new Register("$zero");
 
