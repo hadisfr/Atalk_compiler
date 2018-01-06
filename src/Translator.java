@@ -29,7 +29,7 @@ public class Translator {
         try {
             PrintWriter writer = new PrintWriter(output);
             writer.println("main:");
-            writer.println("move $fp, $sp");
+            writer.println("move " + Register.FP + ", " + Register.SP);
             for (int i=0;i<initInstructions.size();i++){
                 writer.println(initInstructions.get(i));
             }
@@ -43,95 +43,95 @@ public class Translator {
     public void addToStack(int x){
         instructions.add("# start of adding a number to stack");
         instructions.add("li $t0, " + x);
-        pushStack("t0");
+        pushStack(new Register("$t0"));
         instructions.add("# end of adding a number to stack");
     }
 
     public void addToStack(String s, int adr){
         instructions.add("# start of adding local variable to stack");
-        addToStack("fp", s, adr);
+        addToStack(Register.FP, s, adr);
         instructions.add("# end of adding local variable to stack");
     }
 
     public void addGlobalToStack(String s, int adr){
         instructions.add("# start of adding global variable to stack");
-        addToStack("gp", s, adr);
+        addToStack(Register.GP, s, adr);
         instructions.add("# end of adding global variable to stack");
     }
 
     public void addAddressToStack(String s, int adr) {
         instructions.add("# start of local variable's adding address to stack");
-        addAddressToStack("fp", s, adr);
+        addAddressToStack(Register.FP, s, adr);
         instructions.add("# end of adding local variable's address to stack");
     }
 
     public void addGlobalAddressToStack(String s, int adr){
         instructions.add("# start of adding global variable's address to stack");
-        addAddressToStack("gp", s, adr);
+        addAddressToStack(Register.GP, s, adr);
         instructions.add("# end of adding global variable's address to stack");
     }
 
-    private void addToStack(String ref, String s, int adr) {
+    private void addToStack(Register ref, String s, int adr) {
         adr = adr * -1;
-        instructions.add("lw $t0, " + adr + "($" + ref + ")");
-        pushStack("t0");
+        instructions.add("lw $t0, " + adr + "(" + ref + ")");
+        pushStack(new Register("$t0"));
     }
 
-    private void addAddressToStack(String ref, String s, int adr) {
+    private void addAddressToStack(Register ref, String s, int adr) {
         adr = adr * -1;
-        instructions.add("addiu $t0, $" + ref + ", " + adr);
-        pushStack("t0");
+        instructions.add("addiu $t0, " + ref + ", " + adr);
+        pushStack(new Register("$t0"));
     }
 
     public void addArrayToStack(int size) {
         instructions.add("# start of adding local array to stack");
-        addArrayToStack("fp", size);
+        addArrayToStack(Register.FP, size);
         instructions.add("# end of adding local array to stack");
     }
 
     public void addGlobalArrayToStack(int size) {
         instructions.add("# start of adding global array to stack");
-        addArrayToStack("gp", size);
+        addArrayToStack(Register.GP, size);
         instructions.add("# end of adding global array to stack");
     }
 
     public void addArrayAddressToStack() {
         instructions.add("# start of adding local array's address to stack");
-        addArrayAddressToStack("fp");
+        addArrayAddressToStack(Register.FP);
         instructions.add("# end of adding local array's address to stack");
     }
 
     public void addGlobalArrayAddressToStack() {
         instructions.add("# start of adding global array's address to stack");
-        addArrayAddressToStack("gp");
+        addArrayAddressToStack(Register.GP);
         instructions.add("# end of adding global array's address to stack");
     }
 
-    private void addArrayToStack(String ref, int size) {
+    private void addArrayToStack(Register ref, int size) {
         addArrayAddressToStack(ref);
-        instructions.add("lw $t1, 4($sp)");  // start addr
+        instructions.add("lw $t1, 4(" + Register.SP + ")");  // start addr
         popStack();
         for(int i = 0; i < size; i++) {
             instructions.add("lw $t0, " + (i * -4) + "($t1)");
-            pushStack("t0");
+            pushStack(new Register("$t0"));
         }
     }
 
-    private void addArrayAddressToStack(String ref) {
-        instructions.add("lw $t0, 4($sp)");  // array start addr
+    private void addArrayAddressToStack(Register ref) {
+        instructions.add("lw $t0, 4(" + Register.SP + ")");  // array start addr
         popStack();
-        instructions.add("lw $t1, 4($sp)");  // array length
+        instructions.add("lw $t1, 4(" + Register.SP + ")");  // array length
         popStack();
         instructions.add("addi $t2, $zero, 4");
         instructions.add("mul $t1, $t1, $t2");
         instructions.add("neg $t1, $t1");
         instructions.add("add $t0, $t0, $t1");
-        pushStack("t0");
+        pushStack(new Register("$t0"));
     }
 
     public void popStack(){
         instructions.add("# start of pop stack");
-        instructions.add("addiu $sp, $sp, 4");
+        instructions.add("addiu " + Register.SP + ", " + Register.SP + ", 4");
         instructions.add("# end of pop stack");
     }
 
@@ -144,9 +144,9 @@ public class Translator {
 
     public void assignCommand(int size) {
         instructions.add("# start of assign");
-        instructions.add("lw $t1, " + ((size + 1) * 4) + "($sp)");
+        instructions.add("lw $t1, " + ((size + 1) * 4) + "(" + Register.SP + ")");
         for(int i = 0; i < size; i++) {
-            instructions.add("lw $t0, " + ((size - i) * 4) + "($sp)");
+            instructions.add("lw $t0, " + ((size - i) * 4) + "(" + Register.SP + ")");
             instructions.add("sw $t0, " + -(i * 4) + "($t1)");
         }
         for(int i = 0; i < size; i++)
@@ -154,7 +154,7 @@ public class Translator {
         popStack();  // addr
         for(int i = 0; i < size; i++) {
             instructions.add("lw $t0, " + -(i * 4) + "($t1)");
-            pushStack("t0");
+            pushStack(new Register("$t0"));
         }
         instructions.add("# end of assign");
     }
@@ -162,28 +162,28 @@ public class Translator {
         assignCommand(1);
     }
 
-    private void compareCommand(String cmd, String src_left, String src_right, String dst) {
+    private void compareCommand(String cmd, Register src_left, Register src_right, Register dst) {
         String label_middle = getLabel();
         String label_end = getLabel();
-        instructions.add(cmd + " $" + src_left + ", $" + src_right  + ", " + label_middle);
-        instructions.add("addi $" + dst + ", $zero, 0");
+        instructions.add(cmd + " " + src_left + ", " + src_right  + ", " + label_middle);
+        instructions.add("addi " + dst + ", $zero, 0");
         instructions.add("j " + label_end);
-        instructions.add(label_middle + ":\t" + "addi $" + dst + ", $zero, 1");
+        instructions.add(label_middle + ":\t" + "addi " + dst + ", $zero, 1");
         instructions.add(label_end+":");
     }
-    private void compareCommand(boolean is_equal, String temp_left, String temp_right, String dst, int size) {
+    private void compareCommand(boolean is_equal, Register temp_left, Register temp_right, Register dst, int size) {
         String label1 = getLabel();
         String label0 = getLabel();
         String label_end = getLabel();
         for(int i = 0; i < size; i++) {
-            instructions.add("lw $" + temp_right + ", " + (size - i) * 4 + "($sp)");  // right operand
-            instructions.add("lw $" + temp_left + ", " + (2 * size - i) * 4 + "($sp)");  // left operand
-            instructions.add("bne, $" + temp_left + ", $" + temp_right + ", " + (is_equal ? label0 : label1));
+            instructions.add("lw " + temp_right + ", " + (size - i) * 4 + "(" + Register.SP + ")");  // right operand
+            instructions.add("lw " + temp_left + ", " + (2 * size - i) * 4 + "(" + Register.SP + ")");  // left operand
+            instructions.add("bne, " + temp_left + ", " + temp_right + ", " + (is_equal ? label0 : label1));
         }
         instructions.add("j " + (is_equal ? label1 : label0));
-        instructions.add(label0 + ":\t" + "addi $" + dst + ", $zero, 0");
+        instructions.add(label0 + ":\t" + "addi " + dst + ", $zero, 0");
         instructions.add("j " + label_end);
-        instructions.add(label1 + ":\t" + "addi $" + dst + ", $zero, 1");
+        instructions.add(label1 + ":\t" + "addi " + dst + ", $zero, 1");
         instructions.add(label_end + ":");
         for(int i = 0; i < size * 2; i++)
             popStack();
@@ -191,25 +191,25 @@ public class Translator {
 
     public void unaryOperationCommand(String s){
         instructions.add("# start of unary operation " + s);
-        instructions.add("lw $t0, 4($sp)");
+        instructions.add("lw $t0, 4(" + Register.SP + ")");
         popStack();
         if (s.equals("-"))
             instructions.add("neg $t0");
         else if (s.equals("not")) {
             instructions.add("addi, $t1, $zero, 0");
-            compareCommand("beq", "t1", "t0", "t0");
+            compareCommand("beq", new Register("$t1"), new Register("$t0"), new Register("$t0"));
         }
         else
             instructions.add("# unary operation " + s + " did not handled.");
-        pushStack("t0");
+        pushStack(new Register("$t0"));
         instructions.add("# end of unary operation " + s);
     }
 
     public void binaryOperationCommand(String s){
         instructions.add("# start of binary operation " + s);
-        instructions.add("lw $t0, 4($sp)");
+        instructions.add("lw $t0, 4(" + Register.SP + ")");
         popStack();
-        instructions.add("lw $t1, 4($sp)");
+        instructions.add("lw $t1, 4(" + Register.SP + ")");
         popStack();
         if (s.equals("*"))
             instructions.add("mul $t0, $t0, $t1");
@@ -224,16 +224,16 @@ public class Translator {
         else if (s.equals("or"))
             instructions.add("or $t0, $t0, $t1");
         else if (s.equals("=="))
-            compareCommand("beq", "t1", "t0", "t0");
+            compareCommand("beq", new Register("$t1"), new Register("$t0"), new Register("$t0"));
         else if (s.equals("<>"))
-            compareCommand("bne", "t1", "t0", "t0");
+            compareCommand("bne", new Register("$t1"), new Register("$t0"), new Register("$t0"));
         else if (s.equals("<"))
-            compareCommand("blt", "t1", "t0", "t0");
+            compareCommand("blt", new Register("$t1"), new Register("$t0"), new Register("$t0"));
         else if (s.equals(">"))
-            compareCommand("bgt", "t1", "t0", "t0");
+            compareCommand("bgt", new Register("$t1"), new Register("$t0"), new Register("$t0"));
         else
             instructions.add("# binary operation " + s + " did not handled.");
-        pushStack("t0");
+        pushStack(new Register("$t0"));
         instructions.add("# end of binary operation " + s);
     }
 
@@ -243,12 +243,12 @@ public class Translator {
         else {
             instructions.add("# start of binary operation " + s);
             if (s.equals("=="))
-                compareCommand(true, "t1", "t2", "t0", size);
+                compareCommand(true, new Register("$t1"), new Register("$t2"), new Register("$t0"), size);
             else if (s.equals("<>"))
-                compareCommand(false, "t1", "t2", "t0", size);
+                compareCommand(false, new Register("$t1"), new Register("$t2"), new Register("$t0"), size);
             else
                 instructions.add("# binary operation " + s + " did not handled.");
-            pushStack("t0");
+            pushStack(new Register("$t0"));
             instructions.add("# end of binary operation " + s);
         }
     }
@@ -262,7 +262,7 @@ public class Translator {
         }
         instructions.add("# start of writing");
         for(int i = 0; i < size; i++) {
-            instructions.add("lw $a0, " + ((size - i) * 4) + "($sp)");
+            instructions.add("lw $a0, " + ((size - i) * 4) + "(" + Register.SP + ")");
             this.addSystemCall(syscall_number);
         }
         for(int i = 0; i < size; i++)
@@ -277,13 +277,13 @@ public class Translator {
 
     public void read() {
         this.addSystemCall(12);
-        this.pushStack("v0");
+        this.pushStack(Register.SYS_REG);
     }
 
-    public void pushStack(String src) {
+    public void pushStack(Register src) {
         instructions.add("# start of push to stack");
-        instructions.add("sw $" + src + ", 0($sp)");
-        instructions.add("addiu $sp, $sp, -4");
+        instructions.add("sw " + src + ", 0(" + Register.SP + ")");
+        instructions.add("addiu " + Register.SP + ", " + Register.SP + ", -4");
         instructions.add("# end of push to stack");
     }
     
@@ -293,7 +293,7 @@ public class Translator {
         if(initialized != true) {
             initInstructions.add("li $t0, 0");
             for(int i = 0; i < size; i++)
-                pushStack("t0");
+                pushStack(new Register("$t0"));
         }
         initInstructions.add("# end of adding a local variable");
     }
@@ -303,7 +303,7 @@ public class Translator {
         initInstructions.add("# start of adding a global variable");
         initInstructions.add("li $t0, 0");
         for(int i = 0; i < size; i++)
-            initInstructions.add("sw $t0, " + (adr - 4 * i) + "($gp)");
+            initInstructions.add("sw $t0, " + (adr - 4 * i) + "(" + Register.GP + ")");
         initInstructions.add("# end of adding a global variable");
     }
 
@@ -317,13 +317,13 @@ public class Translator {
     public void arrayLengthCalculate(int length) {
         instructions.add("# start of calculating array length");
         instructions.add("addi $t0, $zero, " + length);
-        instructions.add("lw $t1, 4($sp)");
+        instructions.add("lw $t1, 4(" + Register.SP + ")");
         popStack();
         instructions.add("mul $t0, $t0, $t1");
-        instructions.add("lw $t1, 4($sp)");
+        instructions.add("lw $t1, 4(" + Register.SP + ")");
         popStack();
         instructions.add("add $t0, $t0, $t1");
-        pushStack("t0");
+        pushStack(new Register("$t0"));
         instructions.add("# end of calculating array length");
     }
 
@@ -336,7 +336,7 @@ public class Translator {
     }
 
     public void check_if_expr(String label) {
-        instructions.add("lw $t0, 4($sp)");
+        instructions.add("lw $t0, 4(" + Register.SP + ")");
         popStack();
         instructions.add("beqz $t0, " + label);
     }
