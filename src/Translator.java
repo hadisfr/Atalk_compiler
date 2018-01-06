@@ -192,7 +192,8 @@ public class Translator {
         instructions.add(cmd + " " + src_left + ", " + src_right  + ", " + label_middle);
         instructions.add("addi " + dst + ", " + Register.ZERO + ", 0");
         instructions.add("j " + label_end);
-        instructions.add(label_middle + ":\t" + "addi " + dst + ", " + Register.ZERO + ", 1");
+        instructions.add(label_middle + ":");
+        instructions.add("addi " + dst + ", " + Register.ZERO + ", 1");
         instructions.add(label_end+":");
     }
     private void compareCommand(boolean is_equal, Register temp_left, Register temp_right, Register dst, int size) {
@@ -205,9 +206,11 @@ public class Translator {
             instructions.add("bne, " + temp_left + ", " + temp_right + ", " + (is_equal ? label0 : label1));
         }
         instructions.add("j " + (is_equal ? label1 : label0));
-        instructions.add(label0 + ":\t" + "addi " + dst + ", " + Register.ZERO + ", 0");
+        instructions.add(label0 + ":");
+        instructions.add("addi " + dst + ", " + Register.ZERO + ", 0");
         instructions.add("j " + label_end);
-        instructions.add(label1 + ":\t" + "addi " + dst + ", " + Register.ZERO + ", 1");
+        instructions.add(label1 + ":");
+        instructions.add("addi " + dst + ", " + Register.ZERO + ", 1");
         instructions.add(label_end + ":");
         for(int i = 0; i < size * 2; i++)
             popStack();
