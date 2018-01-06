@@ -6,11 +6,13 @@ public class Translator {
     private File output;
     private ArrayList <String> instructions;
     private ArrayList <String> initInstructions;
+    private ArrayList <String> argsInitInstruction;
     private int labelCounter;
 
     public Translator(){
         instructions = new ArrayList<String>();
         initInstructions = new ArrayList<String>();
+        argsInitInstruction = new ArrayList<String>();
         output = new File("../out.asm");
         try {
             output.createNewFile();
@@ -336,12 +338,12 @@ public class Translator {
 
     public void addArgumentVariable(int adr, int size) {
         adr = adr * -1;
-        instructions.add("# start of adding a argument variable");
+        argsInitInstruction.add("# start of adding a argument variable");
         for(int i = 0; i < size; i++) {
-            instructions.add("lw $t0, " + (-4 * i) + "(" + Register.ARGS_ADDR + ")");
-            instructions.add("sw $t0, " + (adr - 4 * i) + "(" + Register.AP + ")");
+            argsInitInstruction.add("lw $t0, " + (-4 * i) + "(" + Register.ARGS_ADDR + ")");
+            argsInitInstruction.add("sw $t0, " + (adr - 4 * i) + "(" + Register.AP + ")");
         }
-        instructions.add("# end of adding a argument variable");
+        argsInitInstruction.add("# end of adding a argument variable");
     }
 
     public void arrayLengthCalculate(int length) {
@@ -373,5 +375,14 @@ public class Translator {
 
     public void jump(String label) {
         instructions.add("j " + label);
+    }
+
+    public void define_receiver(String label) {
+        instructions.add("# start of recv definition");
+        instructions.add(label + ":");
+        instructions.add("li " + Register.RUN + ", 1");
+        instructions.add("# end of recv definition");
+        instructions.addAll(argsInitInstruction);
+        argsInitInstruction = new ArrayList<String>();
     }
 }

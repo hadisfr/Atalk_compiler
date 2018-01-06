@@ -70,6 +70,7 @@ grammar AtalkPass2;
     }
 
     Translator mips = new Translator();
+    String scheduler_label = "main";
 }
 
 program:
@@ -100,17 +101,22 @@ state_many [Type input_type] :
 
 receiver [String container_actor] locals [boolean is_init]:
     {beginScope();}
-        'receiver' rcvr_id=ID '(' (firsttype = type first_arg_id=ID {
-            int offset = ((SymbolTableVariableItemBase)SymbolTable.top.get(SymbolTableVariableItemBase.getKey($ID.text))).getOffset();
-            mips.addArgumentVariable(offset, $firsttype.return_type.size() / Type.WORD_BYTES);
-        } (',' secondtype =  type ID{
-            int offset2 = ((SymbolTableVariableItemBase)SymbolTable.top.get(SymbolTableVariableItemBase.getKey($ID.text))).getOffset();
-            mips.addArgumentVariable(offset2, $secondtype.return_type.size() / Type.WORD_BYTES);
+        'receiver' rcvr_id=ID '(' (first_type=type first_arg_id=ID {
+            int offset = ((SymbolTableVariableItemBase)SymbolTable.top.get(SymbolTableVariableItemBase.getKey($first_arg_id.text))).getOffset();
+            mips.addArgumentVariable(offset, $first_type.return_type.size() / Type.WORD_BYTES);
+        } (',' second_type =  type second_arg_id=ID{
+            offset = ((SymbolTableVariableItemBase)SymbolTable.top.get(SymbolTableVariableItemBase.getKey($second_arg_id.text))).getOffset();
+            mips.addArgumentVariable(offset, $second_type.return_type.size() / Type.WORD_BYTES);
         })*)? ')' NL
         {
             $is_init = ($rcvr_id.text.equals("init") && ($first_arg_id == null));
+
+            mips.define_receiver("label");  // TODO: add true label
         }
             statements [container_actor, $is_init]
+        {
+            // mips.jump(scheduler_label);
+        }
         end_rule NL
     ;
 

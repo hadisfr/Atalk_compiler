@@ -9,6 +9,8 @@ public class Register {
 	public static final Register MP = new Register("$s1"); // Mailboxes' Pointer
 	public static final Register AP = new Register("$s2"); // Args Recv Pointer
 	public static final Register BP = new Register("$s3"); // Actors' Pointer
+	public static final Register RUN = new Register("$s4"); // is running
+	public static final Register CNT = new Register("$s5"); // scheduler counter
 	public static final Register SYS_REG = new Register("$v0");
 	public static final Register ZERO = new Register("$zero");
 
