@@ -7,7 +7,6 @@ public class SymbolTableActorItem extends SymbolTableItem {
 
     public SymbolTableActorItem(Actor actor, int offset){
         super();
-        size = 0;
         this.actor = actor;
         this.offset = offset;
     }

@@ -104,8 +104,8 @@ receiver [String container_actor] locals [boolean is_init]:
             int offset = ((SymbolTableVariableItemBase)SymbolTable.top.get(SymbolTableVariableItemBase.getKey($ID.text))).getOffset();
             mips.addArgumentVariable(offset, $firsttype.return_type.size() / Type.WORD_BYTES);
         } (',' secondtype =  type ID{
-            int offset = ((SymbolTableVariableItemBase)SymbolTable.top.get(SymbolTableVariableItemBase.getKey($ID.text))).getOffset();
-            mips.addArgumentVariable(offset, $secondtype.return_type.size() / Type.WORD_BYTES);
+            int offset2 = ((SymbolTableVariableItemBase)SymbolTable.top.get(SymbolTableVariableItemBase.getKey($ID.text))).getOffset();
+            mips.addArgumentVariable(offset2, $secondtype.return_type.size() / Type.WORD_BYTES);
         })*)? ')' NL
         {
             $is_init = ($rcvr_id.text.equals("init") && ($first_arg_id == null));
