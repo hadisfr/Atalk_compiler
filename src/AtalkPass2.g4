@@ -590,9 +590,13 @@ expr_mem [boolean nowIsLeft] returns [Type return_type, boolean isLeftHand]:
                         if ($nowIsLeft == false) mips.addArrayToStack(arrayOffset);
                         else mips.addArrayAddressToStack();
                     }
-                    else {
+                    else if (var.getBaseRegister() == Register.GP){
                         if ($nowIsLeft == false) mips.addGlobalArrayToStack(arrayOffset);
                         else mips.addGlobalArrayAddressToStack();
+                    }
+                    else if (var.getBaseRegister() == Register.AP){
+                        if ($nowIsLeft == false) mips.addArgumentArrayToStack(arrayOffset);
+                        else mips.addArgumentArrayAddressToStack();
                     }
                 }
                 else {
@@ -600,9 +604,13 @@ expr_mem [boolean nowIsLeft] returns [Type return_type, boolean isLeftHand]:
                         if ($nowIsLeft == false) mips.addToStack($expr_other.IDText, var.getOffset());
                         else mips.addAddressToStack($expr_other.IDText, var.getOffset());
                     }
-                    else {
+                    else if (var.getBaseRegister() == Register.GP){
                         if ($nowIsLeft == false) mips.addGlobalToStack($expr_other.IDText, var.getOffset());
                         else mips.addGlobalAddressToStack($expr_other.IDText, var.getOffset());
+                    }
+                    else if (var.getBaseRegister() == Register.AP){
+                        if ($nowIsLeft == false) mips.addArgumentToStack($expr_other.IDText, var.getOffset());
+                        else mips.addArgumentAddressToStack($expr_other.IDText, var.getOffset());
                     }
                 }
             }
