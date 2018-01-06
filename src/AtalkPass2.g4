@@ -224,9 +224,25 @@ vardef_many [Type input_type] returns [Type return_type]:
         }
     ;
 
-stm_tell [String container_actor, boolean is_init]:
-        actr=(ID | 'sender' | 'self') '<<' rcvr=ID '(' (expr (',' expr)*)? ')' NL
+stm_tell [String container_actor, boolean is_init] locals [ArrayList<String> typeKeys, int argsSize]:
+        {$typeKeys = new ArrayList(); $argsSize = 0;}
+        actr=(ID | 'sender' | 'self') '<<' rcvr=ID '(' (first_expr = expr{
+            $typeKeys.add($first_expr.return_type.toString());
+            $argsSize += $first_expr.return_type.size();
+        } (',' second_expr = expr {
+            $typeKeys.add($second_expr.return_type.toString());
+            $argsSize += $first_expr.return_type.size();
+        })*)? ')' NL
         {
+            String keys = "recv#";
+            keys += $actr.text;
+            if($typeKeys.size() == 0)
+                keys += "#";
+            for(int i = 0; i < $typeKeys.size(); i++)
+                keys = keys + "#" + $typeKeys.get(i);
+            
+            //use keys and argsSize as you wish
+            
             if($actr.text != "sender") {
                 String actor_name = (($actr.text.equals("self")) ? container_actor : $actr.text);
                 SymbolTableItem item = SymbolTable.top.get(SymbolTableActorItem.getKey(actor_name));
