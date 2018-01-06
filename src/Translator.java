@@ -146,7 +146,7 @@ public class Translator {
         popStack();
         instructions.add("lw $t1, 4(" + Register.SP + ")");  // array length
         popStack();
-        instructions.add("addi $t2, $zero, 4");
+        instructions.add("addi $t2, " + Register.ZERO + ", 4");
         instructions.add("mul $t1, $t1, $t2");
         instructions.add("neg $t1, $t1");
         instructions.add("add $t0, $t0, $t1");
@@ -190,9 +190,9 @@ public class Translator {
         String label_middle = getLabel();
         String label_end = getLabel();
         instructions.add(cmd + " " + src_left + ", " + src_right  + ", " + label_middle);
-        instructions.add("addi " + dst + ", $zero, 0");
+        instructions.add("addi " + dst + ", " + Register.ZERO + ", 0");
         instructions.add("j " + label_end);
-        instructions.add(label_middle + ":\t" + "addi " + dst + ", $zero, 1");
+        instructions.add(label_middle + ":\t" + "addi " + dst + ", " + Register.ZERO + ", 1");
         instructions.add(label_end+":");
     }
     private void compareCommand(boolean is_equal, Register temp_left, Register temp_right, Register dst, int size) {
@@ -205,9 +205,9 @@ public class Translator {
             instructions.add("bne, " + temp_left + ", " + temp_right + ", " + (is_equal ? label0 : label1));
         }
         instructions.add("j " + (is_equal ? label1 : label0));
-        instructions.add(label0 + ":\t" + "addi " + dst + ", $zero, 0");
+        instructions.add(label0 + ":\t" + "addi " + dst + ", " + Register.ZERO + ", 0");
         instructions.add("j " + label_end);
-        instructions.add(label1 + ":\t" + "addi " + dst + ", $zero, 1");
+        instructions.add(label1 + ":\t" + "addi " + dst + ", " + Register.ZERO + ", 1");
         instructions.add(label_end + ":");
         for(int i = 0; i < size * 2; i++)
             popStack();
@@ -220,7 +220,7 @@ public class Translator {
         if (s.equals("-"))
             instructions.add("neg $t0");
         else if (s.equals("not")) {
-            instructions.add("addi, $t1, $zero, 0");
+            instructions.add("addi, $t1, " + Register.ZERO + ", 0");
             compareCommand("beq", new Register("$t1"), new Register("$t0"), new Register("$t0"));
         }
         else
@@ -291,7 +291,7 @@ public class Translator {
         }
         for(int i = 0; i < size; i++)
             popStack();
-        instructions.add("addi $a0, $zero, 10");
+        instructions.add("addi $a0, " + Register.ZERO + ", 10");
         this.addSystemCall(11);
         instructions.add("# end of writing");
     }
@@ -343,7 +343,7 @@ public class Translator {
 
     public void arrayLengthCalculate(int length) {
         instructions.add("# start of calculating array length");
-        instructions.add("addi $t0, $zero, " + length);
+        instructions.add("addi $t0, " + Register.ZERO + ", " + length);
         instructions.add("lw $t1, 4(" + Register.SP + ")");
         popStack();
         instructions.add("mul $t0, $t0, $t1");
