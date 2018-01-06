@@ -100,7 +100,13 @@ state_many [Type input_type] :
 
 receiver [String container_actor] locals [boolean is_init]:
     {beginScope();}
-        'receiver' rcvr_id=ID '(' (type first_arg_id=ID (',' type ID)*)? ')' NL
+        'receiver' rcvr_id=ID '(' (firsttype = type first_arg_id=ID {
+            int offset = ((SymbolTableVariableItemBase)SymbolTable.top.get(SymbolTableVariableItemBase.getKey($ID.text))).getOffset();
+            mips.addArgumentVariable(offset, $firsttype.return_type.size() / Type.WORD_BYTES);
+        } (',' secondtype =  type ID{
+            int offset = ((SymbolTableVariableItemBase)SymbolTable.top.get(SymbolTableVariableItemBase.getKey($ID.text))).getOffset();
+            mips.addArgumentVariable(offset, $secondtype.return_type.size() / Type.WORD_BYTES);
+        })*)? ')' NL
         {
             $is_init = ($rcvr_id.text.equals("init") && ($first_arg_id == null));
         }

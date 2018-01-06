@@ -65,7 +65,10 @@ public class SymbolTable {
 		}
 		else if(item instanceof SymbolTableActorItem){
 			SymbolTableActorItem castedItem = (SymbolTableActorItem) item;
-
+			setOffset(
+				castedItem.getBaseRegister(),
+				getOffset(castedItem.getBaseRegister()) + castedItem.getSize()
+			);
 		}
 		else if(item instanceof SymbolTableReceiverItem){
 			SymbolTableReceiverItem castedItem = (SymbolTableReceiverItem) item;
