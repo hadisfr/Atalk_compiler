@@ -87,11 +87,13 @@ program:
 
 actor:
     {beginScope();}
-        'actor' actor_id=ID '<' CONST_NUM '>' NL
+        'actor' actor_id=ID '<' mailbox_size=CONST_NUM '>' NL
             (state | receiver [$ID.text] | NL)*
         {
             // define_actor($actor_id.text, int adr);  // TODO: get adr from symbol table
-            // TODO: check if actor has `init()` recv, use codes like `self << init()`
+            // TODO: check if actor has `init()` recv, use below code
+            // tell($actor_id.text, String receiver_label, Integer.parseInt($CONST_NUM.text), 0);
+            // TODO: make receiver_label using `init()` and $actor_id.text
         }
         end_rule (NL | EOF)
     ;
@@ -271,10 +273,10 @@ stm_tell [String container_actor, boolean is_init] locals [ArrayList<String> typ
                 } else {
                     // TODO check recv existance.
                     // TODO: handle casting
-                    /* tell(int actor_adr, String receiver_label, int size) // TODO:
-                            get actor_adr from symbol_table using $actor_name.text
+                    /* tell(int actor_adr, String receiver_label, int mailbox_size, int args_length); // TODO:
+                            get actor_adr and mailbox_size from symbol_table using $actor_name.text
                             make receiver_label using $actor_name.text and typeKeys
-                            calculate sum of length of all args
+                            calculate sum of length of all args for args_length
                     */
                 }
             } else {

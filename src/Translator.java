@@ -162,10 +162,13 @@ public class Translator {
         pushStack(new Register("$t0"));
     }
 
-    public void popStack(){
-        instructions.add("# start of pop stack");
-        instructions.add("addiu " + Register.SP + ", " + Register.SP + ", 4");
-        instructions.add("# end of pop stack");
+    public void popStack(Register ref) {
+        instructions.add("# start of pop stack " + ref + ")");
+        instructions.add("addiu " + ref + ", " + ref + ", 4");
+        instructions.add("# end of pop stack " + ref + ")");
+    }
+    public void popStack() {
+        popStack(Register.SP);
     }
 
     public void addSystemCall(int x){
@@ -316,11 +319,14 @@ public class Translator {
         this.pushStack(Register.SYS_REG);
     }
 
+    public void pushStack(Register src, Register ref) {
+        instructions.add("# start of push to stack (" + ref + ")");
+        instructions.add("sw " + src + ", 0(" + ref + ")");
+        instructions.add("addiu " + ref + ", " + ref + ", -4");
+        instructions.add("# end of push to stack (" + ref + ")");
+    }
     public void pushStack(Register src) {
-        instructions.add("# start of push to stack");
-        instructions.add("sw " + src + ", 0(" + Register.SP + ")");
-        instructions.add("addiu " + Register.SP + ", " + Register.SP + ", -4");
-        instructions.add("# end of push to stack");
+        pushStack(src, Register.SP);
     }
     
     public void addLocalVariable(int adr, int size, boolean initialized){
@@ -450,9 +456,41 @@ public class Translator {
         instructions.add("j " + quit_label);
     }
 
-    public void tell(int actor_adr, String receiver_label, int size) {
+    public void tell(int actor_adr, String receiver_label, int mailbox_size, int args_length) {
+        String drop_label = getLabel();
+
         instructions.add("# start of tell");
-        // TODO: complete
+        
+        instructions.add("# start of adding args data to tell stack");
+        instructions.add("move $t3, " + Register.TP);  // start of args addr
+        for(int i = 0; i < args_length; i++) {
+            instructions.add("lw $t0, " + ((args_length - i) * 4) + "(" + Register.SP + ")");
+            pushStack(new Register("$t0"), Register.TP);
+        }
+        for(int i = 0; i < args_length; i++)
+            popStack();
+        instructions.add("# end of adding args data to tell stack");
+        instructions.add("la $t4, ", + receiver_label);  // recv handler addr
+
+        instructions.add("# start of adding msg to mailbox");
+
+        instructions.add("lw $t0, " + actor_adr + "(" + Register.MP + ")");  // number of msgs in mailbox
+        instructions.add("li $t1, " + mailbox_size);
+        instructions.add("bge $t0, $t1, " + drop_label);  // full mailbox  // TODO: show a msg to user
+        instructions.add("add $t1, $t0, 1");
+        instructions.add("sw $t1, " + actor_adr + "(" + Register.MP + ")");  // next number of msgs in mailbox
+
+        for(int i = 0; i < 2 * (mailbox_size - 1); i++) {
+            instructions.add("lw $t1, " + -4*(2 * (mailbox_size - 1) - i) + "($t0)");
+            instructions.add("sw $t1, " + -4*(2 * mailbox_size - i) + "($t0)");
+        }
+
+        instructions.add("sw $t4, -4($t0)");  // recv handler addr
+        instructions.add("sw $t3, -8($t0)");  // start of args addr
+
+        instructions.add("# end of adding msg to mailbox");
+
+        instructions.add(drop_label + ":");
         instructions.add("# end of tell");
     }
 }

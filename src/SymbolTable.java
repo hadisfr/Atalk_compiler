@@ -66,8 +66,8 @@ public class SymbolTable {
 		else if(item instanceof SymbolTableActorItem){
 			SymbolTableActorItem castedItem = (SymbolTableActorItem) item;
 			setOffset(
-				Register.BP,
-				getOffset(Register.BP) + castedItem.getSize()
+				Register.MP,
+				getOffset(Register.MP) + castedItem.getSize()
 			);
 		}
 		else if(item instanceof SymbolTableReceiverItem){
