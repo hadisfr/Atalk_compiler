@@ -460,6 +460,8 @@ public class Translator {
         instructions.add("sw $t1, " + adr + "(" + Register.MP + ")");  // next number of msgs in mailbox
         instructions.add("add $t0, $t0, $t0");
         instructions.add("neg $t0 $t0");
+        instructions.add("li $t1, 4");
+        instructions.add("mul $t0, $t0, $t1");
         instructions.add("add $t0, $t0, " + Register.MP);
         instructions.add("lw " + Register.ARGS_ADDR + ", 0($t0)");  // start addr of args
         instructions.add("add $t0, $t0, 1");
@@ -531,6 +533,7 @@ public class Translator {
         tell_instructions.add("bge $t0, $t1, " + drop_label);  // full mailbox
         tell_instructions.add("add $t1, $t0, 1");
         tell_instructions.add("sw $t1, " + actor_adr + "(" + Register.MP + ")");  // next number of msgs in mailbox
+        tell_instructions.add("add $t0, $t0, " + Register.MP);
 
         for(int i = 0; i < 2 * (mailbox_size - 1); i++) {
             tell_instructions.add("lw $t1, " + -4*(2 * (mailbox_size - 1) - i) + "($t0)");
