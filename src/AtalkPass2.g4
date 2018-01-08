@@ -72,22 +72,27 @@ grammar AtalkPass2;
     Translator mips = new Translator();
 }
 
-program:
+program locals [ArrayList<String> actor_labels]:
         {
             UI.printHeader("Pass 2");
+            $actor_labels = new ArrayList();
             beginScope();
         }
-        (actor | NL)*
+        (actor{
+            $actor_labels.add($actor.actor_label);
+        } | NL)*
         {
             endScope();
-            // mips.add_scheduler(ArrayList<String> actor_labels);  // TODO: make actor_labels
+            mips.add_scheduler($actor_labels);
             mips.makeOutput();
         }
     ;
 
-actor:
+actor returns [String actor_label]:
     {beginScope();}
-        'actor' actor_id=ID '<' mailbox_size=CONST_NUM '>' NL
+        'actor' actor_id=ID {
+            $actor_label = $actor_id.text;
+        } '<' mailbox_size=CONST_NUM '>' NL
             (state | receiver [$actor_id.text] | NL)*
         {
             int actor_offset =
@@ -271,11 +276,11 @@ stm_tell [String container_actor, boolean is_init] locals [ArrayList<Variable> a
                 } else {
                     // TODO check recv existance.
                     // TODO: handle casting
-                    /* tell(int actor_adr, String receiver_label, int mailbox_size, int args_length); // TODO:
-                            get actor_adr and mailbox_size from symbol_table using actor_name
-                            make receiver_label using actor_name and typeKeys
-                            calculate sum of length of all args for args_length
-                    */
+                    SymbolTableActorItem actorItem = ((SymbolTableActorItem)SymbolTable.top.get(SymbolTableActorItem.getKey($actr.text)));
+                    int actor_adr = actorItem.getOffset();
+                    int mailbox_size = actorItem.getMailboxSize();
+                    String receiver_label = $actr.text + SymbolTableItem.delimiter + keys;
+                    mips.tell(actor_adr, receiver_label, mailbox_size, $argsSize);
                 }
             } else {
                 if($is_init)

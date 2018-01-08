@@ -28,4 +28,8 @@ public class SymbolTableActorItem extends SymbolTableItem {
 	    return ((actor.getMailboxSize() * 2) + 1) * 4;
     }
 
+    public int getMailboxSize(){
+        return actor.getMailboxSize();
+    }
+
 }
