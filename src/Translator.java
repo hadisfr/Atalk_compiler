@@ -399,6 +399,7 @@ public class Translator {
             argsInitInstruction.add("lw $t0, " + (-4 * i) + "(" + Register.ARGS_ADDR + ")");
             argsInitInstruction.add("sw $t0, " + (adr - 4 * i) + "(" + Register.AP + ")");
         }
+        argsInitInstruction.add("addi " + Register.ARGS_ADDR + ", " + Register.ARGS_ADDR + ", " + (-4 * size));
         argsInitInstruction.add("# end of adding a argument variable");
     }
 
