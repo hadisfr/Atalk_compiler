@@ -148,7 +148,7 @@ receiver [String container_actor] locals [boolean is_init, ArrayList<Variable> a
         }
             statements [container_actor, $is_init]
         {
-            // mips.jump(mips.scheduler_label);
+            mips.jump(mips.scheduler_label);
         }
         end_rule NL
     ;
