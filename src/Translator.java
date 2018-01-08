@@ -338,10 +338,10 @@ public class Translator {
         final int invalid_syscall_number = -1;
         int syscall_number = (type == "int") ? 1 : (type == "char") ? 11 : invalid_syscall_number;
         if(syscall_number == invalid_syscall_number) {
-            instructions.add("# unsupported writing type");
+            instructions.add("# unsupported write type");
             return;
         }
-        instructions.add("# start of writing");
+        instructions.add("# start of write");
         for(int i = 0; i < size; i++) {
             instructions.add("lw $a0, " + ((size - i) * 4) + "(" + Register.SP + ")");
             this.addSystemCall(syscall_number);
@@ -350,7 +350,7 @@ public class Translator {
             popStack();
         instructions.add("addi $a0, " + Register.ZERO + ", 10");
         this.addSystemCall(11);
-        instructions.add("# end of writing");
+        instructions.add("# end of write");
     }
     public void write(String type) {
         this.write(type, 1);
