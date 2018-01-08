@@ -34,7 +34,7 @@ public class Translator {
         initInstructions.add(".text");
         initInstructions.add("main:");
         initInstructions.add("move " + Register.FP + ", " + Register.SP);
-        initInstructions.add("li $a2, 2147482144");
+        initInstructions.add("li $a2, 0x00008000");
         initInstructions.add("add " + Register.AP + ", " + Register.GP + ", $a2");
         initInstructions.add("add " + Register.MP + ", " + Register.AP + ", $a2");
         initInstructions.add("add " + Register.TP + ", " + Register.MP + ", $a2");
