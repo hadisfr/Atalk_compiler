@@ -1,10 +1,11 @@
 actor Act <3>
 	receiver init()
-		self << R(10)
+		self << R(10, 'f')
 	end
 
-	receiver R(int a)
+	receiver R(int a, char as)
         write(a)
+        write(as)
         # write(read(2))
 	end
 end
