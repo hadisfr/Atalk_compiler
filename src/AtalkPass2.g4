@@ -276,7 +276,7 @@ stm_tell [String container_actor, boolean is_init] locals [ArrayList<Variable> a
                 } else {
                     // TODO check recv existance.
                     // TODO: handle casting
-                    SymbolTableActorItem actorItem = ((SymbolTableActorItem)SymbolTable.top.get(SymbolTableActorItem.getKey($actr.text)));
+                    SymbolTableActorItem actorItem = (SymbolTableActorItem) item;
                     int actor_adr = actorItem.getOffset();
                     int mailbox_size = actorItem.getMailboxSize();
                     String receiver_label = $actr.text + SymbolTableItem.delimiter + keys;
