@@ -464,7 +464,7 @@ public class Translator {
         instructions.add("mul $t0, $t0, $t1");
         instructions.add("add $t0, $t0, " + Register.MP);
         instructions.add("lw " + Register.ARGS_ADDR + ", 0($t0)");  // start addr of args
-        instructions.add("add $t0, $t0, 1");
+        instructions.add("add $t0, $t0, 4");
         instructions.add("lw $t1, 0($t0)");  // addr of recv handler
         instructions.add("jr $t1");
         instructions.add("# end of actor's turn");
