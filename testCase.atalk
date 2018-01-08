@@ -1,6 +1,6 @@
 actor Act <3>
 	receiver init()
-		self << adj(10)
+		self << R(10)
 	end
 
 	receiver R(int a)
