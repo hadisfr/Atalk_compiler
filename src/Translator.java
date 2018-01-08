@@ -10,6 +10,10 @@ public class Translator {
     private int labelCounter;
     public final String scheduler_label = "schd";
     public final String quit_label = "quit";
+    public final String array_out_of_bound_label = "aoob";
+    public final String full_mailbox_label = "full_mailbox";
+    public final String array_out_of_bound_msg_label = "aoob_msg";
+    public final String full_mailbox_msg_label = "full_mailbox_msg";
 
     public Translator(){
         instructions = new ArrayList<String>();
@@ -23,6 +27,9 @@ public class Translator {
         }
         labelCounter = 0;
 
+
+        initInstructions.add(array_out_of_bound_msg_label + ":\t.asciiz \"IndexOutOfBoundError\n\"");
+        initInstructions.add(full_mailbox_msg_label + ":\t.asciiz \"ActorBufforOverflowError\n\"");
         initInstructions.add("main:");
         initInstructions.add("move " + Register.FP + ", " + Register.SP);
         // TODO: init other ref regs
@@ -35,8 +42,8 @@ public class Translator {
     public void makeOutput(){
         try {
             initInstructions.add("j " + scheduler_label);
-            instructions.add(quit_label + ":");
-            addSystemCall(10);
+            addRuntimeErrorHandlers();
+            addQuitHandler();
 
             PrintWriter writer = new PrintWriter(output);
             for (int i=0;i<initInstructions.size();i++){
@@ -47,6 +54,36 @@ public class Translator {
             }
             writer.close();
         } catch (Exception e) { e.printStackTrace(); }
+    }
+
+    public void addQuitHandler() {
+        instructions.add("start of quit handler");
+        instructions.add(quit_label + ":");
+        addSystemCall(10);
+        instructions.add("end of quit handler");
+    }
+
+    public void addRuntimeErrorHandlers() {
+        addArrayOutOfBoundErrorHandler();
+        addFullMailboxErrorHandler();
+    }
+
+    public void addArrayOutOfBoundErrorHandler() {
+        instructions.add("start of array_out_of_bound error handler");
+        instructions.add(array_out_of_bound_label + ":");
+        instructions.add("la $a0, " + array_out_of_bound_msg_label);
+        addSystemCall(4);
+        quit();
+        instructions.add("end of array_out_of_bound error handler");
+    }
+
+    public void addFullMailboxErrorHandler() {
+        instructions.add("start of full_mailbox error handler");
+        instructions.add(full_mailbox_label + ":");
+        instructions.add("la $a0, " + full_mailbox_msg_label);
+        addSystemCall(4);
+        instructions.add("j $ra");
+        instructions.add("end of full_mailbox error handler");
     }
 
     public void addToStack(int x){
@@ -360,11 +397,14 @@ public class Translator {
         argsInitInstruction.add("# end of adding a argument variable");
     }
 
-    public void arrayLengthCalculate(int length) {
+    public void arrayLengthCalculate(int length, int last_max_index) {
         instructions.add("# start of calculating array length");
         instructions.add("addi $t0, " + Register.ZERO + ", " + length);
         instructions.add("lw $t1, 4(" + Register.SP + ")");
         popStack();
+        instructions.add("bltz $t1, " + array_out_of_bound_label);
+        instructions.add("li $t2, " + last_max_index);
+        instructions.add("bge $t1, $t2, " + array_out_of_bound_label);
         instructions.add("mul $t0, $t0, $t1");
         instructions.add("lw $t1, 4(" + Register.SP + ")");
         popStack();
@@ -458,6 +498,7 @@ public class Translator {
 
     public void tell(int actor_adr, String receiver_label, int mailbox_size, int args_length) {
         String drop_label = getLabel();
+        String end_label = getLabel();
 
         instructions.add("# start of tell");
         
@@ -490,7 +531,10 @@ public class Translator {
 
         instructions.add("# end of adding msg to mailbox");
 
+        instructions.add("j " + end_label);
         instructions.add(drop_label + ":");
+        instructions.add("jal " + full_mailbox_label);
+        instructions.add(end_label + ":");
         instructions.add("# end of tell");
     }
 }
