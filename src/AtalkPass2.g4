@@ -144,7 +144,7 @@ receiver [String container_actor] locals [boolean is_init, ArrayList<Variable> a
             $is_init = ($rcvr_id.text.equals("init") && ($first_arg_id == null));
             Receiver tmpRcv = new Receiver($rcvr_id.text, $argVars);
             SymbolTableReceiverItem tmpRcvItem = new SymbolTableReceiverItem(tmpRcv);
-            mips.define_receiver($container_actor + "_" + tmpRcvItem.getKey());
+            mips.define_receiver($container_actor + "__" + tmpRcvItem.getKey());
         }
             statements [container_actor, $is_init]
         {
