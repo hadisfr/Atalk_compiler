@@ -102,7 +102,7 @@ actor returns [String actor_label]:
             SymbolTableReceiverItem init_recv = ((SymbolTableReceiverItem)SymbolTable.top.get("recv__init__"));
             String receiver_label = $actor_id.text + "__" + "recv__init__";
             if(init_recv != null){
-                mips.tell(actor_offset, receiver_label, Integer.parseInt($mailbox_size.text), 0);
+                mips.tell(actor_offset, receiver_label, Integer.parseInt($mailbox_size.text), 0, true);
             }
         }
         end_rule (NL | EOF)

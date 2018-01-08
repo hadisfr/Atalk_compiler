@@ -1,13 +1,13 @@
-actor Adder<34>
+actor Adder<3>
 	char[2] a, b
 
 	receiver init()
-		a = read(2)
-		b = "<>"
-		write(b)
+		# a = read(2)
+		# b = "<>"
+		write("<>")
 	end
 
-	receiver allah()
-		int my
-	end
+	# receiver allah()
+	#	int my
+	# end
 end

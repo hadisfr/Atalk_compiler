@@ -501,45 +501,54 @@ public class Translator {
         instructions.add("j " + quit_label);
     }
 
-    public void tell(int actor_adr, String receiver_label, int mailbox_size, int args_length) {
+    public void tell(int actor_adr, String receiver_label, int mailbox_size, int args_length, boolean is_init) {
         String drop_label = getLabel();
         String end_label = getLabel();
+        ArrayList<String> tell_instructions;
 
-        instructions.add("# start of tell");
+        if(is_init)
+            tell_instructions = initInstructions;
+        else
+            tell_instructions = instructions;
+
+        tell_instructions.add("# start of tell");
         
-        instructions.add("# start of adding args data to tell stack");
-        instructions.add("move $t3, " + Register.TP);  // start of args addr
+        tell_instructions.add("# start of adding args data to tell stack");
+        tell_instructions.add("move $t3, " + Register.TP);  // start of args addr
         for(int i = 0; i < args_length; i++) {
-            instructions.add("lw $t0, " + ((args_length - i) * 4) + "(" + Register.SP + ")");
+            tell_instructions.add("lw $t0, " + ((args_length - i) * 4) + "(" + Register.SP + ")");
             pushStack(new Register("$t0"), Register.TP);
         }
         for(int i = 0; i < args_length; i++)
             popStack();
-        instructions.add("# end of adding args data to tell stack");
-        instructions.add("la $t4, " + receiver_label);  // recv handler addr
+        tell_instructions.add("# end of adding args data to tell stack");
+        tell_instructions.add("la $t4, " + receiver_label);  // recv handler addr
 
-        instructions.add("# start of adding msg to mailbox");
+        tell_instructions.add("# start of adding msg to mailbox");
 
-        instructions.add("lw $t0, " + actor_adr + "(" + Register.MP + ")");  // number of msgs in mailbox
-        instructions.add("li $t1, " + mailbox_size);
-        instructions.add("bge $t0, $t1, " + drop_label);  // full mailbox
-        instructions.add("add $t1, $t0, 1");
-        instructions.add("sw $t1, " + actor_adr + "(" + Register.MP + ")");  // next number of msgs in mailbox
+        tell_instructions.add("lw $t0, " + actor_adr + "(" + Register.MP + ")");  // number of msgs in mailbox
+        tell_instructions.add("li $t1, " + mailbox_size);
+        tell_instructions.add("bge $t0, $t1, " + drop_label);  // full mailbox
+        tell_instructions.add("add $t1, $t0, 1");
+        tell_instructions.add("sw $t1, " + actor_adr + "(" + Register.MP + ")");  // next number of msgs in mailbox
 
         for(int i = 0; i < 2 * (mailbox_size - 1); i++) {
-            instructions.add("lw $t1, " + -4*(2 * (mailbox_size - 1) - i) + "($t0)");
-            instructions.add("sw $t1, " + -4*(2 * mailbox_size - i) + "($t0)");
+            tell_instructions.add("lw $t1, " + -4*(2 * (mailbox_size - 1) - i) + "($t0)");
+            tell_instructions.add("sw $t1, " + -4*(2 * mailbox_size - i) + "($t0)");
         }
 
-        instructions.add("sw $t4, -4($t0)");  // recv handler addr
-        instructions.add("sw $t3, -8($t0)");  // start of args addr
+        tell_instructions.add("sw $t4, -4($t0)");  // recv handler addr
+        tell_instructions.add("sw $t3, -8($t0)");  // start of args addr
 
-        instructions.add("# end of adding msg to mailbox");
+        tell_instructions.add("# end of adding msg to mailbox");
 
-        instructions.add("j " + end_label);
-        instructions.add(drop_label + ":");
-        instructions.add("jal " + full_mailbox_label);
-        instructions.add(end_label + ":");
-        instructions.add("# end of tell");
+        tell_instructions.add("j " + end_label);
+        tell_instructions.add(drop_label + ":");
+        tell_instructions.add("jal " + full_mailbox_label);
+        tell_instructions.add(end_label + ":");
+        tell_instructions.add("# end of tell");
+    }
+    public void tell(int actor_adr, String receiver_label, int mailbox_size, int args_length) {
+        tell(actor_adr, receiver_label, mailbox_size, args_length, false);
     }
 }
