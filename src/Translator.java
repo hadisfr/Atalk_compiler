@@ -34,7 +34,9 @@ public class Translator {
         initInstructions.add(".text");
         initInstructions.add("main:");
         initInstructions.add("move " + Register.FP + ", " + Register.SP);
-        // TODO: init other ref regs
+        initInstructions.add("addi " + Register.AP + ", " + Register.GP + ", 010000000");
+        initInstructions.add("addi " + Register.MP + ", " + Register.GP + ", 020000000");
+        initInstructions.add("addi " + Register.TP + ", " + Register.GP + ", 030000000");
     }
 
     public String getLabel() {
@@ -519,7 +521,7 @@ public class Translator {
 
         instructions.add("lw $t0, " + actor_adr + "(" + Register.MP + ")");  // number of msgs in mailbox
         instructions.add("li $t1, " + mailbox_size);
-        instructions.add("bge $t0, $t1, " + drop_label);  // full mailbox  // TODO: show a msg to user
+        instructions.add("bge $t0, $t1, " + drop_label);  // full mailbox
         instructions.add("add $t1, $t0, 1");
         instructions.add("sw $t1, " + actor_adr + "(" + Register.MP + ")");  // next number of msgs in mailbox
 
