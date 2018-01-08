@@ -1,10 +1,9 @@
 actor Act <3>
 	receiver init()
-		write("allah o")
 		self << adj(10)
 	end
 
-	receiver adj(int a)
+	receiver R(int a)
         write(a)
         # write(read(2))
 	end
