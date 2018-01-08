@@ -485,9 +485,13 @@ public class Translator {
         instructions.add("add " + Register.CNT + ", " + Register.CNT + ", 1");
         instructions.add("li $t0, " + actor_labels.size());
         instructions.add("bgt " + Register.CNT + ", $t0, " + new_round_label);
-        instructions.add("la $t0, " + jumper_label);
+        instructions.add("move $t0, $zero");
         instructions.add("add $t0, $t0, " + Register.CNT);
         instructions.add("sub, $t0, $t0, 1");
+        instructions.add("li $t2, 4");
+        instructions.add("mul $t0, $t0, $t2");
+        instructions.add("la $t2, " + jumper_label);
+        instructions.add("add $t0, $t0, $t2");
         instructions.add("jr $t0");
         instructions.add(jumper_label + ":");
         for(int i = 0; i < actor_labels.size(); i++)
