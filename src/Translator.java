@@ -34,9 +34,10 @@ public class Translator {
         initInstructions.add(".text");
         initInstructions.add("main:");
         initInstructions.add("move " + Register.FP + ", " + Register.SP);
-        initInstructions.add("addi " + Register.AP + ", " + Register.GP + ", 010000000");
-        initInstructions.add("addi " + Register.MP + ", " + Register.GP + ", 020000000");
-        initInstructions.add("addi " + Register.TP + ", " + Register.GP + ", 030000000");
+        initInstructions.add("li $a2, 2147482144");
+        initInstructions.add("add " + Register.AP + ", " + Register.GP + ", $a2");
+        initInstructions.add("add " + Register.MP + ", " + Register.AP + ", $a2");
+        initInstructions.add("add " + Register.TP + ", " + Register.MP + ", $a2");
     }
 
     public String getLabel() {
@@ -61,10 +62,10 @@ public class Translator {
     }
 
     public void addQuitHandler() {
-        instructions.add("start of quit handler");
+        instructions.add("# start of quit handler");
         instructions.add(quit_label + ":");
         addSystemCall(10);
-        instructions.add("end of quit handler");
+        instructions.add("# end of quit handler");
     }
 
     public void addRuntimeErrorHandlers() {
@@ -73,21 +74,21 @@ public class Translator {
     }
 
     public void addArrayOutOfBoundErrorHandler() {
-        instructions.add("start of array_out_of_bound error handler");
+        instructions.add("# start of array_out_of_bound error handler");
         instructions.add(array_out_of_bound_label + ":");
         instructions.add("la $a0, " + array_out_of_bound_msg_label);
         addSystemCall(4);
         quit();
-        instructions.add("end of array_out_of_bound error handler");
+        instructions.add("# end of array_out_of_bound error handler");
     }
 
     public void addFullMailboxErrorHandler() {
-        instructions.add("start of full_mailbox error handler");
+        instructions.add("# start of full_mailbox error handler");
         instructions.add(full_mailbox_label + ":");
         instructions.add("la $a0, " + full_mailbox_msg_label);
         addSystemCall(4);
         instructions.add("j $ra");
-        instructions.add("end of full_mailbox error handler");
+        instructions.add("# end of full_mailbox error handler");
     }
 
     public void addToStack(int x){

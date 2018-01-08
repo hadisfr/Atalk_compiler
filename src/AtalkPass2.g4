@@ -90,7 +90,9 @@ actor:
         'actor' actor_id=ID '<' mailbox_size=CONST_NUM '>' NL
             (state | receiver [$actor_id.text] | NL)*
         {
-            int actor_offset = ((SymbolTableActorItem)SymbolTable.top.get(SymbolTableActorItem.getKey($actor_id.text))).getOffset();
+            int actor_offset =
+                ((SymbolTableActorItem)SymbolTable.top.get(SymbolTableActorItem.getKey($actor_id.text)))
+                .getOffset();
             mips.define_actor($actor_id.text, actor_offset);
             SymbolTableReceiverItem init_recv = ((SymbolTableReceiverItem)SymbolTable.top.get("recv__init__"));
             String receiver_label = $actor_id.text + "__" + "recv__init__";
@@ -269,7 +271,11 @@ stm_tell [String container_actor, boolean is_init] locals [ArrayList<Variable> a
                 } else {
                     // TODO check recv existance.
                     // TODO: handle casting
-                    // moved to notes
+                    /* tell(int actor_adr, String receiver_label, int mailbox_size, int args_length); // TODO:
+                            get actor_adr and mailbox_size from symbol_table using actor_name
+                            make receiver_label using actor_name and typeKeys
+                            calculate sum of length of all args for args_length
+                    */
                 }
             } else {
                 if($is_init)
@@ -308,7 +314,7 @@ stm_if_elseif_else [String container_actor, boolean is_init]:
         'if' {
             mips.addComment("start if");
             String label_end = mips.getLabel();
-            String label_next = mips.getLabel();  // TODO: should be pased to statements to handle break
+            String label_next = mips.getLabel();
         } expr NL {
             mips.check_if_expr(label_next);
         }
@@ -345,7 +351,7 @@ stm_if_elseif_else [String container_actor, boolean is_init]:
 stm_foreach [String container_actor, boolean is_init]:  // TODO: support foreach
     {beginScope();}
         'foreach' ID 'in' expr NL
-            statements [container_actor, is_init]
+            statements [container_actor, is_init]  // TODO: label_next should be pased to statements to handle break
         end_rule NL
     ;
 
