@@ -1,10 +1,12 @@
 actor Act <3>
 	receiver init()
 		write("allah o")
+        self << adj()
 	end
 
 	receiver adj()
         write("akbar")
+        Act << init()
         # write(read(2))
 	end
 end
