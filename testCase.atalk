@@ -2,12 +2,12 @@ actor Adder<3>
 	char[2] a, b
 
 	receiver init()
-		# a = read(2)
-		# b = "<>"
-		write("<>")
+		write(read(2))
 	end
 
-	# receiver allah()
-	#	int my
-	# end
+	receiver allah()
+		int my
+        b = "<>"
+        write(b)
+	end
 end
