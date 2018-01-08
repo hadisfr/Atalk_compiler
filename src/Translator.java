@@ -511,7 +511,7 @@ public class Translator {
         for(int i = 0; i < args_length; i++)
             popStack();
         instructions.add("# end of adding args data to tell stack");
-        instructions.add("la $t4, ", + receiver_label);  // recv handler addr
+        instructions.add("la $t4, " + receiver_label);  // recv handler addr
 
         instructions.add("# start of adding msg to mailbox");
 

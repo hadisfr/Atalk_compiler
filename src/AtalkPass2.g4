@@ -694,7 +694,7 @@ expr_mem_tmp [Type input_type] returns [Type return_type, int levels] locals [Ty
             for(int i = 0; i < dimensions.size(); i++)
                 if(i != 0)
                     dimensionsMult *= dimensions.get(i);
-            mips.arrayLengthCalculate(dimensionsMult);
+            mips.arrayLengthCalculate(dimensionsMult, dimensions.get(0));
         }
         secondMemTmp = expr_mem_tmp [$local_type] 
         {
