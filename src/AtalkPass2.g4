@@ -279,7 +279,7 @@ stm_tell [String container_actor, boolean is_init] locals [ArrayList<Variable> a
                     SymbolTableActorItem actorItem = (SymbolTableActorItem) item;
                     int actor_adr = actorItem.getOffset();
                     int mailbox_size = actorItem.getMailboxSize();
-                    String receiver_label = $actr.text + SymbolTableItem.delimiter + keys;
+                    String receiver_label = actor_name + SymbolTableItem.delimiter + keys;
                     mips.tell(actor_adr, receiver_label, mailbox_size, $argsSize);
                 }
             } else {
