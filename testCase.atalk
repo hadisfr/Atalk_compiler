@@ -1,11 +1,17 @@
 actor Act <3>
-	receiver init()
-		self << R(10, 'f')
-	end
+    receiver init()
+        write("init at Act")
+        self << R()
+        Acira << koro()
+    end
 
-	receiver R(int a, char as)
-        write(a)
-        write(as)
-        # write(read(2))
-	end
+    receiver R()
+        write("R at Act")
+    end
+end
+
+actor Acira<3>
+    receiver koro()
+        write("koro at Acira")
+    end
 end

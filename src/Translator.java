@@ -512,6 +512,7 @@ public class Translator {
         String drop_label = getLabel();
         String end_label = getLabel();
         ArrayList<String> tell_instructions;
+        actor_adr *= -1;
 
         if(is_init)
             tell_instructions = initInstructions;
