@@ -2,7 +2,7 @@ public abstract class SymbolTableItem {
 
 	private static int definitionsCount = 0;
 
-	public static final String delimiter = "#";
+	public static final String delimiter = "__";
 
 	public SymbolTableItem() {
 		this.definitionNumber = definitionsCount;

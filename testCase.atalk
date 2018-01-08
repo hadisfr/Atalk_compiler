@@ -4,13 +4,10 @@ actor Adder<34>
 	receiver init()
 		a = read(2)
 		b = "<>"
-		if(a == "HE")
-			b = "he"
-		elseif(a == "HI")
-			b = "hi"
-		elseif(a == "Hh")
-			b = "hH"
-		end
 		write(b)
+	end
+
+	receiver allah()
+		int my
 	end
 end
