@@ -30,7 +30,7 @@ public class Translator {
 
         initInstructions.add(".data");
         initInstructions.add(array_out_of_bound_msg_label + ":\t.asciiz \"IndexOutOfBoundError\\n\"");
-        initInstructions.add(full_mailbox_msg_label + ":\t.asciiz \"ActorBufforOverflowError\\n\"");
+        initInstructions.add(full_mailbox_msg_label + ":\t.asciiz \"ActorBufferOverflowError\\n\"");
         initInstructions.add(".text");
         initInstructions.add("main:");
         initInstructions.add("move " + Register.FP + ", " + Register.SP);
