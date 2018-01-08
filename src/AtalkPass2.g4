@@ -88,12 +88,15 @@ program:
 actor:
     {beginScope();}
         'actor' actor_id=ID '<' mailbox_size=CONST_NUM '>' NL
-            (state | receiver [$ID.text] | NL)*
+            (state | receiver [$actor_id.text] | NL)*
         {
-            // define_actor($actor_id.text, int adr);  // TODO: get adr from symbol table
-            // TODO: check if actor has `init()` recv, use below code
-            // tell($actor_id.text, String receiver_label, Integer.parseInt($CONST_NUM.text), 0);
-            // TODO: make receiver_label using `init()` and $actor_id.text
+            int actor_offset = ((SymbolTableActorItem)SymbolTable.top.get(SymbolTableActorItem.getKey($actor_id.text))).getOffset();
+            mips.define_actor($actor_id.text, actor_offset);
+            SymbolTableReceiverItem init_recv = ((SymbolTableReceiverItem)SymbolTable.top.get("recv__init__"));
+            String receiver_label = $actor_id.text + "__" + "recv__init__";
+            if(init_recv != null){
+                mips.tell(actor_offset, receiver_label, Integer.parseInt($mailbox_size.text), 0);
+            }
         }
         end_rule (NL | EOF)
     ;
@@ -112,33 +115,29 @@ state_many [Type input_type] :
         }
     ;
 
-receiver [String container_actor] locals [boolean is_init, ArrayList<String> typeKeys]:
+receiver [String container_actor] locals [boolean is_init, ArrayList<Variable> argVars]:
     {
         beginScope();
-        $typeKeys = new ArrayList();
+        $argVars = new ArrayList();
     }
         'receiver' rcvr_id=ID '(' (first_type=type first_arg_id=ID {
             int offset =
                 ((SymbolTableVariableItemBase)SymbolTable.top.get(SymbolTableVariableItemBase.getKey($first_arg_id.text)))
                 .getOffset();
             mips.addArgumentVariable(offset, $first_type.return_type.size() / Type.WORD_BYTES);
-            $typeKeys.add($first_type.return_type.toString());
+            $argVars.add(new Variable($first_arg_id.text, $first_type.return_type));
         } (',' second_type =  type second_arg_id=ID{
             offset =
                 ((SymbolTableVariableItemBase)SymbolTable.top.get(SymbolTableVariableItemBase.getKey($second_arg_id.text)))
                 .getOffset();
             mips.addArgumentVariable(offset, $second_type.return_type.size() / Type.WORD_BYTES);
-            $typeKeys.add($second_type.return_type.toString());
+            $argVars.add(new Variable($second_arg_id.text, $second_type.return_type));
         })*)? ')' NL
         {
             $is_init = ($rcvr_id.text.equals("init") && ($first_arg_id == null));
-            String keys = "recv#";
-            keys += $rcvr_id.text;
-            if($typeKeys.size() == 0)
-                keys += "#";
-            for(int i = 0; i < $typeKeys.size(); i++)
-                keys = keys + "#" + $typeKeys.get(i);
-            mips.define_receiver($container_actor + "_" + keys);
+            Receiver tmpRcv = new Receiver($rcvr_id.text, $argVars);
+            SymbolTableReceiverItem tmpRcvItem = new SymbolTableReceiverItem(tmpRcv);
+            mips.define_receiver($container_actor + "_" + tmpRcvItem.getKey());
         }
             statements [container_actor, $is_init]
         {
@@ -245,22 +244,19 @@ vardef_many [Type input_type] returns [Type return_type]:
         }
     ;
 
-stm_tell [String container_actor, boolean is_init] locals [ArrayList<String> typeKeys, int argsSize]:
-        {$typeKeys = new ArrayList(); $argsSize = 0;}
+stm_tell [String container_actor, boolean is_init] locals [ArrayList<Variable> argVars, int argsSize]:
+        {$argVars = new ArrayList(); $argsSize = 0;}
         actr=(ID | 'sender' | 'self') '<<' rcvr=ID '(' (first_expr = expr{
-            $typeKeys.add($first_expr.return_type.toString());
+            $argVars.add(new Variable("text", $first_expr.return_type));
             $argsSize += $first_expr.return_type.size();
         } (',' second_expr = expr {
-            $typeKeys.add($second_expr.return_type.toString());
+            $argVars.add(new Variable("text", $second_expr.return_type));
             $argsSize += $first_expr.return_type.size();
         })*)? ')' NL
         {
-            String keys = "recv#";
-            keys += $actr.text;
-            if($typeKeys.size() == 0)
-                keys += "#";
-            for(int i = 0; i < $typeKeys.size(); i++)
-                keys = keys + "#" + $typeKeys.get(i);
+            Receiver tmpRcv = new Receiver($rcvr.text, $argVars);
+            SymbolTableReceiverItem tmpRcvItem = new SymbolTableReceiverItem(tmpRcv);
+            String keys = tmpRcvItem.getKey();
 
             if($actr.text != "sender") {
                 String actor_name = (($actr.text.equals("self")) ? container_actor : $actr.text);
@@ -273,11 +269,7 @@ stm_tell [String container_actor, boolean is_init] locals [ArrayList<String> typ
                 } else {
                     // TODO check recv existance.
                     // TODO: handle casting
-                    /* tell(int actor_adr, String receiver_label, int mailbox_size, int args_length); // TODO:
-                            get actor_adr and mailbox_size from symbol_table using $actor_name.text
-                            make receiver_label using $actor_name.text and typeKeys
-                            calculate sum of length of all args for args_length
-                    */
+                    // moved to notes
                 }
             } else {
                 if($is_init)
@@ -359,7 +351,7 @@ stm_foreach [String container_actor, boolean is_init]:  // TODO: support foreach
 
 stm_quit:
         'quit' {
-            mips.quit()
+            mips.quit();
         } NL
     ;
 

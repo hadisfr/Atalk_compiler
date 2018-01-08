@@ -24,4 +24,8 @@ public class SymbolTableReceiverItem extends SymbolTableItem {
         return size;
     }
 
+    public Receiver getReceiver(){
+        return receiver;
+    }
+
 }
