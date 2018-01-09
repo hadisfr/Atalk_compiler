@@ -66,9 +66,13 @@ grammar AtalkPass2;
 
     void endScope(boolean clear_stack) {
         int stack_size = SymbolTable.top.getOffset(Register.SP);
+        int pre_stack_size =
+            (SymbolTable.top.getPreSymbolTable() == null)
+            ? 0
+            : SymbolTable.top.getPreSymbolTable().getOffset(Register.SP);
         UI.print("Stack offset: " + stack_size);
         if(clear_stack)
-            mips.popStack(stack_size / 4);
+            mips.popStack((stack_size - pre_stack_size) / 4);
         SymbolTable.pop();
     }
     void endScope() {
