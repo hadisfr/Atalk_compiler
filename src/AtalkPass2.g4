@@ -64,9 +64,15 @@ grammar AtalkPass2;
         SymbolTable.push();
     }
 
-    void endScope() {
-        UI.print("Stack offset: " + SymbolTable.top.getOffset(Register.SP));
+    void endScope(boolean clear_stack) {
+        int stack_size = SymbolTable.top.getOffset(Register.SP);
+        UI.print("Stack offset: " + stack_size);
+        if(clear_stack)
+            mips.popStack(stack_size / 4);
         SymbolTable.pop();
+    }
+    void endScope() {
+        endScope(true);
     }
 
     Translator mips = new Translator();
@@ -82,7 +88,7 @@ program locals [ArrayList<String> actor_labels]:
             $actor_labels.add($actor.actor_label);
         } | NL)*
         {
-            endScope();
+            endScope(false);
             mips.add_scheduler($actor_labels);
             mips.makeOutput();
         }
@@ -105,7 +111,7 @@ actor returns [String actor_label]:
                 mips.tell(actor_offset, receiver_label, Integer.parseInt($mailbox_size.text), 0, true);
             }
         }
-        end_rule (NL | EOF)
+        end_rule_without_clear_stack (NL | EOF)
     ;
 
 state:
@@ -147,10 +153,10 @@ receiver [String container_actor] locals [boolean is_init, ArrayList<Variable> a
             mips.define_receiver($container_actor + "__" + tmpRcvItem.getKey());
         }
             statements [container_actor, $is_init]
+        end_rule NL
         {
             mips.jump(mips.scheduler_label);
         }
-        end_rule NL
     ;
 
 basetype returns [Type return_type]:
@@ -384,6 +390,13 @@ end_rule:
         endScope();
     }
     ;
+
+end_rule_without_clear_stack:
+    'end' {
+        endScope(false);
+    }
+    ;
+
 
 expr returns [Type return_type, boolean isLeftHand, int numberOfPops]:
         expr_assign {

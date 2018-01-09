@@ -204,13 +204,20 @@ public class Translator {
         pushStack(new Register("$t0"));
     }
 
-    public void popStack(Register ref) {
+    public void popStack(Register ref, int length) {
         instructions.add("# start of pop stack (" + ref + ")");
-        instructions.add("addiu " + ref + ", " + ref + ", 4");
+        for(int i = 0; i < length; i++)
+            instructions.add("addiu " + ref + ", " + ref + ", 4");
         instructions.add("# end of pop stack (" + ref + ")");
     }
+    public void popStack(Register ref) {
+        popStack(ref, 1);
+    }
+    public void popStack(int length) {
+        popStack(Register.SP, length);
+    }
     public void popStack() {
-        popStack(Register.SP);
+        popStack(1);
     }
 
     public void addSystemCall(int x){

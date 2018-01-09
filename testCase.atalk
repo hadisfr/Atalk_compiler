@@ -1,18 +1,13 @@
 actor newfirst <2>
 	receiver init()
-		char [2] input
-		input = read(2)
-		first << calc({4, 6})
+		int a = 5
+		first << calc()
 	end
 end
 
 actor first <2>
-	receiver calc(int [2] a)
-		write("start")
-		write(a[0] + a[1])
-		int b = 1 
-		write(b)
-		b = 4
+	receiver calc()
+		int b
 		write(b)
 	end
 end
