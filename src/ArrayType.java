@@ -26,7 +26,7 @@ public class ArrayType extends Type {
 
 	@Override
 	public String toString() {
-		return memberType.toString() + "*";
+		return "arrayof_" + memberType.toString();
 	}
 
 	public Type getMemberType(){
