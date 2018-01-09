@@ -1,17 +1,12 @@
 actor Act <3>
     receiver init()
         write("init at Act")
-        self << R()
-        Acira << koro()
+        self << R(1, {10, 20})
     end
 
-    receiver R()
-        write("R at Act")
-    end
-end
-
-actor Acira<3>
-    receiver koro()
-        write("koro at Acira")
+    receiver R(int a, int[2] b)
+        write(a)
+        write(b[0])
+        write(b[1])
     end
 end
