@@ -523,8 +523,9 @@ public class Translator {
         
         tell_instructions.add("# start of adding args data to tell stack");
         tell_instructions.add("move $t3, " + Register.TP + "  # start of args addr");
+        // in `init()`, args_length = 0; so the following lines will be executed only in is_init = false.
         for(int i = 0; i < args_length; i++) {
-            tell_instructions.add("lw $t0, " + ((args_length - i) * 4) + "(" + Register.SP + ")");
+            instructions.add("lw $t0, " + ((args_length - i) * 4) + "(" + Register.SP + ")");
             pushStack(new Register("$t0"), Register.TP);
         }
         for(int i = 0; i < args_length; i++)
