@@ -1,18 +1,18 @@
 **/.DS_Store
 
-/**/.project
-/**/.classpath
-/**/.settings/
-/**/target
+**/.project
+**/.classpath
+**/.settings/
+**/target
 
-/**/*.class
-/**/*.tokens
-*.interp
+**/*.class
+**/*.tokens
+**/*.interp
 
-/**/*BaseListener.java
-/**/*Lexer.java
-/**/*Listener.java
-/**/*Parser.java
+**/*BaseListener.java
+**/*Lexer.java
+**/*Listener.java
+**/*Parser.java
 
 **/out.s
 
@@ -21,9 +21,9 @@
 #IntelliJ
 .idea/
 *.iml
-/**/gen
+**/gen
 # Visual Studio Code Generated
 .antlr
-/**/.vscode
+**/*.vscode
 # Sublime
 *.sublime-workspace
