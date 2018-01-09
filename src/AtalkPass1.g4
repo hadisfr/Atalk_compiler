@@ -67,11 +67,7 @@ grammar AtalkPass1;
     }
 
     void beginScope() {
-        int offset = 0;
-        if(SymbolTable.top != null)
-            offset = SymbolTable.top.getOffset(Register.SP);
         SymbolTable.push(new SymbolTable(SymbolTable.top));
-        SymbolTable.top.setOffset(Register.SP, offset);
     }
 
     void endScope() {

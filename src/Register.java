@@ -10,6 +10,7 @@ public class Register {
 	public static final Register AP = new Register("$s2"); // Args Recv Pointer
 	public static final Register RUN = new Register("$s3"); // is running
 	public static final Register CNT = new Register("$s4"); // scheduler counter
+	public static final Register PSP = new Register("$s5"); // Previous Stack Pointer
 	public static final Register SYS_REG = new Register("$v0");
 	public static final Register ZERO = new Register("$zero");
 

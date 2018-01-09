@@ -46,9 +46,11 @@ public class SymbolTable {
 		this.items = new HashMap<String, SymbolTableItem>();
 		this.offsets = new HashMap<Register, Integer>();
 		if(pre != null) {
+			setOffset(Register.SP, pre.getOffset(Register.SP));
 			setOffset(Register.GP, pre.getOffset(Register.GP));
 			setOffset(Register.AP, pre.getOffset(Register.AP));
 		}
+		setOffset(Register.PSP, getOffset(Register.SP));
 	}
 
 	public void put(SymbolTableItem item) throws ItemAlreadyExistsException {
