@@ -539,6 +539,7 @@ public class Translator {
         tell_instructions.add("bge $t0, $t1, " + drop_label);  // full mailbox
         tell_instructions.add("add $t1, $t0, 1");
         tell_instructions.add("sw $t1, " + actor_adr + "(" + Register.MP + ")");  // next number of msgs in mailbox
+        tell_instructions.add("li $t0, " + actor_adr);
         tell_instructions.add("add $t0, $t0, " + Register.MP);
 
         for(int i = 0; i < 2 * (mailbox_size - 1); i++) {
