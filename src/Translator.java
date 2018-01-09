@@ -460,9 +460,9 @@ public class Translator {
         instructions.add("sub $t1, $t0, 1");
         instructions.add("sw $t1, " + adr + "(" + Register.MP + ")");  // next number of msgs in mailbox
         instructions.add("add $t0, $t0, $t0");
-        instructions.add("neg $t0 $t0");
-        instructions.add("li $t1, 4");
+        instructions.add("li $t1, -4");
         instructions.add("mul $t0, $t0, $t1");
+        instructions.add("addi $t0, $t0, " + adr);
         instructions.add("add $t0, $t0, " + Register.MP);
         instructions.add("lw " + Register.ARGS_ADDR + ", 0($t0)");  // start addr of args
         instructions.add("add $t0, $t0, 4");
@@ -513,6 +513,7 @@ public class Translator {
         String end_label = getLabel();
         ArrayList<String> tell_instructions;
         actor_adr *= -1;
+        UI.print("adr: " + actor_adr);
 
         if(is_init)
             tell_instructions = initInstructions;
