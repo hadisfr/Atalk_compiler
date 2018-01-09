@@ -361,7 +361,10 @@ stm_if_elseif_else [String container_actor, boolean is_init]:
 
 stm_foreach [String container_actor, boolean is_init]:  // TODO: support foreach
     {beginScope();}
-        'foreach' ID 'in' expr NL
+        'foreach' ID 'in' expr NL {
+            UI.printError(String.format("[Line #%s] Sorry. `foreach` is not supported.", $ID.getLine()));
+            mips.addComment("Sorry. `foreach` is not supported.");
+        }
             statements [container_actor, is_init]  // TODO: label_next should be pased to statements to handle break
         end_rule NL
     ;
