@@ -256,9 +256,11 @@ stm_tell [String container_actor, boolean is_init] locals [ArrayList<Variable> a
         actr=(ID | 'sender' | 'self') '<<' rcvr=ID '(' (first_expr = expr{
             $argVars.add(new Variable("text", $first_expr.return_type));
             $argsSize += $first_expr.return_type.size();
+            UI.print("Adding " + $first_expr.return_type.size() + " at second expr");
         } (',' second_expr = expr {
             $argVars.add(new Variable("text", $second_expr.return_type));
-            $argsSize += $first_expr.return_type.size();
+            $argsSize += $second_expr.return_type.size();
+            UI.print("Adding " + $second_expr.return_type.size() + " at second expr");
         })*)? ')' NL
         {
             Receiver tmpRcv = new Receiver($rcvr.text, $argVars);
@@ -280,6 +282,7 @@ stm_tell [String container_actor, boolean is_init] locals [ArrayList<Variable> a
                     int actor_adr = actorItem.getOffset();
                     int mailbox_size = actorItem.getMailboxSize();
                     String receiver_label = actor_name + SymbolTableItem.delimiter + keys;
+                    UI.print("final argssize " + $argsSize);
                     mips.tell(actor_adr, receiver_label, mailbox_size, $argsSize / 4);
                 }
             } else {
