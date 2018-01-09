@@ -184,7 +184,7 @@ public class Translator {
 
     private void addArrayToStack(Register ref, int size) {
         addArrayAddressToStack(ref);
-        instructions.add("lw $t1, 4(" + Register.SP + ")");  // start addr
+        instructions.add("lw $t1, 4(" + Register.SP + ")" + "  # start addr");
         popStack();
         for(int i = 0; i < size; i++) {
             instructions.add("lw $t0, " + (i * -4) + "($t1)");
@@ -193,9 +193,9 @@ public class Translator {
     }
 
     private void addArrayAddressToStack(Register ref) {
-        instructions.add("lw $t0, 4(" + Register.SP + ")");  // array start addr
+        instructions.add("lw $t0, 4(" + Register.SP + ")" + "  # array start addr");
         popStack();
-        instructions.add("lw $t1, 4(" + Register.SP + ")");  // array length
+        instructions.add("lw $t1, 4(" + Register.SP + ")" + "  # array length");
         popStack();
         instructions.add("addi $t2, " + Register.ZERO + ", 4");
         instructions.add("mul $t1, $t1, $t2");
@@ -205,9 +205,9 @@ public class Translator {
     }
 
     public void popStack(Register ref) {
-        instructions.add("# start of pop stack " + ref + ")");
+        instructions.add("# start of pop stack (" + ref + ")");
         instructions.add("addiu " + ref + ", " + ref + ", 4");
-        instructions.add("# end of pop stack " + ref + ")");
+        instructions.add("# end of pop stack (" + ref + ")");
     }
     public void popStack() {
         popStack(Register.SP);
@@ -255,8 +255,8 @@ public class Translator {
         String label0 = getLabel();
         String label_end = getLabel();
         for(int i = 0; i < size; i++) {
-            instructions.add("lw " + temp_right + ", " + (size - i) * 4 + "(" + Register.SP + ")");  // right operand
-            instructions.add("lw " + temp_left + ", " + (2 * size - i) * 4 + "(" + Register.SP + ")");  // left operand
+            instructions.add("lw " + temp_right + ", " + (size - i) * 4 + "(" + Register.SP + ")" + "  # right operand");
+            instructions.add("lw " + temp_left + ", " + (2 * size - i) * 4 + "(" + Register.SP + ")" + "  # left operand");
             instructions.add("bne, " + temp_left + ", " + temp_right + ", " + (is_equal ? label0 : label1));
         }
         instructions.add("j " + (is_equal ? label1 : label0));
@@ -450,23 +450,23 @@ public class Translator {
         adr *= -1;
 
         initInstructions.add("# start of actor definition");
-        initInstructions.add("sw $zero, " + adr + "(" + Register.MP + ")");  // number of msgs in mailbox
+        initInstructions.add("sw $zero, " + adr + "(" + Register.MP + ")" + "  # number of msgs in mailbox");
         initInstructions.add("# end of actor definition");
 
         instructions.add("# start of actor's turn");
         instructions.add(label + ":");
-        instructions.add("lw $t0, " + adr + "(" + Register.MP + ")");  // number of msgs in mailbox
-        instructions.add("beqz $t0, " + scheduler_label);  // empty mailbox
+        instructions.add("lw $t0, " + adr + "(" + Register.MP + ")" + "  # number of msgs in mailbox");
+        instructions.add("beqz $t0, " + scheduler_label + "  # empty mailbox");
         instructions.add("sub $t1, $t0, 1");
-        instructions.add("sw $t1, " + adr + "(" + Register.MP + ")");  // next number of msgs in mailbox
+        instructions.add("sw $t1, " + adr + "(" + Register.MP + ")" + "  # next number of msgs in mailbox");
         instructions.add("add $t0, $t0, $t0");
         instructions.add("li $t1, -4");
         instructions.add("mul $t0, $t0, $t1");
         instructions.add("addi $t0, $t0, " + adr);
         instructions.add("add $t0, $t0, " + Register.MP);
-        instructions.add("lw " + Register.ARGS_ADDR + ", 0($t0)");  // start addr of args
+        instructions.add("lw " + Register.ARGS_ADDR + ", 0($t0)" + "  # start addr of args");
         instructions.add("add $t0, $t0, 4");
-        instructions.add("lw $t1, 0($t0)");  // addr of recv handler
+        instructions.add("lw $t1, 0($t0)" + "  # addr of recv handler");
         instructions.add("jr $t1");
         instructions.add("# end of actor's turn");
     }
@@ -513,7 +513,6 @@ public class Translator {
         String end_label = getLabel();
         ArrayList<String> tell_instructions;
         actor_adr *= -1;
-        UI.print("adr: " + actor_adr);
 
         if(is_init)
             tell_instructions = initInstructions;
@@ -523,7 +522,7 @@ public class Translator {
         tell_instructions.add("# start of tell");
         
         tell_instructions.add("# start of adding args data to tell stack");
-        tell_instructions.add("move $t3, " + Register.TP);  // start of args addr
+        tell_instructions.add("move $t3, " + Register.TP + "  # start of args addr");
         for(int i = 0; i < args_length; i++) {
             tell_instructions.add("lw $t0, " + ((args_length - i) * 4) + "(" + Register.SP + ")");
             pushStack(new Register("$t0"), Register.TP);
@@ -531,15 +530,15 @@ public class Translator {
         for(int i = 0; i < args_length; i++)
             popStack();
         tell_instructions.add("# end of adding args data to tell stack");
-        tell_instructions.add("la $t4, " + receiver_label);  // recv handler addr
+        tell_instructions.add("la $t4, " + receiver_label + "  # recv handler addr");
 
         tell_instructions.add("# start of adding msg to mailbox");
 
-        tell_instructions.add("lw $t0, " + actor_adr + "(" + Register.MP + ")");  // number of msgs in mailbox
+        tell_instructions.add("lw $t0, " + actor_adr + "(" + Register.MP + ")" + "  # number of msgs in mailbox");
         tell_instructions.add("li $t1, " + mailbox_size);
-        tell_instructions.add("bge $t0, $t1, " + drop_label);  // full mailbox
+        tell_instructions.add("bge $t0, $t1, " + drop_label + "  # full mailbox");
         tell_instructions.add("add $t1, $t0, 1");
-        tell_instructions.add("sw $t1, " + actor_adr + "(" + Register.MP + ")");  // next number of msgs in mailbox
+        tell_instructions.add("sw $t1, " + actor_adr + "(" + Register.MP + ")" + "  # next number of msgs in mailbox");
         tell_instructions.add("li $t0, " + actor_adr);
         tell_instructions.add("add $t0, $t0, " + Register.MP);
 
@@ -548,8 +547,8 @@ public class Translator {
             tell_instructions.add("sw $t1, " + -4*(2 * mailbox_size - i) + "($t0)");
         }
 
-        tell_instructions.add("sw $t4, -4($t0)");  // recv handler addr
-        tell_instructions.add("sw $t3, -8($t0)");  // start of args addr
+        tell_instructions.add("sw $t4, -4($t0)" + "  # recv handler addr");
+        tell_instructions.add("sw $t3, -8($t0)" + "  # start of args addr");
 
         tell_instructions.add("# end of adding msg to mailbox");
 
