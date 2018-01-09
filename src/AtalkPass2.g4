@@ -503,10 +503,10 @@ expr_eq [boolean nowIsLeft] returns [Type return_type, boolean isLeftHand]:
 expr_eq_tmp returns [Type return_type]:
         op=('==' | '<>') expr_cmp [false] secondExpr = expr_eq_tmp {
             if($secondExpr.return_type == null){
-                $return_type = $expr_cmp.return_type;
+                $return_type = IntType.getInstance();
             }
             else{
-                $return_type = checkTypes($expr_cmp.return_type, $secondExpr.return_type);                
+                $return_type = IntType.getInstance();
             }
             int size = 1;
             if($expr_cmp.return_type instanceof ArrayType){
@@ -541,10 +541,10 @@ expr_cmp [boolean nowIsLeft] returns [Type return_type, boolean isLeftHand]:
 expr_cmp_tmp returns [Type return_type]:
         op=('<' | '>') expr_add [false] secondExpr = expr_cmp_tmp {
             if($secondExpr.return_type == null){
-                $return_type = $expr_add.return_type;
+                $return_type = IntType.getInstance();
             }
             else{
-                $return_type = checkTypes($expr_add.return_type, $secondExpr.return_type);                
+                $return_type = IntType.getInstance();
             }
             mips.binaryOperationCommand($op.text);
         }
