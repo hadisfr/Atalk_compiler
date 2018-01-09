@@ -14,7 +14,7 @@
 /**/*Listener.java
 /**/*Parser.java
 
-**/out.asm
+**/out.s
 
 .fetch_time_cache
 
