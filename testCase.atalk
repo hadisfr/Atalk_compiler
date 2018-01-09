@@ -1,13 +1,11 @@
-actor newfirst <2>
-	receiver init()
-		int a = 5
-		first << calc()
-	end
-end
-
 actor first <2>
-	receiver calc()
-		int b
-		write(b)
+	receiver init()
+		int b = 2
+		begin
+			int b = 10
+			write(b)
+		end
+		int c = 4
+		write(c)
 	end
 end
