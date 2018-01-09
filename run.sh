@@ -9,7 +9,7 @@ fi
 test_input=$1
 
 pushd src >/dev/null
-rm *.class *.tokens ${grammar}Pass1*.java ${grammar}Pass2*.java *.interp out.asm &> /dev/null
+rm *.class *.tokens ${grammar}Pass1*.java ${grammar}Pass2*.java *.interp *.s &> /dev/null
 if [[ ${test_input} != "--rm" ]]; then
     antlr4 *.g4
     javac *.java

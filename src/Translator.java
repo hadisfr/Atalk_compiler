@@ -19,7 +19,7 @@ public class Translator {
         instructions = new ArrayList<String>();
         initInstructions = new ArrayList<String>();
         argsInitInstruction = new ArrayList<String>();
-        output = new File("../out.asm");
+        output = new File("../out.s");
         try {
             output.createNewFile();
         } catch (Exception e){
