@@ -644,8 +644,12 @@ expr_mem [boolean nowIsLeft] returns [Type return_type, boolean isLeftHand]:
                 if(thisType instanceof ArrayType){
                     if (var.getBaseRegister() == Register.SP)
                         mips.addAddressToStack($expr_other.IDText, var.getOffset());
-                    else
+                    else if (var.getBaseRegister() == Register.GP)
                         mips.addGlobalAddressToStack($expr_other.IDText, var.getOffset());
+                    else if (var.getBaseRegister() == Register.AP)
+                        mips.addArgumentAddressToStack($expr_other.IDText, var.getOffset());
+                    else
+                        UI.printError(String.format("Variable '%s' has invalid reference register.", $expr_other.IDText));
                     ArrayList<Integer> dimensionsList = ((ArrayType)thisType).getDimensionsSize();
                     int arrayOffset = 1;
                     for(int i = $expr_mem_tmp.levels; i < dimensionsList.size(); i++)
@@ -676,6 +680,8 @@ expr_mem [boolean nowIsLeft] returns [Type return_type, boolean isLeftHand]:
                         if ($nowIsLeft == false) mips.addArgumentToStack($expr_other.IDText, var.getOffset());
                         else mips.addArgumentAddressToStack($expr_other.IDText, var.getOffset());
                     }
+                    else
+                        UI.printError(String.format("Variable '%s' has invalid reference register.", $expr_other.IDText));
                 }
             }
         }
