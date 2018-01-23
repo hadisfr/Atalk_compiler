@@ -293,6 +293,7 @@ stm_tell [String container_actor, boolean is_init] locals [ArrayList<Variable> a
                     UI.printError(String.format(
                         "[Line #%s] Invalid keyword \"sender\" has been used in default receiver \"init()\".",
                         $actr.getLine()));
+                // TODO: handle 'sender'
             }
         }
     ;
